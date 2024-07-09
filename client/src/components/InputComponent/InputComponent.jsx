@@ -6,6 +6,9 @@ const InputComponent = () => {
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const platforms = [
     "Facebook",
@@ -16,19 +19,9 @@ const InputComponent = () => {
     "TikTok",
   ];
 
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
-  };
-
-  const handleTextChange = (e) => {
-    setText(e.target.value);
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
-  };
-
+  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleTextChange = (e) => setText(e.target.value);
+  const handleImageChange = (e) => setImage(e.target.files[0]);
   const handlePlatformChange = (platform) => {
     setSelectedPlatforms((prev) =>
       prev.includes(platform)
@@ -37,14 +30,40 @@ const InputComponent = () => {
     );
   };
 
-  const handleSave = () => {
-    const data = {
-      title: title,
-      text: text,
-      image: image,
-      platforms: selectedPlatforms,
-    };
-    console.log(data);
+  const handleSave = async () => {
+    if (!title || !text || selectedPlatforms.length === 0) {
+      setError("Please fill out all fields and select at least one platform.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    const data = new FormData();
+    data.append("title", title);
+    data.append("text", text);
+    if (image) {
+      data.append("image", image);
+    }
+    data.append("platforms", JSON.stringify(selectedPlatforms));
+
+    try {
+      const response = await fetch("http://localhost:5000/post", {
+        method: "POST",
+        body: data,
+      });
+
+      if (response.ok) {
+        setSuccess(true);
+      } else {
+        setError("Error posting: " + response.statusText);
+      }
+    } catch (error) {
+      setError("Error posting: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,8 +116,10 @@ const InputComponent = () => {
           ))}
         </div>
       </div>
-      <button className="save-button" onClick={handleSave}>
-        Post
+      {error && <p className="error">{error}</p>}
+      {success && <p className="success">Post successful!</p>}
+      <button className="save-button" onClick={handleSave} disabled={loading}>
+        {loading ? "Posting..." : "Post"}
       </button>
     </div>
   );
