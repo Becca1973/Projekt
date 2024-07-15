@@ -49,7 +49,7 @@ const InputComponent = () => {
     data.append("platforms", JSON.stringify(selectedPlatforms));
 
     try {
-      const response = await fetch("http://localhost:5000/post", {
+      const response = await fetch("http://localhost:5000/api/facebook", {
         method: "POST",
         body: data,
       });
