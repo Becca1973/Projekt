@@ -1,71 +1,73 @@
 const express = require("express");
 const axios = require("axios");
+const FormData = require("form-data");
+const fs = require("fs");
+require("dotenv").config();
+
 const router = express.Router();
+const PAGE_ID = process.env.FACEBOOK_PAGE_ID;
+const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 
-const CLIENT_ID = process.env.FACEBOOK_APP_ID;
-const CLIENT_SECRET = process.env.FACEBOOK_APP_SECRET;
+console.log("PAGE_ID:", process.env.FACEBOOK_PAGE_ID);
+console.log("PAGE_ACCESS_TOKEN:", process.env.FACEBOOK_PAGE_ACCESS_TOKEN);
 
-let ACCESS_TOKEN = ""; // To bo nastavilo po pridobitvi access tokena
+router.post("/", async (req, res) => {
+  const { title, text, platforms } = req.body;
+  const selectedPlatforms = JSON.parse(platforms);
 
-// Middleware za pridobivanje Access Tokena iz glavnega strežnika
-router.use((req, res, next) => {
-  ACCESS_TOKEN = req.accessToken;
-  next();
+  if (!title || !text || selectedPlatforms.length === 0) {
+    return res
+      .status(400)
+      .send("Please fill out all fields and select at least one platform.");
+  }
+
+  if (selectedPlatforms.includes("Facebook")) {
+    try {
+      let imageUrl = "";
+      if (req.file) {
+        const formData = new FormData();
+        formData.append("access_token", PAGE_ACCESS_TOKEN);
+        formData.append("source", fs.createReadStream(req.file.path));
+        const uploadResponse = await axios.post(
+          `https://graph.facebook.com/v20.0/${PAGE_ID}/photos`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        imageUrl = uploadResponse.data.url;
+      }
+
+      // Pripravite podatke za objavo
+      let postData = {
+        access_token: PAGE_ACCESS_TOKEN,
+        message: `${title}\n\n${text}`,
+      };
+
+      // Če je bila naložena slika, jo priložite k sporočilu
+      if (imageUrl) {
+        postData = {
+          ...postData,
+          attached_media: [{ media: { image_url: imageUrl } }],
+        };
+      }
+
+      // Objavite na Facebook stran
+      const postResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${PAGE_ID}/feed`,
+        postData
+      );
+
+      res.status(200).json({ success: true, postId: postResponse.data.id });
+    } catch (error) {
+      console.error("Error posting to Facebook:", error.message);
+      res.status(500).send("Error posting to Facebook");
+    }
+  } else {
+    res.status(200).send("No supported platform selected");
+  }
 });
 
-// Funkcija za pridobitev Access Tokena za Facebook
-const getFacebookAccessToken = async () => {
-  try {
-    const tokenResponse = await axios.get(
-      "https://graph.facebook.com/oauth/access_token",
-      {
-        params: {
-          client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
-          grant_type: "client_credentials",
-        },
-      }
-    );
-    return tokenResponse.data.access_token;
-  } catch (error) {
-    console.error("Napaka pri pridobivanju Facebook Access Tokena:", error);
-    throw new Error("Napaka pri pridobivanju Facebook Access Tokena");
-  }
-};
-
-// Funkcija za objavo na Facebook
-const postToFacebook = async (message, link) => {
-  try {
-    const response = await axios.post(
-      `https://graph.facebook.com/v20.0/me/feed`,
-      {
-        message: message,
-        link: link,
-        access_token: ACCESS_TOKEN,
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Napaka pri objavi na Facebook:", error);
-    throw new Error("Napaka pri objavi na Facebook");
-  }
-};
-
-// Konec točke za obdelavo objav na Facebook
-router.post("/post", async (req, res) => {
-  const { message, link } = req.body;
-
-  if (!message) {
-    return res.status(400).send("Manjkajo polja: message.");
-  }
-
-  try {
-    const result = await postToFacebook(message, link || "");
-    res.json({ uspeh: true, result });
-  } catch (error) {
-    console.error("Napaka pri objavi na Facebook:", error);
-    res.status(500).send("Napaka pri objavi na Facebook");
-  }
-});
-
-module.exports = { router, getFacebookAccessToken };
+module.exports = router;
