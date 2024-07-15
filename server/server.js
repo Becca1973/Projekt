@@ -1,65 +1,29 @@
 const express = require("express");
-const axios = require("axios");
+const multer = require("multer");
+const bodyParser = require("body-parser");
 const cors = require("cors");
+const facebook = require("./api/facebook");
 require("dotenv").config();
 
 const app = express();
-app.use(express.json());
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // Shranimo originalno ime slike
+  },
+});
+
+const upload = multer({ storage: storage });
+
 app.use(cors());
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
-const CLIENT_ID = process.env.FACEBOOK_APP_ID;
-const CLIENT_SECRET = process.env.FACEBOOK_APP_SECRET;
-let ACCESS_TOKEN = ""; // Shared Access Token
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Pridobivanje Access Tokena s pomočjo App ID in Secret
-const getAccessToken = async () => {
-  try {
-    const tokenResponse = await axios.get(
-      "https://graph.facebook.com/oauth/access_token",
-      {
-        params: {
-          client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
-          grant_type: "client_credentials",
-        },
-      }
-    );
-    ACCESS_TOKEN = tokenResponse.data.access_token;
-  } catch (error) {
-    console.error("Napaka pri pridobivanju Access Tokena:", error);
-  }
-};
-
-// Get Access Token ob zagonu strežnika
-getAccessToken();
-
-// Posreduj Access Token v podmodula
-app.use((req, res, next) => {
-  req.accessToken = ACCESS_TOKEN;
-  next();
-});
-
-// Import routes
-const instagramRoutes = require("./api/instagram");
-const facebookRoutes = require("./api/facebook");
-
-// Use routes
-app.use("/instagram", instagramRoutes);
-app.use("/facebook", facebookRoutes.router);
-
-// Preverjanje če dela
-app.get("/", (req, res) => {
-  res.send("Strežnik je aktiven.");
-});
+// API poti
+app.use("/api/facebook", upload.single("image"), facebook);
 
 app.listen(5000, () => {
-  console.log("Strežnik teče na portu 5000");
+  console.log("Server is running on port 5000");
 });
-
-//Server zaenkrat za instagram api in facebook api

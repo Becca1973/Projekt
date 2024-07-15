@@ -1,6 +1,6 @@
-# Project
+# BrandBoost
 
-Platform, which will enable companies to easily and effectively manage their promotional activities.
+Platform, which will enable our company to easily and effectively manage their promotional activities.
 
 ## Description
 
