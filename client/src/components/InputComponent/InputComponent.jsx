@@ -65,7 +65,7 @@ const InputComponent = () => {
           })
         );
       }
-      
+
       if (selectedPlatforms.includes("Instagram")) {
         promises.push(
           fetch("http://localhost:5000/api/instagram", {
@@ -75,6 +75,21 @@ const InputComponent = () => {
             if (!response.ok) {
               throw new Error(
                 "Error posting to Instagram: " + response.statusText
+              );
+            }
+          })
+        );
+      }
+
+      if (selectedPlatforms.includes("LinkedIn")) {
+        promises.push(
+          fetch("http://localhost:5000/api/linkedin", {
+            method: "POST",
+            body: data,
+          }).then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Error posting to LinkedIn: " + response.statusText
               );
             }
           })

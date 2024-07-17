@@ -2,8 +2,10 @@ const express = require("express");
 const multer = require("multer");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+
 const facebook = require("./api/facebook");
-const instagram = require("./api/instagram"); // Import Instagram API
+const instagram = require("./api/instagram");
+const linkedin = require("./linkedin");
 require("dotenv").config();
 
 const app = express();
@@ -25,7 +27,8 @@ app.use("/uploads", express.static("uploads"));
 
 // API poti
 app.use("/api/facebook", upload.single("image"), facebook);
-app.use("/api/instagram", upload.single("image"), instagram); // Add Instagram route
+app.use("/api/instagram", upload.single("image"), instagram);
+app.use("/api/linkedin", linkedin);
 
 app.get("/", (req, res) => {
   res.send("Strežnik je aktiven.");
