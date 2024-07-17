@@ -49,18 +49,43 @@ const InputComponent = () => {
     data.append("platforms", JSON.stringify(selectedPlatforms));
 
     try {
-      const response = await fetch("http://localhost:5000/api/facebook", {
-        method: "POST",
-        body: data,
-      });
+      const promises = [];
 
-      if (response.ok) {
-        setSuccess(true);
-      } else {
-        setError("Error posting: " + response.statusText);
+      if (selectedPlatforms.includes("Facebook")) {
+        promises.push(
+          fetch("http://localhost:5000/api/facebook", {
+            method: "POST",
+            body: data,
+          }).then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Error posting to Facebook: " + response.statusText
+              );
+            }
+          })
+        );
       }
+      
+      if (selectedPlatforms.includes("Instagram")) {
+        promises.push(
+          fetch("http://localhost:5000/api/instagram", {
+            method: "POST",
+            body: data,
+          }).then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Error posting to Instagram: " + response.statusText
+              );
+            }
+          })
+        );
+      }
+
+      await Promise.all(promises);
+
+      setSuccess(true);
     } catch (error) {
-      setError("Error posting: " + error.message);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
