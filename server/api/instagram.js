@@ -1,71 +1,75 @@
 const express = require("express");
 const axios = require("axios");
-const multer = require("multer");
+const FormData = require("form-data");
 const fs = require("fs");
-const path = require("path");
+require("dotenv").config();
+
 const router = express.Router();
-const upload = multer({ dest: "uploads/" }); // Temporary storage for files
-
+const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 const INSTAGRAM_BUSINESS_ACCOUNT_ID = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
-let ACCESS_TOKEN = ""; // To se bo nastavlo po pridobitvi access tokena
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID;
 
-// Middleware za pridobivanje Access Tokena iz glavnega strežnika
-router.use((req, res, next) => {
-  ACCESS_TOKEN = req.accessToken;
-  next();
-});
+router.post("/", async (req, res) => {
+  const { title, text, platforms } = req.body;
+  const selectedPlatforms = JSON.parse(platforms);
 
-// Funkcija za objavo na Instagram
-const postToInstagram = async (imageUrl, caption) => {
-  try {
-    const createResponse = await axios.post(
-      `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media`,
-      {
-        image_url: imageUrl,
-        caption: caption,
-        access_token: ACCESS_TOKEN,
-      }
-    );
-    const publishResponse = await axios.post(
-      `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media_publish`,
-      {
-        creation_id: createResponse.data.id,
-        access_token: ACCESS_TOKEN,
-      }
-    );
-    return publishResponse.data;
-  } catch (error) {
-    console.error("Napaka pri objavi na Instagram:", error);
-    throw new Error("Napaka pri objavi na Instagram");
-  }
-};
-
-// Konec točke za obdelavo objav na Instagram
-router.post("/post", upload.single("image"), async (req, res) => {
-  const { caption } = req.body;
-  const image = req.file;
-
-  if (!INSTAGRAM_BUSINESS_ACCOUNT_ID) {
+  if (!title || !text || selectedPlatforms.length === 0) {
     return res
-      .status(500)
-      .send("Manjkajoča zahtevana okoljska spremenljivka za Instagram.");
+      .status(400)
+      .send("Please fill out all fields and select at least one platform.");
   }
 
-  if (!caption || !image) {
-    return res.status(400).send("Manjkajo polja: caption ali slika.");
-  }
+  if (selectedPlatforms.includes("Instagram")) {
+    try {
+      let imageUrl = "";
+      if (req.file) {
+        const imgurFormData = new FormData();
+        imgurFormData.append("image", fs.createReadStream(req.file.path));
 
-  try {
-    const imageUrl = `${req.protocol}://${req.get("host")}/${image.path}`;
-    const result = await postToInstagram(imageUrl, caption);
-    // Izbriši začasno sliko --> najprej se slika shrani na strežniku v mapo uploads, potem pa se zbriše zaradi varnosti in čiščenja prostora na disku
-    fs.unlink(path.join(__dirname, "..", image.path), (err) => {
-      if (err) console.error("Napaka pri brisanju začasne slike:", err);
-    });
-    res.json({ uspeh: true, result });
-  } catch (error) {
-    console.error("Napaka pri objavi na Instagram:", error);
-    res.status(500).send("Napaka pri objavi na Instagram");
+        const imgurResponse = await axios.post(
+          "https://api.imgur.com/3/upload",
+          imgurFormData,
+          {
+            headers: {
+              Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+              ...imgurFormData.getHeaders(),
+            },
+          }
+        );
+
+        imageUrl = imgurResponse.data.data.link;
+      }
+
+      const mediaData = {
+        image_url: imageUrl,
+        caption: `${title}\n\n${text}`,
+        access_token: PAGE_ACCESS_TOKEN,
+      };
+
+      const mediaResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media`,
+        mediaData
+      );
+
+      const mediaId = mediaResponse.data.id;
+
+      const publishData = {
+        creation_id: mediaId,
+        access_token: PAGE_ACCESS_TOKEN,
+      };
+
+      const publishResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media_publish`,
+        publishData
+      );
+
+      res.status(200).json({ success: true, postId: publishResponse.data.id });
+    } catch (error) {
+      console.error("Error posting to Instagram:", error.message);
+      res.status(500).send("Error posting to Instagram: " + error.message);
+    }
+  } else {
+    res.status(200).send("No supported platform selected");
   }
 });
 
