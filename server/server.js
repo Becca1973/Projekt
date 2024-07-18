@@ -5,7 +5,7 @@ const cors = require("cors");
 
 const facebook = require("./api/facebook");
 const instagram = require("./api/instagram");
-const linkedin = require("./linkedin");
+const linkedin = require("./api/linkedIn");
 require("dotenv").config();
 
 const app = express();
@@ -28,7 +28,7 @@ app.use("/uploads", express.static("uploads"));
 // API poti
 app.use("/api/facebook", upload.single("image"), facebook);
 app.use("/api/instagram", upload.single("image"), instagram);
-app.use("/api/linkedin", linkedin);
+app.use("/api/linkedin", upload.single("image"), linkedin);
 
 app.get("/", (req, res) => {
   res.send("Strežnik je aktiven.");
