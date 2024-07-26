@@ -2,22 +2,26 @@ const express = require("express");
 const multer = require("multer");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 
 const facebook = require("./api/facebook");
 const instagram = require("./api/instagram");
 const linkedin = require("./api/linkedIn");
 const twitter = require("./api/twitter");
 const reddit = require("./api/reddit");
+const threads = require("./api/threads");
 
 require("dotenv").config();
 
 const app = express();
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    const directory = req.body.directory || "uploads"; // Use a default directory if none is provided
+    cb(null, path.join(__dirname, directory)); // Set the upload directory based on the request
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname); // Shranimo originalno ime slike
+    cb(null, file.originalname); // Save the original name of the file
   },
 });
 
@@ -34,6 +38,7 @@ app.use("/api/instagram", upload.single("image"), instagram);
 app.use("/api/linkedin", upload.single("image"), linkedin);
 app.use("/api/twitter", upload.single("image"), twitter);
 app.use("/api/reddit", upload.single("image"), reddit);
+app.use("/api/threads", upload.single("image"), threads);
 
 app.get("/", (req, res) => {
   res.send("Strežnik je aktiven.");

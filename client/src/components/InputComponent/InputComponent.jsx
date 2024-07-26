@@ -10,7 +10,7 @@ const InputComponent = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const platforms = ["Facebook", "Twitter", "LinkedIn", "Instagram", "Reddit"];
+  const platforms = ["Facebook", "Twitter", "LinkedIn", "Instagram", "Reddit", "Threads"];
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
@@ -134,6 +134,23 @@ const InputComponent = () => {
             if (!response.ok) {
               throw new Error(
                 "Error posting to Reddit: " + response.statusText
+              );
+            }
+          })
+        );
+      }
+
+      if (selectedPlatforms.includes("Threads")) {
+        const twitterFormData = createFormData();
+        logFormData(twitterFormData);
+        promises.push(
+          await fetch("http://localhost:5000/api/threads", {
+            method: "POST",
+            body: twitterFormData,
+          }).then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Error posting to Threads: " + response.statusText
               );
             }
           })

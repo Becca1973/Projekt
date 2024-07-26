@@ -13,15 +13,15 @@ const reddit = new Reddit({
 });
 
 router.post("/", async (req, res) => {
-  const { title } = req.body;
+  const { title, text } = req.body;
 
   try {
     const response = await reddit.post("/api/submit", {
-      sr: "Susci",
-      kind: "link",
+      sr: "ProjektOlga",
+      kind: "self",
       resubmit: true,
       title,
-      url: "https://bitmidi.com",
+      text
     });
 
     return res.status(200).json({ success: true, response });
