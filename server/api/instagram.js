@@ -10,8 +10,7 @@ const INSTAGRAM_BUSINESS_ACCOUNT_ID = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID;
 
 router.post("/", async (req, res) => {
-  const { title, text, platforms } = req.body;
-  const selectedPlatforms = JSON.parse(platforms);
+  const { title, text, selectedPlatforms } = req.body;
 
   if (!title || !text || selectedPlatforms.length === 0) {
     return res
