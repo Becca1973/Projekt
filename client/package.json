@@ -10,9 +10,10 @@
     "ajv-keywords": "^5.1.0",
     "debug": "^4.3.5",
     "detect-port-alt": "^1.1.6",
+    "firebase": "^10.12.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^4.3.1",
+    "react-router-dom": "^6.25.1",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },

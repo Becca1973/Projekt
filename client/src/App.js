@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Footer from "./components/Footer/Footer";
 import Navigation from "./components/Navigation/Navigation";
@@ -13,18 +13,16 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <div>
-          <Navigation />
-          <Switch>
-            <Route path="/" exact component={HomePage} />
-            <Route path="/post-content" component={FeaturesPage} />
-            <Route path="/pricing" component={PricingPage} />
-            <Route path="/contact" component={ContactPage} />
-            <Route path="/login" component={LoginPage} />
-            <Route path="/register" component={RegisterPage} />
-          </Switch>
-          <Footer />
-        </div>
+        <Navigation />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/post-content" element={<FeaturesPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
+        <Footer />
       </Router>
     </div>
   );
