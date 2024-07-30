@@ -10,7 +10,14 @@ const InputComponent = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const platforms = ["Facebook", "Twitter", "LinkedIn", "Instagram", "Reddit", "Threads"];
+  const platforms = [
+    "Facebook",
+    "Twitter",
+    "LinkedIn",
+    "Instagram",
+    "Reddit",
+    "Threads",
+  ];
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
@@ -36,7 +43,9 @@ const InputComponent = () => {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("text", text);
-      formData.append("image", image); // Assuming 'image' is a file object
+      if (image) {
+        formData.append("image", image);
+      }
       formData.append("selectedPlatforms", JSON.stringify(selectedPlatforms));
       return formData;
     };

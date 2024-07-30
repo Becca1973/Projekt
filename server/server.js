@@ -17,11 +17,11 @@ const app = express();
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const directory = req.body.directory || "uploads"; // Use a default directory if none is provided
-    cb(null, path.join(__dirname, directory)); // Set the upload directory based on the request
+    const directory = req.body.directory || "uploads";
+    cb(null, path.join(__dirname, directory));
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname); // Save the original name of the file
+    cb(null, file.originalname);
   },
 });
 
@@ -32,7 +32,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
-// API poti
 app.use("/api/facebook", upload.single("image"), facebook);
 app.use("/api/instagram", upload.single("image"), instagram);
 app.use("/api/linkedin", upload.single("image"), linkedin);

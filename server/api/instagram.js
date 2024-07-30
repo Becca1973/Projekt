@@ -12,13 +12,28 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID;
 router.post("/", async (req, res) => {
   const { title, text, selectedPlatforms } = req.body;
 
-  if (!title || !text || selectedPlatforms.length === 0) {
+  // Log request body for debugging
+  console.log("Request body:", req.body);
+
+  // Parse selectedPlatforms if it is a string
+  let platforms;
+  try {
+    platforms =
+      typeof selectedPlatforms === "string"
+        ? JSON.parse(selectedPlatforms)
+        : selectedPlatforms;
+  } catch (error) {
+    console.error("Error parsing selectedPlatforms:", error.message);
+    return res.status(400).send("Invalid selectedPlatforms format");
+  }
+
+  if (!title || !text || !platforms || platforms.length === 0) {
     return res
       .status(400)
       .send("Please fill out all fields and select at least one platform.");
   }
 
-  if (selectedPlatforms.includes("Instagram")) {
+  if (platforms.includes("Instagram")) {
     try {
       let imageUrl = "";
       if (req.file) {

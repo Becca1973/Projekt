@@ -9,16 +9,30 @@ const PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 
 router.post("/", async (req, res) => {
-  const { title, text, platforms } = req.body;
-  const selectedPlatforms = JSON.parse(platforms);
+  const { title, text, selectedPlatforms } = req.body;
 
-  if (!title || !text || selectedPlatforms.length === 0) {
+  // Log request body for debugging
+  console.log("Request body:", req.body);
+
+  // Parse selectedPlatforms if it is a string
+  let platforms;
+  try {
+    platforms =
+      typeof selectedPlatforms === "string"
+        ? JSON.parse(selectedPlatforms)
+        : selectedPlatforms;
+  } catch (error) {
+    console.error("Error parsing selectedPlatforms:", error.message);
+    return res.status(400).send("Invalid selectedPlatforms format");
+  }
+
+  if (!title || !text || !platforms || platforms.length === 0) {
     return res
       .status(400)
       .send("Please fill out all fields and select at least one platform.");
   }
 
-  if (selectedPlatforms.includes("Facebook")) {
+  if (platforms.includes("Facebook")) {
     try {
       let imageUrl = "";
       if (req.file) {
@@ -37,13 +51,11 @@ router.post("/", async (req, res) => {
         imageUrl = uploadResponse.data.url;
       }
 
-      // Pripravite podatke za objavo
       let postData = {
         access_token: PAGE_ACCESS_TOKEN,
         message: `${title}\n\n${text}`,
       };
 
-      // Če je bila naložena slika, jo priložite k sporočilu
       if (imageUrl) {
         postData = {
           ...postData,
@@ -51,7 +63,6 @@ router.post("/", async (req, res) => {
         };
       }
 
-      // Objavite na Facebook stran
       const postResponse = await axios.post(
         `https://graph.facebook.com/v20.0/${PAGE_ID}/feed`,
         postData
