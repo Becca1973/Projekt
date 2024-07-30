@@ -7,16 +7,27 @@ const LINKEDIN_PERSON_ID = process.env.LINKEDIN_PERSON_ID;
 const LINKEDIN_ACCESS_TOKEN = process.env.LINKEDIN_ACCESS_TOKEN;
 
 router.post("/", async (req, res) => {
-  const { title, text, platforms } = req.body;
-  const selectedPlatforms = JSON.parse(platforms);
+  const { title, text, selectedPlatforms } = req.body;
 
-  if (!title || !text || selectedPlatforms.length === 0) {
+  // Parse selectedPlatforms if it is a string
+  let platforms;
+  try {
+    platforms =
+      typeof selectedPlatforms === "string"
+        ? JSON.parse(selectedPlatforms)
+        : selectedPlatforms;
+  } catch (error) {
+    console.error("Error parsing selectedPlatforms:", error.message);
+    return res.status(400).send("Invalid selectedPlatforms format");
+  }
+
+  if (!title || !text || !platforms || platforms.length === 0) {
     return res
       .status(400)
       .send("Please fill out all fields and select at least one platform.");
   }
 
-  if (selectedPlatforms.includes("LinkedIn")) {
+  if (platforms.includes("LinkedIn")) {
     try {
       const postData = {
         author: `urn:li:person:${LINKEDIN_PERSON_ID}`,
