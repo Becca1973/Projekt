@@ -26,13 +26,16 @@ router.post("/", async (req, res) => {
   const image = req.file;
 
   try {
-    const mediaId = await client.v1.uploadMedia(image.path);
-    await rwClient.v2.tweet({
-      text,
-      media: { media_ids: [mediaId] },
-    });
+    let tweetOptions = { text };
 
-    res.json({ success: true, mediaId });
+    if (image) {
+      const mediaId = await client.v1.uploadMedia(image.path);
+      tweetOptions.media = { media_ids: [mediaId] };
+    }
+
+    const tweet = await rwClient.v2.tweet(tweetOptions);
+
+    res.json({ success: true, tweet });
   } catch (error) {
     console.error("Error posting tweet:", error);
     res

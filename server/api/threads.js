@@ -7,30 +7,27 @@ router.post("/", async (req, res) => {
   const { title, text } = req.body;
   const image = req.file;
 
-  if (!image) {
-    return res
-      .status(400)
-      .json({ success: false, message: "No image file provided" });
-  }
-
   try {
-    const fs = require('fs');
-    const imageBuffer = fs.readFileSync(image.path);
-
     const threadsApi = new ThreadsAPI({
       username: process.env.INSTAGRAM_USERNAME,
       password: process.env.INSTAGRAM_PASSWORD,
     });
 
-    const publishOptions = {
+    let publishOptions = {
       text: `${title}\n\n${text}`, // Combine title and text
-      attachment: {
+    };
+
+    if (image) {
+      const fs = require('fs');
+      const imageBuffer = fs.readFileSync(image.path);
+
+      publishOptions.attachment = {
         image: {
           type: image.mimetype,
           data: imageBuffer,
         },
-      },
-    };
+      };
+    }
 
     const response = await threadsApi.publish(publishOptions);
 
