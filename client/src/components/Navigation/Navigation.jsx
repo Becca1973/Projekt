@@ -12,6 +12,9 @@ function Navigation() {
           <Link to="/post-content">Post Content</Link>
         </li>
         <li>
+          <Link to="/analytics">Analytics</Link>
+        </li>
+        <li>
           <Link to="/pricing">Pricing</Link>
         </li>
         <li>
