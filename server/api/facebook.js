@@ -11,10 +11,8 @@ const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 router.post("/", async (req, res) => {
   const { title, text, selectedPlatforms } = req.body;
 
-  // Log request body for debugging
   console.log("Request body:", req.body);
 
-  // Parse selectedPlatforms if it is a string
   let platforms;
   try {
     platforms =
@@ -75,6 +73,18 @@ router.post("/", async (req, res) => {
     }
   } else {
     res.status(200).send("No supported platform selected");
+  }
+});
+
+router.get("/posts", async (req, res) => {
+  try {
+    const response = await axios.get(
+      `https://graph.facebook.com/${PAGE_ID}/posts?access_token=${PAGE_ACCESS_TOKEN}&fields=id,message,created_time,full_picture`
+    );
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error fetching Facebook posts:", error.message);
+    res.status(500).send("Error fetching Facebook posts");
   }
 });
 
