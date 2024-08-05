@@ -8,7 +8,10 @@ function AnalyticsPage() {
   useEffect(() => {
     const fetchFacebookPosts = async () => {
       try {
-        const response = await axios.get("/api/facebook/posts");
+        const response = await axios.get(
+          "http://localhost:5000/api/facebook/posts"
+        );
+        console.log("Facebook posts:", response.data); // log zarad error
         setFacebookPosts(response.data.data);
       } catch (error) {
         console.error("Error fetching Facebook posts", error);
@@ -17,7 +20,10 @@ function AnalyticsPage() {
 
     const fetchInstagramPosts = async () => {
       try {
-        const response = await axios.get("/api/instagram/posts");
+        const response = await axios.get(
+          "http://localhost:5000/api/instagram/posts"
+        );
+        console.log("Instagram posts:", response.data); // log zarad napake
         setInstagramPosts(response.data.data);
       } catch (error) {
         console.error("Error fetching Instagram posts", error);

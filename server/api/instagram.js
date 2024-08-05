@@ -91,6 +91,7 @@ router.get("/posts", async (req, res) => {
     const response = await axios.get(
       `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url&access_token=${INSTAGRAM_ACCESS_TOKEN}`
     );
+    console.log("Fetched Instagram posts:", response.data);
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Error fetching Instagram posts:", error.message);

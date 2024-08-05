@@ -81,6 +81,7 @@ router.get("/posts", async (req, res) => {
     const response = await axios.get(
       `https://graph.facebook.com/${PAGE_ID}/posts?access_token=${PAGE_ACCESS_TOKEN}&fields=id,message,created_time,full_picture`
     );
+    console.log("Fetched Facebook posts:", response.data);
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Error fetching Facebook posts:", error.message);
