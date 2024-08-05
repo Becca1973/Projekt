@@ -46,12 +46,18 @@ function AnalyticsPage() {
           <p>Error loading Facebook posts: {facebookError.message}</p>
         ) : facebookPosts && facebookPosts.length > 0 ? (
           facebookPosts.map((post) => (
-            <div key={post.id}>
-              <p>{post.message}</p>
+            <div key={post.id} className="post-container">
+              <p className="post-caption">{post.message}</p>
               {post.full_picture && (
-                <img src={post.full_picture} alt={post.message} />
+                <img
+                  src={post.full_picture}
+                  alt={post.message}
+                  className="post-image"
+                />
               )}
-              <p>{new Date(post.created_time).toLocaleDateString()}</p>
+              <p className="post-date">
+                Date: {new Date(post.created_time).toLocaleDateString()}
+              </p>
             </div>
           ))
         ) : (
@@ -65,12 +71,18 @@ function AnalyticsPage() {
           <p>Error loading Instagram posts: {instagramError.message}</p>
         ) : instagramPosts && instagramPosts.length > 0 ? (
           instagramPosts.map((post) => (
-            <div key={post.id}>
-              <p>{post.caption}</p>
+            <div key={post.id} className="post-container">
+              <p className="post-caption">Caption: {post.caption}</p>
               {post.media_url && (
-                <img src={post.media_url} alt={post.caption} />
+                <img
+                  src={post.media_url}
+                  alt={post.caption}
+                  className="post-image"
+                />
               )}
-              <p>{new Date(post.timestamp).toLocaleDateString()}</p>
+              <p className="post-date">
+                Date: {new Date(post.timestamp).toLocaleDateString()}
+              </p>
             </div>
           ))
         ) : (

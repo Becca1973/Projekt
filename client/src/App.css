@@ -570,3 +570,42 @@ h2 {
   border-top: 1px solid #444;
   padding-top: 10px;
 }
+
+/* AnalyticsPage.css */
+
+.post-container {
+  border: 1px solid #ddd; /* Svetel obrobni rob */
+  border-radius: 8px; /* Rahlo zaobljeni robovi */
+  padding: 16px; /* Notranji robovi za vsebino */
+  margin: 10px; /* Razdalja med posameznimi objavami */
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
+  background-color: #fff; /* Bele ozadje kartice */
+  width: 300px; /* Določite širino kvadratne kartice */
+  box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
+  display: inline-block; /* Omogoči več kartic v enem vrstici */
+}
+
+.post-container:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Senca okoli kartice ob prehodu */
+  transform: translateY(-5px); /* Rahla animacija za dvig kartice */
+}
+
+.post-image {
+  max-width: 30%; /* Prilagodi širino slike glede na razpoložljiv prostor */
+  height: auto; /* Ohranite razmerje slike */
+  display: block; /* Znebite se morebitnih praznih prostorov pod sliko */
+  margin: 0 auto; /* Centerirajte sliko */
+}
+
+.post-caption,
+.post-date {
+  font-weight: bold; /* Poudarite besedilo */
+  margin: 10px 0; /* Razdalja med caption in datumom */
+}
+
+h1 {
+  padding-top: 40px;
+  padding-bottom: 20px;
+}
