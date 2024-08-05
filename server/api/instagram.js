@@ -89,13 +89,21 @@ router.post("/", async (req, res) => {
 router.get("/posts", async (req, res) => {
   try {
     const response = await axios.get(
-      `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url&access_token=${INSTAGRAM_ACCESS_TOKEN}`
+      `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media`,
+      {
+        params: {
+          fields: "id,caption,media_type,media_url,thumbnail_url,timestamp",
+          access_token: PAGE_ACCESS_TOKEN,
+        },
+      }
     );
-    console.log("Fetched Instagram posts:", response.data);
-    res.status(200).json(response.data);
+
+    const posts = response.data.data;
+
+    res.status(200).json(posts);
   } catch (error) {
-    console.error("Error fetching Instagram posts:", error.message);
-    res.status(500).send("Error fetching Instagram posts");
+    console.error("Error retrieving Instagram posts:", error.message);
+    res.status(500).send("Error retrieving Instagram posts: " + error.message);
   }
 });
 
