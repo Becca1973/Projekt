@@ -8,7 +8,6 @@ const router = express.Router();
 const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 const INSTAGRAM_BUSINESS_ACCOUNT_ID = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID;
-const INSTAGRAM_ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN;
 
 router.post("/", async (req, res) => {
   const { title, text, selectedPlatforms } = req.body;

@@ -32,43 +32,35 @@ router.post("/", async (req, res) => {
 
   if (platforms.includes("Facebook")) {
     try {
-      let imageUrl = "";
+      let uploadResponse;
+      let imageId = "";
       if (req.file) {
+        // Create a FormData instance for the image upload
         const formData = new FormData();
         formData.append("access_token", PAGE_ACCESS_TOKEN);
         formData.append("source", fs.createReadStream(req.file.path));
-        const uploadResponse = await axios.post(
+        formData.append("caption", `${title}\n\n${text}`);
+
+        // Upload the image to Facebook
+        uploadResponse = await axios.post(
           `https://graph.facebook.com/v20.0/${PAGE_ID}/photos`,
           formData,
           {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
+            headers: formData.getHeaders(),
           }
         );
-        imageUrl = uploadResponse.data.url;
+
+        // Get the image ID from the response
+        imageId = uploadResponse.data.id;
       }
 
-      let postData = {
-        access_token: PAGE_ACCESS_TOKEN,
-        message: `${title}\n\n${text}`,
-      };
-
-      if (imageUrl) {
-        postData = {
-          ...postData,
-          attached_media: [{ media: { image_url: imageUrl } }],
-        };
-      }
-
-      const postResponse = await axios.post(
-        `https://graph.facebook.com/v20.0/${PAGE_ID}/feed`,
-        postData
-      );
-
-      res.status(200).json({ success: true, postId: postResponse.data.id });
+      res.status(200).json({ success: true, postId: imageId });
     } catch (error) {
       console.error("Error posting to Facebook:", error.message);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response headers:", error.response.headers);
+      }
       res.status(500).send("Error posting to Facebook");
     }
   } else {

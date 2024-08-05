@@ -6,6 +6,8 @@ function AnalyticsPage() {
   const [instagramPosts, setInstagramPosts] = useState([]);
   const [facebookError, setFacebookError] = useState(null);
   const [instagramError, setInstagramError] = useState(null);
+  const [facebookLoading, setFacebookLoading] = useState(true); // Dodano stanje za nalaganje
+  const [instagramLoading, setInstagramLoading] = useState(true); // Dodano stanje za nalaganje
 
   useEffect(() => {
     const fetchFacebookPosts = async () => {
@@ -18,6 +20,8 @@ function AnalyticsPage() {
       } catch (error) {
         console.error("Error fetching Facebook posts", error);
         setFacebookError(error);
+      } finally {
+        setFacebookLoading(false); // Nalaganje končano
       }
     };
 
@@ -31,6 +35,8 @@ function AnalyticsPage() {
       } catch (error) {
         console.error("Error fetching Instagram posts", error);
         setInstagramError(error);
+      } finally {
+        setInstagramLoading(false); // Nalaganje končano
       }
     };
 
@@ -42,9 +48,11 @@ function AnalyticsPage() {
     <div>
       <h1>Facebook Posts</h1>
       <div>
-        {facebookError ? (
+        {facebookLoading ? (
+          <p>Loading Facebook posts...</p> // Prikaz nalaganja
+        ) : facebookError ? (
           <p>Error loading Facebook posts: {facebookError.message}</p>
-        ) : facebookPosts && facebookPosts.length > 0 ? (
+        ) : facebookPosts.length > 0 ? (
           facebookPosts.map((post) => (
             <div key={post.id} className="post-container">
               <p className="post-caption">{post.message}</p>
@@ -67,9 +75,11 @@ function AnalyticsPage() {
 
       <h1>Instagram Posts</h1>
       <div>
-        {instagramError ? (
+        {instagramLoading ? (
+          <p>Loading Instagram posts...</p> // Prikaz nalaganja
+        ) : instagramError ? (
           <p>Error loading Instagram posts: {instagramError.message}</p>
-        ) : instagramPosts && instagramPosts.length > 0 ? (
+        ) : instagramPosts.length > 0 ? (
           instagramPosts.map((post) => (
             <div key={post.id} className="post-container">
               <p className="post-caption">Caption: {post.caption}</p>
