@@ -42,6 +42,15 @@ function Register() {
         email: email,
       });
 
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          uid: user.uid,
+          username: username,
+          email: email,
+        })
+      );
+
       navigate("/post-content");
     } catch (error) {
       console.error("Error registering user:", error);

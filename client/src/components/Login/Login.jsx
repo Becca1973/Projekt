@@ -24,8 +24,23 @@ function Login() {
     setError("");
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+        })
+      );
+
       navigate("/post-content");
+      window.dispatchEvent(new Event("storage"));
     } catch (error) {
       console.error("Error signing in:", error);
       setError("Failed to sign in. Please check your email and password.");
