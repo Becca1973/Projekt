@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const FormData = require("form-data");
-const fs = require("fs");
 require("dotenv").config();
 
 const router = express.Router();
@@ -10,8 +9,7 @@ const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 
 router.post("/", async (req, res) => {
   const { title, text, selectedPlatforms } = req.body;
-
-  console.log("Request body:", req.body);
+  const file = req.file;
 
   let platforms;
   try {
@@ -32,17 +30,14 @@ router.post("/", async (req, res) => {
 
   if (platforms.includes("Facebook")) {
     try {
-      let uploadResponse;
       let imageId = "";
-      if (req.file) {
-        // Create a FormData instance for the image upload
+      if (file) {
         const formData = new FormData();
         formData.append("access_token", PAGE_ACCESS_TOKEN);
-        formData.append("source", fs.createReadStream(req.file.path));
+        formData.append("source", file.buffer, { filename: file.originalname });
         formData.append("caption", `${title}\n\n${text}`);
 
-        // Upload the image to Facebook
-        uploadResponse = await axios.post(
+        const uploadResponse = await axios.post(
           `https://graph.facebook.com/v20.0/${PAGE_ID}/photos`,
           formData,
           {
@@ -50,7 +45,6 @@ router.post("/", async (req, res) => {
           }
         );
 
-        // Get the image ID from the response
         imageId = uploadResponse.data.id;
       }
 

@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const FormData = require("form-data");
-const fs = require("fs");
 require("dotenv").config();
 
 const router = express.Router();
@@ -11,8 +10,7 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID;
 
 router.post("/", async (req, res) => {
   const { title, text, selectedPlatforms } = req.body;
-
-  console.log("Request body:", req.body);
+  const file = req.file;
 
   let platforms;
   try {
@@ -34,9 +32,11 @@ router.post("/", async (req, res) => {
   if (platforms.includes("Instagram")) {
     try {
       let imageUrl = "";
-      if (req.file) {
+      if (file) {
         const imgurFormData = new FormData();
-        imgurFormData.append("image", fs.createReadStream(req.file.path));
+        imgurFormData.append("image", file.buffer, {
+          filename: file.originalname,
+        });
 
         const imgurResponse = await axios.post(
           "https://api.imgur.com/3/upload",
