@@ -4,7 +4,7 @@ import "./InputComponent.css";
 const InputComponent = () => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
-  const [image, setImage] = useState(null);
+  const [media, setMedia] = useState(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,7 +21,7 @@ const InputComponent = () => {
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
-  const handleImageChange = (e) => setImage(e.target.files[0]);
+  const handleMediaChange = (e) => setMedia(e.target.files[0]);
   const handlePlatformChange = (platform) => {
     setSelectedPlatforms((prev) =>
       prev.includes(platform)
@@ -43,8 +43,8 @@ const InputComponent = () => {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("text", text);
-      if (image) {
-        formData.append("image", image);
+      if (media) {
+        formData.append("media", media);
       }
       formData.append("selectedPlatforms", JSON.stringify(selectedPlatforms));
       return formData;
@@ -133,12 +133,12 @@ const InputComponent = () => {
       }
 
       if (selectedPlatforms.includes("Reddit")) {
-        const twitterFormData = createFormData();
-        logFormData(twitterFormData);
+        const redditFormData = createFormData();
+        logFormData(redditFormData);
         promises.push(
           await fetch("http://localhost:5000/api/reddit", {
             method: "POST",
-            body: twitterFormData,
+            body: redditFormData,
           }).then((response) => {
             if (!response.ok) {
               throw new Error(
@@ -150,12 +150,12 @@ const InputComponent = () => {
       }
 
       if (selectedPlatforms.includes("Threads")) {
-        const twitterFormData = createFormData();
-        logFormData(twitterFormData);
+        const threadsFormData = createFormData();
+        logFormData(threadsFormData);
         promises.push(
           await fetch("http://localhost:5000/api/threads", {
             method: "POST",
-            body: twitterFormData,
+            body: threadsFormData,
           }).then((response) => {
             if (!response.ok) {
               throw new Error(
@@ -201,13 +201,13 @@ const InputComponent = () => {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="image">Upload Image</label>
+        <label htmlFor="media">Upload Image or Video</label>
         <input
-          className="image-input"
+          className="media-input"
           type="file"
-          id="image"
-          accept="image/*"
-          onChange={handleImageChange}
+          id="media"
+          accept="image/*,video/*"
+          onChange={handleMediaChange}
         />
       </div>
       <div className="form-group">

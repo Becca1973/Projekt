@@ -30,25 +30,44 @@ router.post("/", async (req, res) => {
 
   if (platforms.includes("Facebook")) {
     try {
-      let imageId = "";
+      let postId = "";
       if (file) {
         const formData = new FormData();
         formData.append("access_token", PAGE_ACCESS_TOKEN);
-        formData.append("source", file.buffer, { filename: file.originalname });
         formData.append("caption", `${title}\n\n${text}`);
 
-        const uploadResponse = await axios.post(
-          `https://graph.facebook.com/v20.0/${PAGE_ID}/photos`,
-          formData,
-          {
-            headers: formData.getHeaders(),
-          }
-        );
+        if (file.mimetype.startsWith("image/")) {
+          formData.append("source", file.buffer, {
+            filename: file.originalname,
+          });
 
-        imageId = uploadResponse.data.id;
+          const uploadResponse = await axios.post(
+            `https://graph.facebook.com/v20.0/${PAGE_ID}/photos`,
+            formData,
+            {
+              headers: formData.getHeaders(),
+            }
+          );
+
+          postId = uploadResponse.data.id;
+        } else if (file.mimetype.startsWith("video/")) {
+          formData.append("file", file.buffer, { filename: file.originalname });
+
+          const uploadResponse = await axios.post(
+            `https://graph.facebook.com/v20.0/${PAGE_ID}/videos`,
+            formData,
+            {
+              headers: formData.getHeaders(),
+            }
+          );
+
+          postId = uploadResponse.data.id;
+        } else {
+          return res.status(400).send("Unsupported media type");
+        }
       }
 
-      res.status(200).json({ success: true, postId: imageId });
+      res.status(200).json({ success: true, postId });
     } catch (error) {
       console.error("Error posting to Facebook:", error.message);
       if (error.response) {
