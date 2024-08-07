@@ -34,12 +34,13 @@ router.post("/", async (req, res) => {
       if (file) {
         const formData = new FormData();
         formData.append("access_token", PAGE_ACCESS_TOKEN);
-        formData.append("caption", `${title}\n\n${text}`);
+        const message = `${title}\n\n${text}`;
 
         if (file.mimetype.startsWith("image/")) {
           formData.append("source", file.buffer, {
             filename: file.originalname,
           });
+          formData.append("caption", message);
 
           const uploadResponse = await axios.post(
             `https://graph.facebook.com/v20.0/${PAGE_ID}/photos`,
@@ -52,6 +53,7 @@ router.post("/", async (req, res) => {
           postId = uploadResponse.data.id;
         } else if (file.mimetype.startsWith("video/")) {
           formData.append("file", file.buffer, { filename: file.originalname });
+          formData.append("description", message);
 
           const uploadResponse = await axios.post(
             `https://graph.facebook.com/v20.0/${PAGE_ID}/videos`,
