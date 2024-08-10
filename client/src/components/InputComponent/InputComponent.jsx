@@ -68,7 +68,7 @@ const InputComponent = () => {
         const fbFormData = createFormData();
         logFormData(fbFormData);
         promises.push(
-          await fetch("http://localhost:5000/api/facebook", {
+          await fetch("http://localhost:5001/api/facebook", {
             method: "POST",
             body: fbFormData,
           }).then((response) => {
@@ -85,7 +85,7 @@ const InputComponent = () => {
         const instaFormData = createFormData();
         logFormData(instaFormData);
         promises.push(
-          await fetch("http://localhost:5000/api/instagram", {
+          await fetch("http://localhost:5001/api/instagram", {
             method: "POST",
             body: instaFormData,
           }).then((response) => {
@@ -102,7 +102,7 @@ const InputComponent = () => {
         const linkedInFormData = createFormData();
         logFormData(linkedInFormData);
         promises.push(
-          await fetch("http://localhost:5000/api/linkedin", {
+          await fetch("http://localhost:5001/api/linkedin", {
             method: "POST",
             body: linkedInFormData,
           }).then((response) => {
@@ -119,7 +119,7 @@ const InputComponent = () => {
         const twitterFormData = createFormData();
         logFormData(twitterFormData);
         promises.push(
-          await fetch("http://localhost:5000/api/twitter", {
+          await fetch("http://localhost:5001/api/twitter", {
             method: "POST",
             body: twitterFormData,
           }).then((response) => {
@@ -136,7 +136,7 @@ const InputComponent = () => {
         const twitterFormData = createFormData();
         logFormData(twitterFormData);
         promises.push(
-          await fetch("http://localhost:5000/api/reddit", {
+          await fetch("http://localhost:5001/api/reddit", {
             method: "POST",
             body: twitterFormData,
           }).then((response) => {
@@ -153,7 +153,7 @@ const InputComponent = () => {
         const twitterFormData = createFormData();
         logFormData(twitterFormData);
         promises.push(
-          await fetch("http://localhost:5000/api/threads", {
+          await fetch("http://localhost:5001/api/threads", {
             method: "POST",
             body: twitterFormData,
           }).then((response) => {

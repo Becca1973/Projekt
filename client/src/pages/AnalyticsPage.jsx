@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function AnalyticsPage() {
   const [facebookPosts, setFacebookPosts] = useState([]);
@@ -14,9 +15,11 @@ function AnalyticsPage() {
 
   useEffect(() => {
     const fetchFacebookPosts = async () => {
+      let local = JSON.parse(localStorage.getItem("socialTokens"));
+      console.log(local.facebookPageAccessToken);
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/facebook/posts"
+          "http://localhost:5001/api/facebook/posts"
         );
         setFacebookPosts(response.data.data || []);
       } catch (error) {
@@ -29,7 +32,7 @@ function AnalyticsPage() {
     const fetchInstagramPosts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/instagram/posts"
+          "http://localhost:5001/api/instagram/posts"
         );
         setInstagramPosts(response.data || []);
       } catch (error) {
@@ -42,7 +45,7 @@ function AnalyticsPage() {
     const fetchLinkedinPosts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/linkedin/posts"
+          "http://localhost:5001/api/linkedin/posts"
         );
         setLinkedinPosts(response.data || []);
       } catch (error) {
@@ -67,19 +70,21 @@ function AnalyticsPage() {
           <p>Error loading Facebook posts: {facebookError.message}</p>
         ) : facebookPosts.length > 0 ? (
           facebookPosts.map((post) => (
-            <div key={post.id} className="post-container">
-              <p className="post-caption">{post.message}</p>
-              {post.full_picture && (
-                <img
-                  src={post.full_picture}
-                  alt={post.message}
-                  className="post-image"
-                />
-              )}
-              <p className="post-date">
-                Date: {new Date(post.created_time).toLocaleDateString()}
-              </p>
-            </div>
+            <Link to={`/analytics/facebook/${post.id}`} key={post.id}>
+              <div className="post-container">
+                <p className="post-caption">{post.message}</p>
+                {post.full_picture && (
+                  <img
+                    src={post.full_picture}
+                    alt={post.message}
+                    className="post-image"
+                  />
+                )}
+                <p className="post-date">
+                  Date: {new Date(post.created_time).toLocaleDateString()}
+                </p>
+              </div>
+            </Link>
           ))
         ) : (
           <p>No Facebook posts available.</p>
@@ -94,19 +99,21 @@ function AnalyticsPage() {
           <p>Error loading Instagram posts: {instagramError.message}</p>
         ) : instagramPosts.length > 0 ? (
           instagramPosts.map((post) => (
-            <div key={post.id} className="post-container">
-              <p className="post-caption">Caption: {post.caption}</p>
-              {post.media_url && (
-                <img
-                  src={post.media_url}
-                  alt={post.caption}
-                  className="post-image"
-                />
-              )}
-              <p className="post-date">
-                Date: {new Date(post.timestamp).toLocaleDateString()}
-              </p>
-            </div>
+            <Link to={`/analytics/instagram/${post.id}`} key={post.id}>
+              <div className="post-container">
+                <p className="post-caption">Caption: {post.caption}</p>
+                {post.media_url && (
+                  <img
+                    src={post.media_url}
+                    alt={post.caption}
+                    className="post-image"
+                  />
+                )}
+                <p className="post-date">
+                  Date: {new Date(post.timestamp).toLocaleDateString()}
+                </p>
+              </div>
+            </Link>
           ))
         ) : (
           <p>No Instagram posts available.</p>
@@ -121,33 +128,35 @@ function AnalyticsPage() {
           <p>Error loading LinkedIn posts: {linkedinError.message}</p>
         ) : linkedinPosts.length > 0 ? (
           linkedinPosts.map((post) => (
-            <div key={post.id} className="post-container">
-              <p className="post-caption">
-                {
+            <Link to={`/analytics/linkedin/${post.id}`} key={post.id}>
+              <div className="post-container">
+                <p className="post-caption">
+                  {
+                    post.specificContent["com.linkedin.ugc.ShareContent"]
+                      .shareCommentary.text
+                  }
+                </p>
+                {post.specificContent["com.linkedin.ugc.ShareContent"]
+                  .shareMedia &&
                   post.specificContent["com.linkedin.ugc.ShareContent"]
-                    .shareCommentary.text
-                }
-              </p>
-              {post.specificContent["com.linkedin.ugc.ShareContent"]
-                .shareMedia &&
-                post.specificContent["com.linkedin.ugc.ShareContent"].shareMedia
-                  .length > 0 && (
-                  <img
-                    src={
-                      post.specificContent["com.linkedin.ugc.ShareContent"]
-                        .shareMedia[0].media
-                    }
-                    alt={
-                      post.specificContent["com.linkedin.ugc.ShareContent"]
-                        .shareCommentary.text
-                    }
-                    className="post-image"
-                  />
-                )}
-              <p className="post-date">
-                Date: {new Date(post.created.time).toLocaleDateString()}
-              </p>
-            </div>
+                    .shareMedia.length > 0 && (
+                    <img
+                      src={
+                        post.specificContent["com.linkedin.ugc.ShareContent"]
+                          .shareMedia[0].media
+                      }
+                      alt={
+                        post.specificContent["com.linkedin.ugc.ShareContent"]
+                          .shareCommentary.text
+                      }
+                      className="post-image"
+                    />
+                  )}
+                <p className="post-date">
+                  Date: {new Date(post.created.time).toLocaleDateString()}
+                </p>
+              </div>
+            </Link>
           ))
         ) : (
           <p>No LinkedIn posts available.</p>

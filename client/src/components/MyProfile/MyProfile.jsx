@@ -14,10 +14,6 @@ function MyProfile() {
     imgurClientID: "",
     instagramUsername: "",
     instagramPassword: "",
-    // twitterUserToken: "",
-    // twitterAppToken: "",
-    // linkedinUserToken: "",
-    // linkedinAppToken: "",
   });
 
   const [profileData, setProfileData] = useState({
@@ -70,7 +66,6 @@ function MyProfile() {
     }
   };
 
-  /* FIX OVO */
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfileData((prevData) => ({
@@ -88,24 +83,22 @@ function MyProfile() {
       <h2>Profile Page</h2>
       <div className="profile-details">
         <label>
-          {/* FIX OVO */}
           Username:
           <input
             type="text"
             name="username"
             disabled
-            value={profileData.username}
+            value={profileData.username || ""}
             onChange={handleProfileChange}
           />
         </label>
         <label>
-          {/* FIX OVO */}
           Email:
           <input
             disabled
             type="text"
             name="email"
-            value={profileData.email}
+            value={profileData.email || ""}
             onChange={handleProfileChange}
           />
         </label>
@@ -120,7 +113,7 @@ function MyProfile() {
               type="text"
               id="facebookAppID"
               name="facebookAppID"
-              value={socialTokens.facebookAppID}
+              value={socialTokens.facebookAppID || ""}
               onChange={handleTokenChange}
             />
           </div>
@@ -130,7 +123,7 @@ function MyProfile() {
               type="text"
               id="facebookAppSecret"
               name="facebookAppSecret"
-              value={socialTokens.facebookAppSecret}
+              value={socialTokens.facebookAppSecret || ""}
               onChange={handleTokenChange}
             />
           </div>
@@ -140,7 +133,7 @@ function MyProfile() {
               type="text"
               id="facebookPageID"
               name="facebookPageID"
-              value={socialTokens.facebookPageID}
+              value={socialTokens.facebookPageID || ""}
               onChange={handleTokenChange}
             />
           </div>
@@ -152,7 +145,7 @@ function MyProfile() {
               type="text"
               id="facebookPageAccessToken"
               name="facebookPageAccessToken"
-              value={socialTokens.facebookPageAccessToken}
+              value={socialTokens.facebookPageAccessToken || ""}
               onChange={handleTokenChange}
             />
           </div>
@@ -167,7 +160,7 @@ function MyProfile() {
               type="text"
               id="instagramBusinessAccountID"
               name="instagramBusinessAccountID"
-              value={socialTokens.instagramBusinessAccountID}
+              value={socialTokens.instagramBusinessAccountID || ""}
               onChange={handleTokenChange}
             />
           </div>
@@ -177,7 +170,7 @@ function MyProfile() {
               type="text"
               id="imgurClientID"
               name="imgurClientID"
-              value={socialTokens.imgurClientID}
+              value={socialTokens.imgurClientID || ""}
               onChange={handleTokenChange}
             />
           </div>
@@ -187,7 +180,7 @@ function MyProfile() {
               type="text"
               id="instagramUsername"
               name="instagramUsername"
-              value={socialTokens.instagramUsername}
+              value={socialTokens.instagramUsername || ""}
               onChange={handleTokenChange}
             />
           </div>
@@ -197,53 +190,7 @@ function MyProfile() {
               type="text"
               id="instagramPassword"
               name="instagramPassword"
-              value={socialTokens.instagramPassword}
-              onChange={handleTokenChange}
-            />
-          </div>
-        </div>
-        <div className="social-group">
-          <h4>Twitter (X)</h4>
-          <div className="form-group">
-            <label htmlFor="twitterUserToken">User Token</label>
-            <input
-              type="text"
-              id="twitterUserToken"
-              name="twitterUserToken"
-              value={socialTokens.twitterUserToken}
-              onChange={handleTokenChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="twitterAppToken">App Token</label>
-            <input
-              type="text"
-              id="twitterAppToken"
-              name="twitterAppToken"
-              value={socialTokens.twitterAppToken}
-              onChange={handleTokenChange}
-            />
-          </div>
-        </div>
-        <div className="social-group">
-          <h4>LinkedIn</h4>
-          <div className="form-group">
-            <label htmlFor="linkedinUserToken">User Token</label>
-            <input
-              type="text"
-              id="linkedinUserToken"
-              name="linkedinUserToken"
-              value={socialTokens.linkedinUserToken}
-              onChange={handleTokenChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="linkedinAppToken">App Token</label>
-            <input
-              type="text"
-              id="linkedinAppToken"
-              name="linkedinAppToken"
-              value={socialTokens.linkedinAppToken}
+              value={socialTokens.instagramPassword || ""}
               onChange={handleTokenChange}
             />
           </div>

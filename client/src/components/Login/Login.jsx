@@ -39,7 +39,8 @@ function Login() {
         })
       );
 
-      navigate("/post-content");
+      navigate("/my-profile");
+      window.location.reload();
       window.dispatchEvent(new Event("storage"));
     } catch (error) {
       console.error("Error signing in:", error);

@@ -8,17 +8,20 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
+      console.log(storedUser);
       setUser(JSON.parse(storedUser));
     }
   }, []);
 
   const login = (userData) => {
+    console.log(userData);
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("socialTokens");
     setUser(null);
   };
 

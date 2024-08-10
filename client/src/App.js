@@ -9,13 +9,13 @@ import ContactPage from "./pages/ContactPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
+import PostDetailPage from "./pages/PostDetailPage";
 // import PricingPage from "./pages/PricingPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 
 function App() {
   const [user, setUser] = useState(null);
-
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
@@ -41,6 +41,10 @@ function App() {
             <Route path="/post-content" element={<FeaturesPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             {/* <Route path="/pricing" element={<PricingPage />} /> */}
+            <Route
+              path="/analytics/:platform/:id"
+              element={<PostDetailPage />}
+            />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/my-profile" element={<ProfilePage />} />
             <Route path="/login" element={<LoginPage />} />
