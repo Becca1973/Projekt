@@ -7,6 +7,12 @@ const router = express.Router();
 const PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 
+// let localStorageTokens = JSON.parse(localStorage.getItem("socialTokens"));
+
+// const router = express.Router();
+// const PAGE_ID = localStorageTokens.facebookPageID;
+// const PAGE_ACCESS_TOKEN = localStorageTokens.facebookPageAccessToken;
+
 router.post("/", async (req, res) => {
   const { title, text, selectedPlatforms } = req.body;
   const file = req.file;
@@ -72,6 +78,24 @@ router.get("/posts", async (req, res) => {
   } catch (error) {
     console.error("Error fetching Facebook posts:", error.message);
     res.status(500).send("Error fetching Facebook posts");
+  }
+});
+
+router.get("/posts/:id", async (req, res) => {
+  const postId = req.params.id; // Get the post ID from the URL
+  console.log(postId);
+  try {
+    const response = await axios.get(
+      `https://graph.facebook.com/${postId}?access_token=${PAGE_ACCESS_TOKEN}&fields=id,message,created_time,full_picture`
+    );
+    console.log(`Fetched Facebook post with ID ${postId}:`, response.data);
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error(
+      `Error fetching Facebook post with ID ${postId}:`,
+      error.message
+    );
+    res.status(500).send(`Error fetching Facebook post with ID ${postId}`);
   }
 });
 
