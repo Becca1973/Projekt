@@ -188,4 +188,35 @@ router.get("/posts", async (req, res) => {
   }
 });
 
+router.get("/posts/:id", async (req, res) => {
+  const postId = req.params.id;
+
+  try {
+    const response = await axios.get(
+      `https://graph.facebook.com/v20.0/${postId}`,
+      {
+        params: {
+          fields: "id,caption,media_type,media_url,thumbnail_url,timestamp",
+          access_token: PAGE_ACCESS_TOKEN,
+        },
+      }
+    );
+
+    const post = response.data;
+
+    console.log(`Fetched Instagram post with ID ${postId}:`, post);
+    res.status(200).json(post);
+  } catch (error) {
+    console.error(
+      `Error fetching Instagram post with ID ${postId}:`,
+      error.message
+    );
+    res
+      .status(500)
+      .send(
+        `Error fetching Instagram post with ID ${postId}: ` + error.message
+      );
+  }
+});
+
 module.exports = router;

@@ -1,21 +1,16 @@
 const express = require("express");
 const axios = require("axios");
-const FormData = require("form-data");
-require("dotenv").config();
-
 const router = express.Router();
-const PAGE_ID = process.env.FACEBOOK_PAGE_ID;
-const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
-
-// let localStorageTokens = JSON.parse(localStorage.getItem("socialTokens"));
-
-// const router = express.Router();
-// const PAGE_ID = localStorageTokens.facebookPageID;
-// const PAGE_ACCESS_TOKEN = localStorageTokens.facebookPageAccessToken;
 
 router.post("/", async (req, res) => {
   const { title, text, selectedPlatforms } = req.body;
   const file = req.file;
+
+  const { facebookPageID, facebookPageAccessToken } = req.dynamicConfig;
+
+  if (!facebookPageID || !facebookPageAccessToken) {
+    return res.status(500).send("Configuration not available");
+  }
 
   let platforms;
   try {
@@ -39,7 +34,7 @@ router.post("/", async (req, res) => {
       let postId = "";
       if (file) {
         const formData = new FormData();
-        formData.append("access_token", PAGE_ACCESS_TOKEN);
+        formData.append("access_token", facebookPageAccessToken);
         const message = `${title}\n\n${text}`;
 
         if (file.mimetype.startsWith("image/")) {
@@ -49,7 +44,7 @@ router.post("/", async (req, res) => {
           formData.append("caption", message);
 
           const uploadResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${PAGE_ID}/photos`,
+            `https://graph.facebook.com/v20.0/${facebookPageID}/photos`,
             formData,
             {
               headers: formData.getHeaders(),
@@ -62,7 +57,7 @@ router.post("/", async (req, res) => {
           formData.append("description", message);
 
           const uploadResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${PAGE_ID}/videos`,
+            `https://graph.facebook.com/v20.0/${facebookPageID}/videos`,
             formData,
             {
               headers: formData.getHeaders(),
@@ -90,9 +85,15 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/posts", async (req, res) => {
+  const { facebookPageID, facebookPageAccessToken } = req.dynamicConfig;
+
+  if (!facebookPageID || !facebookPageAccessToken) {
+    return res.status(500).send("Configuration not available");
+  }
+
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${PAGE_ID}/posts?access_token=${PAGE_ACCESS_TOKEN}&fields=id,message,created_time,full_picture`
+      `https://graph.facebook.com/${facebookPageID}/posts?access_token=${facebookPageAccessToken}&fields=id,message,created_time,full_picture`
     );
     console.log("Fetched Facebook posts:", response.data);
     res.status(200).json(response.data);
@@ -103,11 +104,14 @@ router.get("/posts", async (req, res) => {
 });
 
 router.get("/posts/:id", async (req, res) => {
-  const postId = req.params.id; // Get the post ID from the URL
-  console.log(postId);
+  const postId = req.params.id;
+  const { facebookPageAccessToken } = req.dynamicConfig;
+
+  console.log(`Received request to fetch post with ID: ${postId}`);
+
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${postId}?access_token=${PAGE_ACCESS_TOKEN}&fields=id,message,created_time,full_picture`
+      `https://graph.facebook.com/${postId}?access_token=${facebookPageAccessToken}&fields=id,message,created_time,full_picture`
     );
     console.log(`Fetched Facebook post with ID ${postId}:`, response.data);
     res.status(200).json(response.data);
@@ -116,6 +120,11 @@ router.get("/posts/:id", async (req, res) => {
       `Error fetching Facebook post with ID ${postId}:`,
       error.message
     );
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+      console.error("Response status:", error.response.status);
+      console.error("Response headers:", error.response.headers);
+    }
     res.status(500).send(`Error fetching Facebook post with ID ${postId}`);
   }
 });

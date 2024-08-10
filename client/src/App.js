@@ -13,9 +13,28 @@ import PostDetailPage from "./pages/PostDetailPage";
 // import PricingPage from "./pages/PricingPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
+import axios from "axios";
+
+// MOGOCE JE TISTO BOLJSE PREBACIT V MYPROFILE PAGE AMPAK ZDAJ KO RAZVIJAMO NEK BO TUKAJ
+const sendDataToServer = async () => {
+  const socialTokens = JSON.parse(localStorage.getItem("socialTokens"));
+
+  if (socialTokens) {
+    try {
+      await axios.post("http://localhost:5001/api/env", socialTokens);
+      console.log("Data sent to server successfully.");
+    } catch (error) {
+      console.error("Error sending data to server:", error);
+    }
+  } else {
+    console.error("No socialTokens found in localStorage.");
+  }
+};
+sendDataToServer();
 
 function App() {
   const [user, setUser] = useState(null);
+  console.log(localStorage.getItem("socialTokens"));
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
@@ -31,6 +50,7 @@ function App() {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
+
   return (
     <UserProvider>
       <div className="App">

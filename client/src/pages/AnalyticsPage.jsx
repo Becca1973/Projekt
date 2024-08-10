@@ -15,8 +15,6 @@ function AnalyticsPage() {
 
   useEffect(() => {
     const fetchFacebookPosts = async () => {
-      let local = JSON.parse(localStorage.getItem("socialTokens"));
-      console.log(local.facebookPageAccessToken);
       try {
         const response = await axios.get(
           "http://localhost:5001/api/facebook/posts"

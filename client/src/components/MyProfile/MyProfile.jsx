@@ -57,13 +57,9 @@ function MyProfile() {
   };
 
   const saveTokensToFirestore = async () => {
-    if (user) {
-      const userDoc = doc(db, "users", user.uid);
-      await setDoc(userDoc, { socialTokens, ...profileData }, { merge: true });
-      alert("Tokens saved successfully!");
-    } else {
-      alert("User is not logged in.");
-    }
+    const userDoc = doc(db, "users", user.uid);
+    await setDoc(userDoc, { socialTokens, ...profileData }, { merge: true });
+    window.location.reload();
   };
 
   const handleProfileChange = (e) => {
