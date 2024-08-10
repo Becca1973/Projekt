@@ -17,19 +17,19 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB omejitev
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB omejitev za slike in videe
 });
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/api/facebook", upload.single("image"), facebook);
-app.use("/api/instagram", upload.single("image"), instagram);
-app.use("/api/linkedin", upload.single("image"), linkedin);
-app.use("/api/twitter", upload.single("image"), twitter);
-app.use("/api/reddit", upload.single("image"), reddit);
-app.use("/api/threads", upload.single("image"), threads);
+app.use("/api/facebook", upload.single("media"), facebook);
+app.use("/api/instagram", upload.single("media"), instagram);
+app.use("/api/linkedin", upload.single("media"), linkedin);
+app.use("/api/twitter", upload.single("media"), twitter);
+app.use("/api/reddit", upload.single("media"), reddit);
+app.use("/api/threads", upload.single("media"), threads);
 
 app.get("/", (req, res) => {
   res.send("Strežnik je aktiven.");
