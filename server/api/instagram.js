@@ -5,8 +5,6 @@ require("dotenv").config();
 const fs = require("fs");
 
 const router = express.Router();
-const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
-const INSTAGRAM_BUSINESS_ACCOUNT_ID = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const API_KEY = process.env.CLOUDINARY_API_KEY;
 const API_SECRET = process.env.CLOUDINARY_API_SECRET;
@@ -18,6 +16,9 @@ cloudinary.config({
 });
 
 router.post("/", async (req, res) => {
+  const { instagramBusinessAccountID, facebookPageAccessToken } =
+    req.dynamicConfig;
+
   const { title, text, selectedPlatforms } = req.body;
   const file = req.file;
 
@@ -69,14 +70,14 @@ router.post("/", async (req, res) => {
           caption: `${title}\n\n${text}`,
           media_type: mediaType.toUpperCase(),
           [mediaType + "_url"]: mediaUrl,
-          access_token: PAGE_ACCESS_TOKEN,
+          access_token: facebookPageAccessToken,
         };
 
         // For images and videos
         if (mediaType === "video") {
           mediaData.media_type = "REELS"; // Change this to "VIDEO" for non-Reels
           const initResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media`,
+            `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
             {
               ...mediaData,
               upload_type: "resumable",
@@ -94,7 +95,7 @@ router.post("/", async (req, res) => {
           const fileSize = file.size;
           const uploadResponse = await axios.post(uploadUri, file.buffer, {
             headers: {
-              Authorization: `OAuth ${PAGE_ACCESS_TOKEN}`,
+              Authorization: `OAuth ${facebookPageAccessToken}`,
               offset: 0,
               file_size: fileSize,
             },
@@ -106,10 +107,10 @@ router.post("/", async (req, res) => {
 
           // Publish Media
           const publishResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media_publish`,
+            `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media_publish`,
             {
               creation_id: containerId,
-              access_token: PAGE_ACCESS_TOKEN,
+              access_token: facebookPageAccessToken,
             }
           );
 
@@ -123,12 +124,12 @@ router.post("/", async (req, res) => {
         } else if (mediaType === "image") {
           // For images, initialize media container without resumable upload
           const initResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media`,
+            `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
             {
               caption: `${title}\n\n${text}`,
               media_type: "IMAGE",
               image_url: mediaUrl,
-              access_token: PAGE_ACCESS_TOKEN,
+              access_token: facebookPageAccessToken,
             }
           );
 
@@ -140,10 +141,10 @@ router.post("/", async (req, res) => {
 
           // Publish Media
           const publishResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media_publish`,
+            `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media_publish`,
             {
               creation_id: containerId,
-              access_token: PAGE_ACCESS_TOKEN,
+              access_token: facebookPageAccessToken,
             }
           );
 
@@ -168,13 +169,15 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/posts", async (req, res) => {
+  const { instagramBusinessAccountID, facebookPageAccessToken } =
+    req.dynamicConfig;
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/v20.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/media`,
+      `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
       {
         params: {
           fields: "id,caption,media_type,media_url,thumbnail_url,timestamp",
-          access_token: PAGE_ACCESS_TOKEN,
+          access_token: facebookPageAccessToken,
         },
       }
     );
@@ -189,6 +192,8 @@ router.get("/posts", async (req, res) => {
 });
 
 router.get("/posts/:id", async (req, res) => {
+  const { facebookPageAccessToken } = req.dynamicConfig;
+
   const postId = req.params.id;
 
   try {
@@ -197,7 +202,7 @@ router.get("/posts/:id", async (req, res) => {
       {
         params: {
           fields: "id,caption,media_type,media_url,thumbnail_url,timestamp",
-          access_token: PAGE_ACCESS_TOKEN,
+          access_token: facebookPageAccessToken,
         },
       }
     );

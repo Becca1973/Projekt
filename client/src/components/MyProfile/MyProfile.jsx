@@ -6,14 +6,9 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 function MyProfile() {
   const { user } = useUser();
   const [socialTokens, setSocialTokens] = useState({
-    facebookAppID: "",
-    facebookAppSecret: "",
     facebookPageID: "",
     facebookPageAccessToken: "",
     instagramBusinessAccountID: "",
-    imgurClientID: "",
-    instagramUsername: "",
-    instagramPassword: "",
   });
 
   const [profileData, setProfileData] = useState({
@@ -104,26 +99,6 @@ function MyProfile() {
         <div className="social-group">
           <h4>Facebook</h4>
           <div className="form-group">
-            <label htmlFor="facebookAppID">Facebook App ID</label>
-            <input
-              type="text"
-              id="facebookAppID"
-              name="facebookAppID"
-              value={socialTokens.facebookAppID || ""}
-              onChange={handleTokenChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="facebookAppSecret">Facebook App Secret</label>
-            <input
-              type="text"
-              id="facebookAppSecret"
-              name="facebookAppSecret"
-              value={socialTokens.facebookAppSecret || ""}
-              onChange={handleTokenChange}
-            />
-          </div>
-          <div className="form-group">
             <label htmlFor="facebookPageID">Facebook Page ID</label>
             <input
               type="text"
@@ -157,36 +132,6 @@ function MyProfile() {
               id="instagramBusinessAccountID"
               name="instagramBusinessAccountID"
               value={socialTokens.instagramBusinessAccountID || ""}
-              onChange={handleTokenChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="imgurClientID">Imgur Client ID</label>
-            <input
-              type="text"
-              id="imgurClientID"
-              name="imgurClientID"
-              value={socialTokens.imgurClientID || ""}
-              onChange={handleTokenChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="instagramUsername">Instagram Username</label>
-            <input
-              type="text"
-              id="instagramUsername"
-              name="instagramUsername"
-              value={socialTokens.instagramUsername || ""}
-              onChange={handleTokenChange}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="instagramPassword">Instagram Password</label>
-            <input
-              type="text"
-              id="instagramPassword"
-              name="instagramPassword"
-              value={socialTokens.instagramPassword || ""}
               onChange={handleTokenChange}
             />
           </div>

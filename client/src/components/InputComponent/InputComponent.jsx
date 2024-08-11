@@ -10,14 +10,7 @@ const InputComponent = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const platforms = [
-    "Facebook",
-    "Twitter",
-    "LinkedIn",
-    "Instagram",
-    "Reddit",
-    "Threads",
-  ];
+  const platforms = ["Facebook", "Twitter", "Instagram", "Reddit", "Threads"];
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
@@ -72,6 +65,7 @@ const InputComponent = () => {
             method: "POST",
             body: fbFormData,
           }).then((response) => {
+            console.log(response);
             if (!response.ok) {
               throw new Error(
                 "Error posting to Facebook: " + response.statusText
@@ -98,39 +92,39 @@ const InputComponent = () => {
         );
       }
 
-      if (selectedPlatforms.includes("LinkedIn")) {
-        const linkedInFormData = createFormData();
-        logFormData(linkedInFormData);
-        promises.push(
-          await fetch("http://localhost:5001/api/linkedin", {
-            method: "POST",
-            body: linkedInFormData,
-          }).then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to LinkedIn: " + response.statusText
-              );
-            }
-          })
-        );
-      }
+      // if (selectedPlatforms.includes("LinkedIn")) {
+      //   const linkedInFormData = createFormData();
+      //   logFormData(linkedInFormData);
+      //   promises.push(
+      //     await fetch("http://localhost:5001/api/linkedin", {
+      //       method: "POST",
+      //       body: linkedInFormData,
+      //     }).then((response) => {
+      //       if (!response.ok) {
+      //         throw new Error(
+      //           "Error posting to LinkedIn: " + response.statusText
+      //         );
+      //       }
+      //     })
+      //   );
+      // }
 
-      if (selectedPlatforms.includes("Twitter")) {
-        const twitterFormData = createFormData();
-        logFormData(twitterFormData);
-        promises.push(
-          await fetch("http://localhost:5001/api/twitter", {
-            method: "POST",
-            body: twitterFormData,
-          }).then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to Twitter: " + response.statusText
-              );
-            }
-          })
-        );
-      }
+      // if (selectedPlatforms.includes("Twitter")) {
+      //   const twitterFormData = createFormData();
+      //   logFormData(twitterFormData);
+      //   promises.push(
+      //     await fetch("http://localhost:5001/api/twitter", {
+      //       method: "POST",
+      //       body: twitterFormData,
+      //     }).then((response) => {
+      //       if (!response.ok) {
+      //         throw new Error(
+      //           "Error posting to Twitter: " + response.statusText
+      //         );
+      //       }
+      //     })
+      //   );
+      // }
 
       if (selectedPlatforms.includes("Reddit")) {
         const redditFormData = createFormData();
@@ -149,22 +143,22 @@ const InputComponent = () => {
         );
       }
 
-      if (selectedPlatforms.includes("Threads")) {
-        const threadsFormData = createFormData();
-        logFormData(threadsFormData);
-        promises.push(
-          await fetch("http://localhost:5001/api/threads", {
-            method: "POST",
-            body: threadsFormData,
-          }).then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to Threads: " + response.statusText
-              );
-            }
-          })
-        );
-      }
+      // if (selectedPlatforms.includes("Threads")) {
+      //   const threadsFormData = createFormData();
+      //   logFormData(threadsFormData);
+      //   promises.push(
+      //     await fetch("http://localhost:5001/api/threads", {
+      //       method: "POST",
+      //       body: threadsFormData,
+      //     }).then((response) => {
+      //       if (!response.ok) {
+      //         throw new Error(
+      //           "Error posting to Threads: " + response.statusText
+      //         );
+      //       }
+      //     })
+      //   );
+      // }
 
       await Promise.all(promises);
 

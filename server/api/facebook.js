@@ -1,10 +1,18 @@
 const express = require("express");
 const axios = require("axios");
+const FormData = require("form-data");
+const { PassThrough } = require("stream");
 const router = express.Router();
 
+// Middleware to parse application/x-www-form-urlencoded data
+const bodyParser = require("body-parser");
+router.use(bodyParser.urlencoded({ extended: true }));
+router.use(bodyParser.json()); // Ensure JSON parsing
+
+// File upload handler with form-data
 router.post("/", async (req, res) => {
   const { title, text, selectedPlatforms } = req.body;
-  const file = req.file;
+  const file = req.files?.file; // Adjust based on how file is provided (e.g., req.files.file for form-data)
 
   const { facebookPageID, facebookPageAccessToken } = req.dynamicConfig;
 
@@ -30,44 +38,52 @@ router.post("/", async (req, res) => {
   }
 
   if (platforms.includes("Facebook")) {
+    const message = `${title}\n\n${text}`;
+
     try {
       let postId = "";
+
       if (file) {
         const formData = new FormData();
         formData.append("access_token", facebookPageAccessToken);
-        const message = `${title}\n\n${text}`;
+        formData.append("message", message);
 
-        if (file.mimetype.startsWith("image/")) {
-          formData.append("source", file.buffer, {
-            filename: file.originalname,
-          });
-          formData.append("caption", message);
+        const fileStream = new PassThrough();
+        fileStream.end(file.data); // Assuming file.data is a Buffer
 
-          const uploadResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${facebookPageID}/photos`,
-            formData,
-            {
-              headers: formData.getHeaders(),
-            }
-          );
+        formData.append("source", fileStream, {
+          filename: file.name,
+          contentType: file.mimetype,
+        });
 
-          postId = uploadResponse.data.id;
-        } else if (file.mimetype.startsWith("video/")) {
-          formData.append("file", file.buffer, { filename: file.originalname });
-          formData.append("description", message);
+        const uploadResponse = file.mimetype.startsWith("image/")
+          ? await axios.post(
+              `https://graph.facebook.com/v20.0/${facebookPageID}/photos`,
+              formData,
+              { headers: formData.getHeaders() }
+            )
+          : file.mimetype.startsWith("video/")
+          ? await axios.post(
+              `https://graph.facebook.com/v20.0/${facebookPageID}/videos`,
+              formData,
+              { headers: formData.getHeaders() }
+            )
+          : null;
 
-          const uploadResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${facebookPageID}/videos`,
-            formData,
-            {
-              headers: formData.getHeaders(),
-            }
-          );
-
+        if (uploadResponse) {
           postId = uploadResponse.data.id;
         } else {
           return res.status(400).send("Unsupported media type");
         }
+      } else {
+        const textResponse = await axios.post(
+          `https://graph.facebook.com/v20.0/${facebookPageID}/feed`,
+          {
+            message,
+            access_token: facebookPageAccessToken,
+          }
+        );
+        postId = textResponse.data.id;
       }
 
       res.status(200).json({ success: true, postId });
@@ -84,6 +100,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Fetch posts
 router.get("/posts", async (req, res) => {
   const { facebookPageID, facebookPageAccessToken } = req.dynamicConfig;
 
@@ -93,9 +110,14 @@ router.get("/posts", async (req, res) => {
 
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${facebookPageID}/posts?access_token=${facebookPageAccessToken}&fields=id,message,created_time,full_picture`
+      `https://graph.facebook.com/${facebookPageID}/posts`,
+      {
+        params: {
+          access_token: facebookPageAccessToken,
+          fields: "id,message,created_time,full_picture",
+        },
+      }
     );
-    console.log("Fetched Facebook posts:", response.data);
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Error fetching Facebook posts:", error.message);
@@ -103,28 +125,24 @@ router.get("/posts", async (req, res) => {
   }
 });
 
+// Fetch a specific post
 router.get("/posts/:id", async (req, res) => {
   const postId = req.params.id;
   const { facebookPageAccessToken } = req.dynamicConfig;
 
-  console.log(`Received request to fetch post with ID: ${postId}`);
-
   try {
-    const response = await axios.get(
-      `https://graph.facebook.com/${postId}?access_token=${facebookPageAccessToken}&fields=id,message,created_time,full_picture`
-    );
-    console.log(`Fetched Facebook post with ID ${postId}:`, response.data);
+    const response = await axios.get(`https://graph.facebook.com/${postId}`, {
+      params: {
+        access_token: facebookPageAccessToken,
+        fields: "id,message,created_time,full_picture",
+      },
+    });
     res.status(200).json(response.data);
   } catch (error) {
     console.error(
       `Error fetching Facebook post with ID ${postId}:`,
       error.message
     );
-    if (error.response) {
-      console.error("Response data:", error.response.data);
-      console.error("Response status:", error.response.status);
-      console.error("Response headers:", error.response.headers);
-    }
     res.status(500).send(`Error fetching Facebook post with ID ${postId}`);
   }
 });
