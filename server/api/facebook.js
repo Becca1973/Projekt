@@ -7,97 +7,73 @@ const router = express.Router();
 const PAGE_ID = process.env.FACEBOOK_PAGE_ID;
 const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 
-// Middleware to parse application/x-www-form-urlencoded data
-const bodyParser = require("body-parser");
-router.use(bodyParser.urlencoded({ extended: true }));
-router.use(bodyParser.json()); // Ensure JSON parsing
-
-// File upload handler with form-data
 router.post("/", async (req, res) => {
-  const { title, text, selectedPlatforms } = req.body;
-  const file = req.files?.file; // Adjust based on how file is provided (e.g., req.files.file for form-data)
+  const { title, text, data } = req.body;
+  const file = req.file;
+  const parsedData = JSON.parse(data);
 
-  let platforms;
-  try {
-    platforms =
-      typeof selectedPlatforms === "string"
-        ? JSON.parse(selectedPlatforms)
-        : selectedPlatforms;
-  } catch (error) {
-    console.error("Error parsing selectedPlatforms:", error.message);
-    return res.status(400).send("Invalid selectedPlatforms format");
-  }
+  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const parsedDecoded = JSON.parse(decodedString);
+  const {facebookPageID, facebookPageAccessToken} = parsedDecoded;
 
-  if (!title || !text || !platforms || platforms.length === 0) {
+  // Parse profileData if needed
+  // const { username, email } = typeof profileData === 'string' ? JSON.parse(profileData) : profileData;
+
+  if (!title || !text) {
     return res
       .status(400)
-      .send("Please fill out all fields and select at least one platform.");
+      .json({ error: "Please fill out all fields and select at least one platform." });
   }
 
-  if (platforms.includes("Facebook")) {
+  if (file == undefined) {
+    return res.status(400).json({ error: "Upload file to post" });
+  }
+
+  try {
+    let postId = "";
+
+    const formData = new FormData();
+    formData.append("access_token", facebookPageAccessToken);
     const message = `${title}\n\n${text}`;
 
-    try {
-      let postId = "";
+    if (file.mimetype.startsWith("image/")) {
+      formData.append("source", file.buffer, {
+        filename: file.originalname,
+      });
+      formData.append("caption", message);
 
-      if (file) {
-        const formData = new FormData();
-        formData.append("access_token", PAGE_ACCESS_TOKEN);
-        const message = `${title}\n\n${text}`;
-
-        if (file.mimetype.startsWith("image/")) {
-          formData.append("source", file.buffer, {
-            filename: file.originalname,
-          });
-          formData.append("caption", message);
-
-          const uploadResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${PAGE_ID}/photos`,
-            formData,
-            {
-              headers: formData.getHeaders(),
-            }
-          );
-
-          postId = uploadResponse.data.id;
-        } else if (file.mimetype.startsWith("video/")) {
-          formData.append("file", file.buffer, { filename: file.originalname });
-          formData.append("description", message);
-
-          const uploadResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${PAGE_ID}/videos`,
-            formData,
-            {
-              headers: formData.getHeaders(),
-            }
-          );
-
-          postId = uploadResponse.data.id;
-        } else {
-          return res.status(400).send("Unsupported media type");
+      const uploadResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${facebookPageID}/photos`,
+        formData,
+        {
+          headers: formData.getHeaders(),
         }
-      } else {
-        const textResponse = await axios.post(
-          `https://graph.facebook.com/v20.0/${facebookPageID}/feed`,
-          {
-            message,
-            access_token: facebookPageAccessToken,
-          }
-        );
-        postId = textResponse.data.id;
+      );
+
+      postId = uploadResponse.data.id;
+    } else if (file.mimetype.startsWith("video/")) {
+      formData.append("file", file.buffer, { filename: file.originalname });
+      formData.append("description", message);
+
+      const uploadResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${facebookPageID}/videos`,
+        formData,
+        {
+          headers: formData.getHeaders(),
+        }
+      );
+
+      if (!uploadResponse.data) {
+        return res.status(400).send("Cannot post");
       }
 
-      res.status(200).json({ success: true, postId });
-    } catch (error) {
-      console.error("Error posting to Facebook:", error.message);
-      if (error.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response headers:", error.response.headers);
-      }
-      res.status(500).send("Error posting to Facebook");
+      postId = uploadResponse.data.id;
     }
-  } else {
-    res.status(200).send("No supported platform selected");
+
+    return res.status(200).json({ success: true, postId });
+  } catch (error) {
+    console.error("Error posting to Facebook:", error);
+    return res.status(400).json({ error: "Facebook tokens are not valid or an error occurred" });
   }
 });
 

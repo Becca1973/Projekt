@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { db } from "../../../src/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "./InputComponent.css";
 import AIGenerator from "../AIGenerator/AIGenerator";
+import { decode } from 'base-64';
 
 const InputComponent = () => {
-  const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
@@ -46,6 +46,8 @@ const InputComponent = () => {
   const handleSave = async (event) => {
     event.preventDefault();
 
+    const data = JSON.parse(localStorage.getItem('encodedData'));
+
     if (!title || !text || selectedPlatforms.length === 0) {
       setError("Please fill out all fields and select at least one platform.");
       return;
@@ -55,24 +57,14 @@ const InputComponent = () => {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("text", text);
-
-      console.log("Media object:", media); // Debugging
-      console.log("Media is File:", media instanceof File); // Debugging
-      console.log("Media is Blob:", media instanceof Blob); // Debugging
+      formData.append("data", JSON.stringify(data))
 
       if (media && media instanceof File) {
         formData.append("media", media); // Dodaj datoteko, če je pravilno nastavljena
       }
-
-      formData.append("selectedPlatforms", JSON.stringify(selectedPlatforms));
       return formData;
     };
 
-    const logFormData = (formData) => {
-      formData.forEach((value, key) => {
-        console.log(key, value);
-      });
-    };
 
     setLoading(true);
     setError(null);
@@ -83,25 +75,31 @@ const InputComponent = () => {
 
       if (selectedPlatforms.includes("Facebook")) {
         const fbFormData = createFormData();
-        logFormData(fbFormData);
-        promises.push(
-          await fetch("http://localhost:5001/api/facebook", {
+        
+        try {
+          const response = await fetch("http://localhost:5001/api/facebook", {
             method: "POST",
             body: fbFormData,
-          }).then((response) => {
-            console.log(response);
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to Facebook: " + response.statusText
-              );
-            }
-          })
-        );
+          });
+               
+          const data = await response.json();
+
+          if (!response.ok) {
+            setError(data.error);
+            setSuccess(false);
+          }
+
+          setError(null);
+          setSuccess(true);
+          setLoading(false);
+                
+        } catch (error) {
+          setError(error.message || 'Network error occurred');
+        }
       }
 
       if (selectedPlatforms.includes("Instagram")) {
         const instaFormData = createFormData();
-        logFormData(instaFormData);
         promises.push(
           fetch("http://localhost:5001/api/instagram", {
             method: "POST",
@@ -133,26 +131,42 @@ const InputComponent = () => {
       //   );
       // }
 
-      // if (selectedPlatforms.includes("Twitter")) {
-      //   const twitterFormData = createFormData();
-      //   logFormData(twitterFormData);
-      //   promises.push(
-      //     await fetch("http://localhost:5001/api/twitter", {
-      //       method: "POST",
-      //       body: twitterFormData,
-      //     }).then((response) => {
-      //       if (!response.ok) {
-      //         throw new Error(
-      //           "Error posting to Twitter: " + response.statusText
-      //         );
-      //       }
-      //     })
-      //   );
-      // }
+      if (selectedPlatforms.includes("LinkedIn")) {
+        const linkedInFormData = createFormData();
+        promises.push(
+          fetch("http://localhost:5001/api/linkedin", {
+            method: "POST",
+            body: linkedInFormData,
+          }).then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Error posting to LinkedIn: " + response.statusText
+              );
+            }
+          })
+        );
+      }
+
+
+      if (selectedPlatforms.includes("Twitter")) {
+        const twitterFormData = createFormData();
+        promises.push(
+          fetch("http://localhost:5001/api/twitter", {
+            method: "POST",
+            body: twitterFormData,
+          }).then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Error posting to Twitter: " + response.statusText
+              );
+            }
+          })
+        );
+      }
+
 
       if (selectedPlatforms.includes("Reddit")) {
         const redditFormData = createFormData();
-        logFormData(redditFormData);
         promises.push(
           fetch("http://localhost:5001/api/reddit", {
             method: "POST",
@@ -167,26 +181,26 @@ const InputComponent = () => {
         );
       }
 
-      // if (selectedPlatforms.includes("Threads")) {
-      //   const threadsFormData = createFormData();
-      //   logFormData(threadsFormData);
-      //   promises.push(
-      //     await fetch("http://localhost:5001/api/threads", {
-      //       method: "POST",
-      //       body: threadsFormData,
-      //     }).then((response) => {
-      //       if (!response.ok) {
-      //         throw new Error(
-      //           "Error posting to Threads: " + response.statusText
-      //         );
-      //       }
-      //     })
-      //   );
-      // }
+
+      if (selectedPlatforms.includes("Threads")) {
+        const threadsFormData = createFormData();
+        promises.push(
+          fetch("http://localhost:5001/api/threads", {
+            method: "POST",
+            body: threadsFormData,
+          }).then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Error posting to Threads: " + response.statusText
+              );
+            }
+          })
+        );
+      }
+
 
       await Promise.all(promises);
 
-      setSuccess(true);
     } catch (error) {
       setError(error.message);
     } finally {

@@ -9,6 +9,7 @@
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
     "axios": "^1.7.3",
+    "base-64": "^1.0.0",
     "debug": "^4.3.5",
     "detect-port-alt": "^1.1.6",
     "firebase": "^10.12.4",
