@@ -75,24 +75,25 @@ const InputComponent = () => {
 
       if (selectedPlatforms.includes("Facebook")) {
         const fbFormData = createFormData();
-        
+
         try {
           const response = await fetch("http://localhost:5001/api/facebook", {
             method: "POST",
             body: fbFormData,
           });
-               
+
           const data = await response.json();
 
           if (!response.ok) {
             setError(data.error);
             setSuccess(false);
+            return;
           }
 
           setError(null);
           setSuccess(true);
           setLoading(false);
-                
+
         } catch (error) {
           setError(error.message || 'Network error occurred');
         }
@@ -100,18 +101,27 @@ const InputComponent = () => {
 
       if (selectedPlatforms.includes("Instagram")) {
         const instaFormData = createFormData();
-        promises.push(
-          fetch("http://localhost:5001/api/instagram", {
+        try {
+          const response = await fetch("http://localhost:5001/api/instagram", {
             method: "POST",
             body: instaFormData,
-          }).then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to Instagram: " + response.statusText
-              );
-            }
-          })
-        );
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            setError(data.error);
+            setSuccess(false);
+            return;
+          }
+
+          setError(null);
+          setSuccess(true);
+          setLoading(false);
+
+        } catch (error) {
+          setError(error.message || 'Network error occurred');
+        }
       }
 
       // if (selectedPlatforms.includes("LinkedIn")) {

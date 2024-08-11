@@ -11,6 +11,9 @@ function MyProfile() {
     facebookPageID: "",
     facebookPageAccessToken: "",
     instagramBusinessAccountID: "",
+    instagramUsername: "",
+    instagramPassword: "",
+    imgurClientID: ""
   });
 
   const [profileData, setProfileData] = useState({

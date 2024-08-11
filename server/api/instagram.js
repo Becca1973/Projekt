@@ -16,156 +16,148 @@ cloudinary.config({
 });
 
 router.post("/", async (req, res) => {
-  const { instagramBusinessAccountID, facebookPageAccessToken } =
-    req.dynamicConfig;
 
-  const { title, text, selectedPlatforms } = req.body;
+  const { title, text, data } = req.body;
   const file = req.file;
 
-  let platforms;
-  try {
-    platforms =
-      typeof selectedPlatforms === "string"
-        ? JSON.parse(selectedPlatforms)
-        : selectedPlatforms;
-  } catch (error) {
-    console.error("Error parsing selectedPlatforms:", error.message);
-    return res.status(400).send("Invalid selectedPlatforms format");
-  }
+  const parsedData = JSON.parse(data);
 
-  if (!title || !text || !platforms || platforms.length === 0) {
+  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const parsedDecoded = JSON.parse(decodedString);
+  const { instagramBusinessAccountID, facebookPageAccessToken } = parsedDecoded;
+
+  if (!title || !text) {
     return res
       .status(400)
-      .send("Please fill out all fields and select at least one platform.");
+      .json({ error: "Please fill out all fields and select at least one platform." });
   }
 
-  if (platforms.includes("Instagram")) {
-    try {
-      if (file) {
-        let mediaUrl = "";
-        let mediaType = "";
+  try {
 
-        // Determine media type and upload to Cloudinary
-        if (file.mimetype.startsWith("video")) {
-          mediaType = "video";
-        } else if (file.mimetype.startsWith("image")) {
-          mediaType = "image";
-        } else {
-          return res.status(400).send("Unsupported file type.");
-        }
-
-        const result = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream({ resource_type: mediaType }, (error, result) => {
-              if (error) return reject(error);
-              resolve(result);
-            })
-            .end(file.buffer);
-        });
-
-        mediaUrl = result.secure_url;
-
-        // Initialize Media Container
-        const mediaData = {
-          caption: `${title}\n\n${text}`,
-          media_type: mediaType.toUpperCase(),
-          [mediaType + "_url"]: mediaUrl,
-          access_token: facebookPageAccessToken,
-        };
-
-        // For images and videos
-        if (mediaType === "video") {
-          mediaData.media_type = "REELS"; // Change this to "VIDEO" for non-Reels
-          const initResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
-            {
-              ...mediaData,
-              upload_type: "resumable",
-            }
-          );
-
-          if (initResponse.data.error) {
-            throw new Error(initResponse.data.error.message);
-          }
-
-          const containerId = initResponse.data.id;
-          const uploadUri = `https://rupload.facebook.com/ig-api-upload/v20.0/${containerId}`;
-
-          // Upload Video
-          const fileSize = file.size;
-          const uploadResponse = await axios.post(uploadUri, file.buffer, {
-            headers: {
-              Authorization: `OAuth ${facebookPageAccessToken}`,
-              offset: 0,
-              file_size: fileSize,
-            },
-          });
-
-          if (uploadResponse.data.error) {
-            throw new Error(uploadResponse.data.error.message);
-          }
-
-          // Publish Media
-          const publishResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media_publish`,
-            {
-              creation_id: containerId,
-              access_token: facebookPageAccessToken,
-            }
-          );
-
-          if (publishResponse.data.error) {
-            throw new Error(publishResponse.data.error.message);
-          }
-
-          res
-            .status(200)
-            .json({ success: true, postId: publishResponse.data.id });
-        } else if (mediaType === "image") {
-          // For images, initialize media container without resumable upload
-          const initResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
-            {
-              caption: `${title}\n\n${text}`,
-              media_type: "IMAGE",
-              image_url: mediaUrl,
-              access_token: facebookPageAccessToken,
-            }
-          );
-
-          if (initResponse.data.error) {
-            throw new Error(initResponse.data.error.message);
-          }
-
-          const containerId = initResponse.data.id;
-
-          // Publish Media
-          const publishResponse = await axios.post(
-            `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media_publish`,
-            {
-              creation_id: containerId,
-              access_token: facebookPageAccessToken,
-            }
-          );
-
-          if (publishResponse.data.error) {
-            throw new Error(publishResponse.data.error.message);
-          }
-
-          res
-            .status(200)
-            .json({ success: true, postId: publishResponse.data.id });
-        }
-      } else {
-        res.status(400).send("No file uploaded.");
-      }
-    } catch (error) {
-      console.error("Error posting to Instagram:", error.message);
-      res.status(500).send("Error posting to Instagram: " + error.message);
+    if (file == undefined) {
+      return res.status(400).json({ error: "Upload file to post" });
     }
-  } else {
-    res.status(200).send("No supported platform selected");
+
+    let mediaUrl = "";
+    let mediaType = "";
+
+    // Determine media type and upload to Cloudinary
+    if (file.mimetype.startsWith("video")) {
+      mediaType = "video";
+    } else if (file.mimetype.startsWith("image")) {
+      mediaType = "image";
+    } else {
+      return res.status(400).send("Unsupported file type.");
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream({ resource_type: mediaType }, (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        })
+        .end(file.buffer);
+    });
+
+    mediaUrl = result.secure_url;
+
+    // Initialize Media Container
+    const mediaData = {
+      caption: `${title}\n\n${text}`,
+      media_type: mediaType.toUpperCase(),
+      [mediaType + "_url"]: mediaUrl,
+      access_token: facebookPageAccessToken,
+    };
+
+    // For images and videos
+    if (mediaType === "video") {
+      mediaData.media_type = "REELS"; // Change this to "VIDEO" for non-Reels
+      const initResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
+        {
+          ...mediaData,
+          upload_type: "resumable",
+        }
+      );
+
+      if (initResponse.data.error) {
+        throw new Error(initResponse.data.error.message);
+      }
+
+      const containerId = initResponse.data.id;
+      const uploadUri = `https://rupload.facebook.com/ig-api-upload/v20.0/${containerId}`;
+
+      // Upload Video
+      const fileSize = file.size;
+      const uploadResponse = await axios.post(uploadUri, file.buffer, {
+        headers: {
+          Authorization: `OAuth ${facebookPageAccessToken}`,
+          offset: 0,
+          file_size: fileSize,
+        },
+      });
+
+      if (uploadResponse.data.error) {
+        throw new Error(uploadResponse.data.error.message);
+      }
+
+      // Publish Media
+      const publishResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media_publish`,
+        {
+          creation_id: containerId,
+          access_token: facebookPageAccessToken,
+        }
+      );
+
+      if (publishResponse.data.error) {
+        throw new Error(publishResponse.data.error.message);
+      }
+
+      res
+        .status(200)
+        .json({ success: true, postId: publishResponse.data.id });
+    } else if (mediaType === "image") {
+      // For images, initialize media container without resumable upload
+      const initResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
+        {
+          caption: `${title}\n\n${text}`,
+          media_type: "IMAGE",
+          image_url: mediaUrl,
+          access_token: facebookPageAccessToken,
+        }
+      );
+
+      if (initResponse.data.error) {
+        throw new Error(initResponse.data.error.message);
+      }
+
+      const containerId = initResponse.data.id;
+
+      // Publish Media
+      const publishResponse = await axios.post(
+        `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media_publish`,
+        {
+          creation_id: containerId,
+          access_token: facebookPageAccessToken,
+        }
+      );
+
+      if (publishResponse.data.error) {
+        throw new Error(publishResponse.data.error.message);
+      }
+
+      return res
+        .status(200)
+        .json({ success: true, postId: publishResponse.data.id });
+    }
+
+  } catch (error) {
+    console.error("Error posting to Instagram:", error);
+    return res.status(400).json({ error: "Instagram tokens are not valid or an error occurred" });
   }
+
 });
 
 router.get("/posts", async (req, res) => {
