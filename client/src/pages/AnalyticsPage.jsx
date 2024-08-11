@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 function AnalyticsPage() {
+  const navigate = useNavigate();
+
+
   const [facebookPosts, setFacebookPosts] = useState([]);
   const [instagramPosts, setInstagramPosts] = useState([]);
   const [linkedinPosts, setLinkedinPosts] = useState([]);
@@ -12,6 +16,7 @@ function AnalyticsPage() {
   const [facebookLoading, setFacebookLoading] = useState(true);
   const [instagramLoading, setInstagramLoading] = useState(true);
   const [linkedinLoading, setLinkedinLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchFacebookPosts = async () => {
@@ -27,6 +32,7 @@ function AnalyticsPage() {
       }
     };
 
+
     const fetchInstagramPosts = async () => {
       try {
         const response = await axios.get(
@@ -39,6 +45,7 @@ function AnalyticsPage() {
         setInstagramLoading(false);
       }
     };
+
 
     const fetchLinkedinPosts = async () => {
       try {
@@ -53,23 +60,34 @@ function AnalyticsPage() {
       }
     };
 
+
     fetchFacebookPosts();
     fetchInstagramPosts();
     fetchLinkedinPosts();
   }, []);
 
+
+  const handleRoute = (id) => {
+    return navigate("/details/" + id);
+  };
+
+
   return (
-    <div>
+    <div className="posts-content">
       <h1>Facebook Posts</h1>
-      <div>
+      <div className="posts-container">
         {facebookLoading ? (
           <p>Loading Facebook posts...</p>
         ) : facebookError ? (
           <p>Error loading Facebook posts: {facebookError.message}</p>
         ) : facebookPosts.length > 0 ? (
-          facebookPosts.map((post) => (
-            <Link to={`/analytics/facebook/${post.id}`} key={post.id}>
-              <div className="post-container">
+          <div className="posts">
+            {facebookPosts.map((post) => (
+              <div
+                onClick={() => handleRoute(post.id)}
+                key={post.id}
+                className="post-container"
+              >
                 <p className="post-caption">{post.message}</p>
                 {post.full_picture && (
                   <img
@@ -82,23 +100,28 @@ function AnalyticsPage() {
                   Date: {new Date(post.created_time).toLocaleDateString()}
                 </p>
               </div>
-            </Link>
-          ))
+            ))}
+          </div>
         ) : (
           <p>No Facebook posts available.</p>
         )}
       </div>
 
+
       <h1>Instagram Posts</h1>
-      <div>
+      <div className="posts-container">
         {instagramLoading ? (
           <p>Loading Instagram posts...</p>
         ) : instagramError ? (
           <p>Error loading Instagram posts: {instagramError.message}</p>
         ) : instagramPosts.length > 0 ? (
-          instagramPosts.map((post) => (
-            <Link to={`/analytics/instagram/${post.id}`} key={post.id}>
-              <div className="post-container">
+          <div className="posts">
+            {instagramPosts.map((post) => (
+              <div
+                onClick={() => handleRoute(post.id)}
+                key={post.id}
+                className="post-container"
+              >
                 <p className="post-caption">Caption: {post.caption}</p>
                 {post.media_url && (
                   <img
@@ -111,23 +134,28 @@ function AnalyticsPage() {
                   Date: {new Date(post.timestamp).toLocaleDateString()}
                 </p>
               </div>
-            </Link>
-          ))
+            ))}
+          </div>
         ) : (
           <p>No Instagram posts available.</p>
         )}
       </div>
 
+
       <h1>LinkedIn Posts</h1>
-      <div>
+      <div className="posts-container">
         {linkedinLoading ? (
           <p>Loading LinkedIn posts...</p>
         ) : linkedinError ? (
           <p>Error loading LinkedIn posts: {linkedinError.message}</p>
         ) : linkedinPosts.length > 0 ? (
-          linkedinPosts.map((post) => (
-            <Link to={`/analytics/linkedin/${post.id}`} key={post.id}>
-              <div className="post-container">
+          <div className="posts">
+            {linkedinPosts.map((post) => (
+              <div
+                onClick={() => handleRoute(post.id)}
+                key={post.id}
+                className="post-container"
+              >
                 <p className="post-caption">
                   {
                     post.specificContent["com.linkedin.ugc.ShareContent"]
@@ -154,8 +182,8 @@ function AnalyticsPage() {
                   Date: {new Date(post.created.time).toLocaleDateString()}
                 </p>
               </div>
-            </Link>
-          ))
+            ))}
+          </div>
         ) : (
           <p>No LinkedIn posts available.</p>
         )}
@@ -163,5 +191,6 @@ function AnalyticsPage() {
     </div>
   );
 }
+
 
 export default AnalyticsPage;

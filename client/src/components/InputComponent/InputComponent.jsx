@@ -1,8 +1,17 @@
 import React, { useState } from "react";
+import { db } from "../../../src/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "./InputComponent.css";
 import AIGenerator from "../AIGenerator/AIGenerator";
 
+
 const InputComponent = () => {
+
+
+  const navigate = useNavigate();
+
+
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [media, setMedia] = useState(null);
@@ -13,6 +22,7 @@ const InputComponent = () => {
   const [success, setSuccess] = useState(false);
   const [aiDialogVisible, setAiDialogVisible] = useState(false);
 
+
   const platforms = [
     "Facebook",
     "Twitter",
@@ -21,6 +31,7 @@ const InputComponent = () => {
     "Reddit",
     "Threads",
   ];
+
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
@@ -47,6 +58,7 @@ const InputComponent = () => {
 
   const handleSave = async (event) => {
     event.preventDefault();
+
 
     if (!title || !text || selectedPlatforms.length === 0) {
       setError("Please fill out all fields and select at least one platform.");
@@ -76,12 +88,15 @@ const InputComponent = () => {
       });
     };
 
+
     setLoading(true);
     setError(null);
     setSuccess(false);
 
+
     try {
       const promises = [];
+
 
       if (selectedPlatforms.includes("Facebook")) {
         const fbFormData = createFormData();
@@ -100,6 +115,7 @@ const InputComponent = () => {
         );
       }
 
+
       if (selectedPlatforms.includes("Instagram")) {
         const instaFormData = createFormData();
         logFormData(instaFormData);
@@ -116,6 +132,7 @@ const InputComponent = () => {
           })
         );
       }
+
 
       if (selectedPlatforms.includes("LinkedIn")) {
         const linkedInFormData = createFormData();
@@ -134,6 +151,7 @@ const InputComponent = () => {
         );
       }
 
+
       if (selectedPlatforms.includes("Twitter")) {
         const twitterFormData = createFormData();
         logFormData(twitterFormData);
@@ -150,6 +168,7 @@ const InputComponent = () => {
           })
         );
       }
+
 
       if (selectedPlatforms.includes("Reddit")) {
         const redditFormData = createFormData();
@@ -168,6 +187,7 @@ const InputComponent = () => {
         );
       }
 
+
       if (selectedPlatforms.includes("Threads")) {
         const threadsFormData = createFormData();
         logFormData(threadsFormData);
@@ -185,7 +205,9 @@ const InputComponent = () => {
         );
       }
 
+
       await Promise.all(promises);
+
 
       setSuccess(true);
     } catch (error) {
@@ -299,4 +321,7 @@ const InputComponent = () => {
   );
 };
 
+
 export default InputComponent;
+
+

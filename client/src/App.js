@@ -9,10 +9,11 @@ import ContactPage from "./pages/ContactPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
-import PostDetailPage from "./pages/PostDetailPage";
-// import PricingPage from "./pages/PricingPage";
+import PricingPage from "./pages/PricingPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
+import DetailsPage from "./pages/DetailsPage";
+
 import axios from "axios";
 
 // MOGOCE JE TISTO BOLJSE PREBACIT V MYPROFILE PAGE AMPAK ZDAJ KO RAZVIJAMO NEK BO TUKAJ
@@ -32,25 +33,29 @@ const sendDataToServer = async () => {
 };
 sendDataToServer();
 
+
 function App() {
   const [user, setUser] = useState(null);
-  console.log(localStorage.getItem("socialTokens"));
+
+
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
+
 
     const handleStorageChange = () => {
       const updatedUser = JSON.parse(localStorage.getItem("user"));
       setUser(updatedUser);
     };
 
+
     window.addEventListener("storage", handleStorageChange);
+
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
-
   return (
     <UserProvider>
       <div className="App">
@@ -59,12 +64,9 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/post-content" element={<FeaturesPage />} />
+            <Route path="/details/:id" element={<DetailsPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
-            {/* <Route path="/pricing" element={<PricingPage />} /> */}
-            <Route
-              path="/analytics/:platform/:id"
-              element={<PostDetailPage />}
-            />
+            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/my-profile" element={<ProfilePage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -76,5 +78,6 @@ function App() {
     </UserProvider>
   );
 }
+
 
 export default App;

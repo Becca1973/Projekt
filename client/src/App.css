@@ -7,6 +7,63 @@
   pointer-events: none;
 }
 
+.comment-section {
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+.comment-section form {
+  margin-bottom: 20px;
+}
+
+.comment-section input[type="text"] {
+  width: 80%;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.comment-section button {
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-section button:hover {
+  background-color: #45a049;
+}
+
+.comment {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.comment p {
+  margin: 0 0 10px 0;
+}
+
+.comment button {
+  background-color: #008CBA;
+  font-size: 0.9em;
+}
+
+.comment button:hover {
+  background-color: #007B9A;
+}
+
+.comment .comment {
+  margin-left: 20px;
+  margin-top: 10px;
+  border-left: 2px solid #ddd;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
@@ -20,23 +77,19 @@
 }
 
 .banner-start-container {
-  align-items: center;
-  margin-bottom: 40px;
-  padding: 20px;
+  padding: 100px 0;
 }
 .banner-container {
   display: flex;
   align-items: center;
   margin-bottom: 40px;
-  padding: 20px;
+  padding: 100px 0;
 }
 .banner-container.left {
   text-align: left;
 }
 button {
-  padding: 10px;
-  background-color: #007bff;
-  color: #fff;
+  color: #007bff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -46,9 +99,6 @@ button {
 }
 .start-button {
   margin-top: 15px;
-}
-button:hover {
-  background-color: #0056b3;
 }
 
 .email-subscription {
@@ -145,9 +195,10 @@ button:hover {
 }
 
 .pricing-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 80px 20px 80px;
+  max-width: 1100px;
+  width: 100%;
+  padding: 100px 0;
+  margin: auto;
   text-align: center;
 }
 
@@ -242,44 +293,107 @@ button:hover {
   object-fit: cover;
 }
 
-nav {
-  background-color: rgb(248, 248, 248);
-  height: 60px;
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 0;
+  justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  display: block;
+}
+
+.navbar {
+  height: 60px;
+  width: 100%;
+  background-color: white;
+  z-index: 10;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.075);
+  position: fixed;
+}
+
+.logo {
+}
+
+.menu-icon {
+  display: none;
+  font-size: 20px;
+}
+
+.nav-elements {
+}
+
+.nav-elements ul {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  list-style-type: none;
+}
+
+.nav-elements ul li:not(:last-child) {
+  margin-right: 60px;
+}
+
+.nav-elements ul a {
+  font-size: 16px;
+  font-weight: 400;
+  color: #2f234f;
+  text-decoration: none;
+}
+
+.nav-elements ul a.active {
+  color: #574c4c;
+  font-weight: 500;
+  position: relative;
+}
+
+.nav-elements ul a.active::after {
+  content: '';
+  position: fixed;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #574c4c;
 }
 
 @media (max-width: 768px) {
-  nav {
-    flex-direction: column;
-    align-items: flex-start;
-    font-size: 12px;
+  .nav-elements ul li:not(:last-child) {
+    margin-right: 30px;
   }
 }
 
-nav ul {
-  list-style-type: none;
-  text-align: center;
+@media (max-width: 600px) {
+  .menu-icon {
+    display: block;
+    cursor: pointer;
+  }
+
+  .nav-elements {
+    position: fixed;
+    right: 0;
+    top: 60px;
+    background-color: white;
+    width: 0px;
+    height: calc(100vh - 60px);
+    transition: all 0.3s ease-in;
+    overflow: hidden;
+  }
+
+  .nav-elements.active {
+    width: 100%;
+  }
+
+  .nav-elements ul {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-elements ul li {
+    margin-right: unset;
+    margin-top: 22px;
+  }
 }
 
-nav ul li {
-  display: inline;
-  margin: 0 10px;
-  padding-left: 50px;
-}
 
-nav ul li a {
-  text-decoration: none;
-  color: rgb(65, 65, 65);
-  font-weight: bold;
-  transition: color 0.3s ease;
-}
-
-nav ul li a:hover {
-  color: #007bff;
-}
 
 .App-header {
   background-color: #282c34;
@@ -298,10 +412,10 @@ nav ul li a:hover {
 
 .container-contact {
   border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   max-width: 600px;
-  margin: 80px auto 80px;
-  padding: 20px;
+  width: 100%;
+  margin: auto;
+  padding: 100px 20px;
 }
 
 h2 {
@@ -420,9 +534,25 @@ h2 {
   margin-bottom: 10px;
 }
 
+.details-buttons {
+  display: flex;
+  padding: 5px;
+  gap: 5px;
+}
+
 .save-button {
   padding: 10px 20px;
   background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.delete-button {
+  padding: 10px 20px;
+  background-color: red;
   color: white;
   border: none;
   border-radius: 5px;
@@ -580,7 +710,36 @@ h2 {
   padding-top: 10px;
 }
 
+.posts-container {
+  margin: auto;
+  max-width: 1100px;
+}
+
+.posts-content {
+  padding: 100px 0;
+}
 /* AnalyticsPage.css */
+.posts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  grid-auto-rows: minmax(100px, auto);
+}
+
+@media screen and (max-width: 1100px) {
+  .posts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .posts {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
+    grid-auto-rows: minmax(100px, 2);
+  }
+}
 
 .post-container {
   border: 1px solid #ddd; /* Svetel obrobni rob */
@@ -599,6 +758,7 @@ h2 {
 .post-container:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Senca okoli kartice ob prehodu */
   transform: translateY(-5px); /* Rahla animacija za dvig kartice */
+  cursor: pointer;
 }
 
 .post-image {
@@ -621,23 +781,28 @@ h1 {
 
 .profile-container {
   max-width: 800px;
+  width: 100%;
   margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ddd;
+  padding: 100px 10px;
   border-radius: 8px;
-  background-color: #f9f9f9;
 }
 
 .profile-details {
+  text-align: left;
   margin-bottom: 20px;
+}
+
+.profile-details label input {
+  margin: 10px 0;
 }
 
 .social-tokens {
-  margin-top: 20px;
+  margin: 20px 0;
+  text-align: left;
 }
 
 .social-group {
-  margin-bottom: 20px;
+  margin: 20px 0;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;

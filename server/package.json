@@ -22,6 +22,7 @@
     "path": "^0.12.7",
     "qs": "^6.12.3",
     "reddit": "^1.2.1",
+    "react-icons": "5.2.1",
     "threads-api": "^1.6.3",
     "threads-graph-api": "^0.1.0",
     "twitter-api-v2": "^1.16.4"
