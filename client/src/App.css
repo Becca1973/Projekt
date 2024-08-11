@@ -42,6 +42,7 @@ button {
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s ease;
+  margin: 10px;
 }
 .start-button {
   margin-top: 15px;
@@ -586,7 +587,9 @@ h2 {
   border-radius: 8px; /* Rahlo zaobljeni robovi */
   padding: 16px; /* Notranji robovi za vsebino */
   margin: 10px; /* Razdalja med posameznimi objavami */
-  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
   width: 300px; /* Določite širino kvadratne kartice */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
@@ -669,4 +672,52 @@ h1 {
 
 .save-button:hover {
   background-color: #0056b3;
+}
+.ai-trigger {
+  margin: 20px 0;
+}
+
+.ai-trigger-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.ai-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 50%;
+}
+
+.ai-dialog-close {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.ai-result {
+  margin-top: 20px;
+}
+
+.ai-prompt-input,
+.word-limit-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.word-limit-input {
+  max-width: 100px;
 }
