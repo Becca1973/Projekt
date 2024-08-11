@@ -10,6 +10,7 @@ const linkedin = require("./api/linkedIn");
 const twitter = require("./api/twitter");
 const reddit = require("./api/reddit");
 const threads = require("./api/threads");
+const ai = require("./api/ai");
 
 const app = express();
 
@@ -51,10 +52,12 @@ app.use("/api/linkedin", upload.single("media"), linkedin);
 app.use("/api/twitter", upload.single("media"), twitter);
 app.use("/api/reddit", upload.single("media"), reddit);
 app.use("/api/threads", upload.single("media"), threads);
+app.use("/api/ai", ai);
 
 app.get("/", (req, res) => {
   res.send("Server is running.");
 });
+
 
 app.listen(5001, () => {
   console.log("Server is running on port 5001");

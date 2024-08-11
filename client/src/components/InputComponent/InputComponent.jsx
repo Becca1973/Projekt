@@ -1,20 +1,38 @@
 import React, { useState } from "react";
+import { db } from "../../../src/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "./InputComponent.css";
+import AIGenerator from "../AIGenerator/AIGenerator";
 
 const InputComponent = () => {
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [media, setMedia] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null); // State for preview
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [aiDialogVisible, setAiDialogVisible] = useState(false);
 
   const platforms = ["Facebook", "Twitter", "Instagram", "Reddit", "Threads"];
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
-  const handleMediaChange = (e) => setMedia(e.target.files[0]);
+  const handleMediaChange = (e) => {
+    const file = e.target.files[0];
+    setMedia(file);
+    if (file && file.type.startsWith("image/")) {
+      // Create a preview URL for the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setMediaPreview(previewUrl);
+    } else {
+      setMediaPreview(null); // Clear preview if not an image
+    }
+  };
   const handlePlatformChange = (platform) => {
     setSelectedPlatforms((prev) =>
       prev.includes(platform)
@@ -22,6 +40,8 @@ const InputComponent = () => {
         : [...prev, platform]
     );
   };
+
+  const fileInputRef = React.useRef();
 
   const handleSave = async (event) => {
     event.preventDefault();
@@ -31,19 +51,23 @@ const InputComponent = () => {
       return;
     }
 
-    // Create a base FormData object
     const createFormData = () => {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("text", text);
-      if (media) {
-        formData.append("media", media);
+
+      console.log("Media object:", media); // Debugging
+      console.log("Media is File:", media instanceof File); // Debugging
+      console.log("Media is Blob:", media instanceof Blob); // Debugging
+
+      if (media && media instanceof File) {
+        formData.append("media", media); // Dodaj datoteko, če je pravilno nastavljena
       }
+
       formData.append("selectedPlatforms", JSON.stringify(selectedPlatforms));
       return formData;
     };
 
-    // Log FormData contents for debugging
     const logFormData = (formData) => {
       formData.forEach((value, key) => {
         console.log(key, value);
@@ -79,7 +103,7 @@ const InputComponent = () => {
         const instaFormData = createFormData();
         logFormData(instaFormData);
         promises.push(
-          await fetch("http://localhost:5001/api/instagram", {
+          fetch("http://localhost:5001/api/instagram", {
             method: "POST",
             body: instaFormData,
           }).then((response) => {
@@ -130,7 +154,7 @@ const InputComponent = () => {
         const redditFormData = createFormData();
         logFormData(redditFormData);
         promises.push(
-          await fetch("http://localhost:5001/api/reddit", {
+          fetch("http://localhost:5001/api/reddit", {
             method: "POST",
             body: redditFormData,
           }).then((response) => {
@@ -170,6 +194,32 @@ const InputComponent = () => {
     }
   };
 
+  const handleAIGenerateContent = (generatedContent) => {
+    if (generatedContent.imageUrl) {
+      fetch(generatedContent.imageUrl)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], "generated-image.jpg", {
+            type: blob.type,
+          });
+
+          // Dodaj datoteko v media stanje
+          setMedia(file);
+          const previewUrl = URL.createObjectURL(file);
+          setMediaPreview(previewUrl);
+
+          // Simuliraj nalaganje datoteke v polje
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          if (fileInputRef.current) {
+            fileInputRef.current.files = dataTransfer.files;
+          }
+        })
+        .catch((error) => console.error("Error fetching image:", error));
+    }
+    setAiDialogVisible(false);
+  };
+
   return (
     <div className="input-container">
       <h2>Post Content to Social Media</h2>
@@ -197,12 +247,18 @@ const InputComponent = () => {
       <div className="form-group">
         <label htmlFor="media">Upload Image or Video</label>
         <input
+          ref={fileInputRef} // Dodano za referenco
           className="media-input"
           type="file"
           id="media"
           accept="image/*,video/*"
           onChange={handleMediaChange}
         />
+        {mediaPreview && (
+          <div className="media-preview">
+            <img src={mediaPreview} alt="Preview" />
+          </div>
+        )}
       </div>
       <div className="form-group">
         <label>Choose Platforms</label>
@@ -220,11 +276,24 @@ const InputComponent = () => {
           ))}
         </div>
       </div>
+      <button type="button" onClick={() => setAiDialogVisible(true)}>
+        Generate image with AI
+      </button>
       {error && <p className="error">{error}</p>}
       {success && <div className="success">Post successful!</div>}
       <button className="save-button" onClick={handleSave} disabled={loading}>
         {loading ? "Posting..." : "Post"}
       </button>
+      {aiDialogVisible && (
+        <div
+          className="modal-overlay"
+          onClick={() => setAiDialogVisible(false)}
+        >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <AIGenerator onContentGenerated={handleAIGenerateContent} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

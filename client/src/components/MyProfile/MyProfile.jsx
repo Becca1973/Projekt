@@ -52,11 +52,16 @@ function MyProfile() {
   };
 
   const saveTokensToFirestore = async () => {
-    const userDoc = doc(db, "users", user.uid);
-    await setDoc(userDoc, { socialTokens, ...profileData }, { merge: true });
-    window.location.reload();
+    if (user) {
+      const userDoc = doc(db, "users", user.uid);
+      await setDoc(userDoc, { socialTokens, ...profileData }, { merge: true });
+      alert("Tokens saved successfully!");
+    } else {
+      alert("User is not logged in.");
+    }
   };
 
+  /* FIX OVO */
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfileData((prevData) => ({
@@ -74,22 +79,24 @@ function MyProfile() {
       <h2>Profile Page</h2>
       <div className="profile-details">
         <label>
+          {/* FIX OVO */}
           Username:
           <input
             type="text"
             name="username"
             disabled
-            value={profileData.username || ""}
+            value={profileData.username}
             onChange={handleProfileChange}
           />
         </label>
         <label>
+          {/* FIX OVO */}
           Email:
           <input
             disabled
             type="text"
             name="email"
-            value={profileData.email || ""}
+            value={profileData.email}
             onChange={handleProfileChange}
           />
         </label>
@@ -97,14 +104,13 @@ function MyProfile() {
       <div className="social-tokens">
         <h3>Social Media Tokens</h3>
         <div className="social-group">
-          <h4>Facebook</h4>
           <div className="form-group">
             <label htmlFor="facebookPageID">Facebook Page ID</label>
             <input
               type="text"
               id="facebookPageID"
               name="facebookPageID"
-              value={socialTokens.facebookPageID || ""}
+              value={socialTokens.facebookPageID}
               onChange={handleTokenChange}
             />
           </div>
@@ -116,13 +122,12 @@ function MyProfile() {
               type="text"
               id="facebookPageAccessToken"
               name="facebookPageAccessToken"
-              value={socialTokens.facebookPageAccessToken || ""}
+              value={socialTokens.facebookPageAccessToken}
               onChange={handleTokenChange}
             />
           </div>
         </div>
         <div className="social-group">
-          <h4>Instagram</h4>
           <div className="form-group">
             <label htmlFor="instagramBusinessAccountID">
               Instagram Business Account ID
@@ -131,7 +136,7 @@ function MyProfile() {
               type="text"
               id="instagramBusinessAccountID"
               name="instagramBusinessAccountID"
-              value={socialTokens.instagramBusinessAccountID || ""}
+              value={socialTokens.instagramBusinessAccountID}
               onChange={handleTokenChange}
             />
           </div>
