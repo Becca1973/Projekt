@@ -40,6 +40,7 @@ function Navigation() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("encodedData");
     localStorage.removeItem("socialTokens");
     setUser(null);
     navigate("/login");
@@ -57,12 +58,16 @@ function Navigation() {
             <li>
               <Link to="/">Home</Link>
             </li>
+            { localStorage.getItem("user") && 
             <li>
               <Link to="/post-content">Post Content</Link>
             </li>
+            }
+            { localStorage.getItem("user") && 
             <li>
               <Link to="/analytics">Analytics</Link>
             </li>
+            }
             <li>
               <Link to="/pricing">Pricing</Link>
             </li>
