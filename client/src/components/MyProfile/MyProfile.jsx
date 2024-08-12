@@ -7,13 +7,26 @@ import { encode as base64Encode } from 'base-64';
 function MyProfile() {
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
+
+
   const [socialTokens, setSocialTokens] = useState({
     facebookPageID: "",
     facebookPageAccessToken: "",
     instagramBusinessAccountID: "",
     instagramUsername: "",
     instagramPassword: "",
-    imgurClientID: ""
+    imgurClientID: "",
+    twitterApiKey: "",
+    twitterApiSecret: "",
+    twitterAccessToken: "",
+    twitterApiTokenSecret: "",
+    twitterBearerToken: "",
+    redditUsername: "",
+    redditPassword: "",
+    redditId: "",
+    redditSecret: "",
+    threadsPassword: "",
+    threadsUsername: ""
   });
 
   const [profileData, setProfileData] = useState({
@@ -212,46 +225,120 @@ function MyProfile() {
             </div>
             <div className="social-group">
               <div className="form-group">
-                <label htmlFor="twitterUserToken">Twitter User Token</label>
+                <label htmlFor="twitterApiKey">Twitter Api Key</label>
                 <input
                   type="text"
-                  id="twitterUserToken"
-                  name="twitterUserToken"
-                  value={socialTokens.twitterUserToken}
+                  id="twitterApiKey"
+                  name="twitterApiKey"
+                  value={socialTokens.twitterApiKey}
                   onChange={handleTokenChange}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="twitterAppToken">Twitter App Token</label>
+                <label htmlFor="twitterApiSecret">Twitter Api Secret</label>
                 <input
                   type="text"
-                  id="twitterAppToken"
-                  name="twitterAppToken"
-                  value={socialTokens.twitterAppToken}
+                  id="twitterApiSecret"
+                  name="twitterApiSecret"
+                  value={socialTokens.twitterApiSecret}
                   onChange={handleTokenChange}
                 />
               </div>
+              <div className="form-group">
+                <label htmlFor="twitterAccessToken">Twitter Access Token</label>
+                <input
+                  type="text"
+                  id="twitterAccessToken"
+                  name="twitterAccessToken"
+                  value={socialTokens.twitterAccessToken}
+                  onChange={handleTokenChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="twitterApiTokenSecret">Twitter Secret Token</label>
+                <input
+                  type="text"
+                  id="twitterApiTokenSecret"
+                  name="twitterApiTokenSecret"
+                  value={socialTokens.twitterApiTokenSecret}
+                  onChange={handleTokenChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="twitterBearerToken">Twitter Bearer Token</label>
+                <input
+                  type="text"
+                  id="twitterBearerToken"
+                  name="twitterBearerToken"
+                  value={socialTokens.twitterBearerToken}
+                  onChange={handleTokenChange}
+                />
+              </div>
+            </div>
+
+            <div className="social-group">
+              <div className="form-group">
+                <label htmlFor="redditUsername">Reddit Username</label>
+                <input
+                  type="text"
+                  id="redditUsername"
+                  name="redditUsername"
+                  value={socialTokens.redditUsername}
+                  onChange={handleTokenChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="redditPassword">Reddit Password</label>
+                <input
+                  type="text"
+                  id="redditPassword"
+                  name="redditPassword"
+                  value={socialTokens.redditPassword}
+                  onChange={handleTokenChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="redditId">Reddit ID</label>
+                <input
+                  type="text"
+                  id="redditId"
+                  name="redditId"
+                  value={socialTokens.redditId}
+                  onChange={handleTokenChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="redditSecret">Reddit Secret</label>
+                <input
+                  type="text"
+                  id="redditSecret"
+                  name="redditSecret"
+                  value={socialTokens.redditSecret}
+                  onChange={handleTokenChange}
+                />
+              </div>
+         
             </div>
             <div className="social-group">
 
 
               <div className="form-group">
-                <label htmlFor="linkedinUserToken">Linkedin User Token</label>
+                <label htmlFor="threadsUsername">Threads Username</label>
                 <input
                   type="text"
-                  id="linkedinUserToken"
-                  name="linkedinUserToken"
-                  value={socialTokens.linkedinUserToken}
+                  id="threadsUsername"
+                  name="threadsUsername"
+                  value={socialTokens.threadsUsername}
                   onChange={handleTokenChange}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="linkedinAppToken">Linkedin App Token</label>
+                <label htmlFor="threadsPassword">Threads Password</label>
                 <input
                   type="text"
-                  id="linkedinAppToken"
-                  name="linkedinAppToken"
-                  value={socialTokens.linkedinAppToken}
+                  id="threadsPassword"
+                  name="threadsPassword"
+                  value={socialTokens.threadsPassword}
                   onChange={handleTokenChange}
                 />
               </div>

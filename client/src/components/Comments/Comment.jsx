@@ -13,7 +13,7 @@ export const Comment = ({ comment, addReply }) => {
 
     const formatDate = (date1) => {
         const date = new Date(date1);
-    
+
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const year = date.getFullYear();
@@ -25,11 +25,17 @@ export const Comment = ({ comment, addReply }) => {
 
     return (
         <div className="comment">
-            <p>{comment.from.name}</p>
-            <p>{comment.message}</p>
-            <p>{formatDate(comment.created_time)}</p>
+            <div className='details'>
+                <p className='text'>{comment.text}</p>
+                <span className='user-details'>
+                    <p className='username'>{comment.username}</p>
+                    <p className='timestamp'>{formatDate(comment.timestamp)}</p>
+                </span>
+            </div>
 
-            <button onClick={() => setShowReplyInput(!showReplyInput)}>Reply</button>
+            <div className='reply-button'>
+                <button onClick={() => setShowReplyInput(!showReplyInput)}>Reply</button>
+            </div>
             {showReplyInput && (
                 <form onSubmit={handleSubmitReply}>
                     <input

@@ -7,13 +7,20 @@ require("dotenv").config();
 let threadsPosts = [];
 
 router.post("/", async (req, res) => {
-  const { title, text } = req.body;
+  const { title, text, data } = req.body;
   const image = req.file;
+
+  const parsedData = JSON.parse(data);
+
+  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const parsedDecoded = JSON.parse(decodedString);
+  const {threadsUsername, threadsPassword} = parsedDecoded;
 
   try {
     const threadsApi = new ThreadsAPI({
-      username: process.env.INSTAGRAM_USERNAME,
-      password: process.env.INSTAGRAM_PASSWORD,
+      username: threadsUsername,
+      password: threadsPassword,
+      device_id: 'android-2nb7op9oqfq00000',
     });
 
     let publishOptions = {
@@ -21,7 +28,7 @@ router.post("/", async (req, res) => {
     };
 
     if (image) {
-      const fs = require("fs");
+      const fs = require('fs');
       const imageBuffer = fs.readFileSync(image.path);
 
       publishOptions.attachment = {
@@ -33,16 +40,6 @@ router.post("/", async (req, res) => {
     }
 
     const response = await threadsApi.publish(publishOptions);
-
-    // Store the post in memory
-    const newPost = {
-      id: response.id,
-      text: `${title}\n\n${text}`,
-      image_url: response.image_url || null, // Adjust based on response
-      timestamp: new Date().toISOString(),
-    };
-
-    threadsPosts.push(newPost);
 
     return res.status(200).json({ success: true, response });
   } catch (error) {

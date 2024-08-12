@@ -745,14 +745,15 @@ h2 {
   border: 1px solid #ddd; /* Svetel obrobni rob */
   border-radius: 8px; /* Rahlo zaobljeni robovi */
   padding: 16px; /* Notranji robovi za vsebino */
-  margin: 10px; /* Razdalja med posameznimi objavami */
+   /* Razdalja med posameznimi objavami */
   transition:
     box-shadow 0.3s ease,
     transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
-  width: 300px; /* Določite širino kvadratne kartice */
+  width: 100%; /* Določite širino kvadratne kartice */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
   display: inline-block; /* Omogoči več kartic v enem vrstici */
+  height: 100%;
 }
 
 .post-container:hover {
@@ -762,16 +763,51 @@ h2 {
 }
 
 .post-image {
-  max-width: 30%; /* Prilagodi širino slike glede na razpoložljiv prostor */
-  height: auto; /* Ohranite razmerje slike */
-  display: block; /* Znebite se morebitnih praznih prostorov pod sliko */
-  margin: 0 auto; /* Centerirajte sliko */
+  max-width: 40%;
+  height: 100px;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
 }
 
-.post-caption,
+.post-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-caption {
+  font-size: 16px;
+}
+
 .post-date {
-  font-weight: bold; /* Poudarite besedilo */
+  font-size: 14px;
   margin: 10px 0; /* Razdalja med caption in datumom */
+}
+
+.post-no-image {
+  height: 100px;
+  display: flex;
+  margin: auto auto;
+  align-items: center;
+  justify-content: center;
+  color: #afafaf;
+}
+
+.comment {
+  display: flex;
+  justify-content: space-between;
+}
+
+.comment .details {
+  width: 80%;
+}
+
+.comment .user-details {
+  display: flex;
+  justify-content: space-between;
+  color: grey;
+  margin-top: 15px;
 }
 
 h1 {

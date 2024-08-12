@@ -107,7 +107,7 @@ router.get("/posts", async (req, res) => {
 });
 
 router.post("/comment/:id", async (req, res) => {
-  const message = req.body;
+  const { message } = req.body;
   const postId = req.params.id;
 
   if (!postId || !message) {
@@ -148,28 +148,32 @@ router.get("/:id", async (req, res) => {
     const response = await axios.get(`https://graph.facebook.com/${postId}`, {
       params: {
         access_token: PAGE_ACCESS_TOKEN,
-        fields:
-          "id,message,created_time,full_picture,likes.summary(true),comments{id,message,created_time,from}",
+        fields: "id,message,created_time,full_picture,likes.summary(true),comments{id,message,created_time,from}",
       },
     });
-    res.status(200).json(response.data);
-  } catch (error) {
-    console.error(
-      "Error fetching Facebook post:",
-      error.response ? error.response.data : error.message
-    );
 
-    if (error.response) {
-      res.status(error.response.status).json({
-        message: "Error fetching Facebook post",
-        error: error.response.data,
-      });
-    } else {
-      res.status(500).json({
-        message: "Error fetching Facebook post",
-        error: error.message,
-      });
-    }
+    const standardizedResponse = {
+      id: response.data.id,
+      content: response.data.message,
+      timestamp: response.data.created_time,
+      media_url: response.data.full_picture,
+      like_count: response.data.likes.summary.total_count,
+      comments_count: response.data.comments ? response.data.comments.data.length : 0,
+      comments: response.data.comments ? response.data.comments.data.map(comment => ({
+        id: comment.id,
+        text: comment.message,
+        username: comment.from.name,
+        timestamp: comment.created_time
+      })) : [],
+    };
+
+    res.status(200).json(standardizedResponse);
+  } catch (error) {
+    console.error("Error fetching Facebook post:", error.response ? error.response.data : error.message);
+    res.status(error.response?.status || 500).json({
+      message: "Error fetching Facebook post",
+      error: error.response?.data || error.message,
+    });
   }
 });
 

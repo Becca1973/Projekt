@@ -42,10 +42,20 @@ function AnalyticsPage() {
 
     const fetchInstagramPosts = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5001/api/instagram/posts"
-        );
-        setInstagramPosts(response.data || []);
+
+        const data = JSON.parse(localStorage.getItem('encodedData'));
+
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(data))
+
+        const response = await fetch("http://localhost:5001/api/instagram/posts", {
+          method: "POST",
+          body: formData
+        });
+
+        const dataGet = await response.json();
+
+        setInstagramPosts(dataGet || []);
       } catch (error) {
         setInstagramError(error);
       } finally {
@@ -113,9 +123,11 @@ function AnalyticsPage() {
     // fetchTwitterPosts();
   }, []);
 
-  const handleRoute = (id) => {
-    return navigate("/details/" + id);
+  const handleRoute = (platform, id) => {
+    return navigate("/analytics/" + platform + "/" + id);
   };
+
+  console.log(redditPosts)
 
   return (
     <div className="posts-content">
@@ -128,23 +140,23 @@ function AnalyticsPage() {
         ) : facebookPosts.length > 0 ? (
           <div className="posts">
             {facebookPosts.map((post) => (
-              <div
-                onClick={() => handleRoute(post.id)}
-                key={post.id}
-                className="post-container"
-              >
-                <p className="post-caption">{post.message}</p>
-                {post.full_picture && (
-                  <img
-                    src={post.full_picture}
-                    alt={post.message}
-                    className="post-image"
-                  />
-                )}
-                <p className="post-date">
-                  Date: {new Date(post.created_time).toLocaleDateString()}
-                </p>
-              </div>
+              <Link to={`/analytics/facebook/${post.id}`} key={post.id}>
+                <div className="post-container">
+                  <p className="post-caption">{post.message}</p>
+                  {post.full_picture ? (
+                    <img
+                      src={post.full_picture}
+                      alt={post.message}
+                      className="post-image"
+                    />
+                  ): (
+                    <p className="post-no-image">No image</p>
+                  )}
+                  <p className="post-date">
+                    Date: {new Date(post.created_time).toLocaleDateString()}
+                  </p>
+                </div>
+              </Link>
             ))}
           </div>
         ) : (
@@ -161,23 +173,21 @@ function AnalyticsPage() {
         ) : instagramPosts.length > 0 ? (
           <div className="posts">
             {instagramPosts.map((post) => (
-              <div
-                onClick={() => handleRoute(post.id)}
-                key={post.id}
-                className="post-container"
-              >
-                <p className="post-caption">Caption: {post.caption}</p>
-                {post.media_url && (
-                  <img
-                    src={post.media_url}
-                    alt={post.caption}
-                    className="post-image"
-                  />
-                )}
-                <p className="post-date">
-                  Date: {new Date(post.timestamp).toLocaleDateString()}
-                </p>
-              </div>
+             <Link to={`/analytics/instagram/${post.id}`} key={post.id}>
+                <div className="post-container">
+                  <p className="post-caption">Caption: {post.caption}</p>
+                  {post.media_url && (
+                    <img
+                      src={post.media_url}
+                      alt={post.caption}
+                      className="post-image"
+                    />
+                  )}
+                  <p className="post-date">
+                    Date: {new Date(post.timestamp).toLocaleDateString()}
+                  </p>
+                </div>
+              </Link>
             ))}
           </div>
         ) : (
@@ -185,7 +195,7 @@ function AnalyticsPage() {
         )}
       </div>
 
-      <h1>LinkedIn Posts</h1>
+      {/* <h1>LinkedIn Posts</h1>
       <div className="posts-container">
         {linkedinLoading ? (
           <p>Loading LinkedIn posts...</p>
@@ -230,49 +240,59 @@ function AnalyticsPage() {
         ) : (
           <p>No LinkedIn posts available.</p>
         )}
-      </div>
+      </div> */}
 
-      <div>
+      <div className="posts-container">
         <h1>Reddit Posts</h1>
         {redditLoading ? (
           <p>Loading Reddit posts...</p>
         ) : redditError ? (
           <p>Error loading Reddit posts: {redditError.message}</p>
         ) : redditPosts.length > 0 ? (
-          redditPosts.map((post) => (
-            <Link to={`/analytics/reddit/${post.id}`} key={post.id}>
-              <div className="post-container">
-                <p className="post-title">Title: {post.title}</p>
-                <p className="post-text">Text: {post.text}</p>
+          <div className="posts">
+            {redditPosts.map((post) => (
+              <Link to={`/analytics/reddit/${post.id}`} key={post.id}>
+                <div className="post-container">
+                  <p className="post-title">Title: {post.title}</p>
+                  <p className="post-text">Text: {post.text}</p>
 
-                {/* Check if the post has an image */}
-                {console.log(post)}
-                {post.imageUrl &&
-                (post.imageUrl.endsWith(".jpg") ||
-                  post.imageUrl.endsWith(".png") ||
-                  post.imageUrl.endsWith(".gif")) ? (
-                  <img
-                    src={post.thumbnail}
-                    alt={post.title}
-                    className="post-image"
-                  />
-                ) : post.thumbnail && post.thumbnail.startsWith("http") ? (
-                  <img
-                    src={post.thumbnail.replace(/&amp;/g, "&")}
-                    alt={post.title}
-                    className="post-image"
-                  />
-                ) : null}
+                  {/* Check if the post has an image */}
+                  {console.log(post)}
+                  {post.imageUrl &&
+                    (post.imageUrl.endsWith(".jpg") ||
+                      post.imageUrl.endsWith(".png") ||
+                      post.imageUrl.endsWith(".gif")) ? (
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="post-image"
+                    />
+                  ) : post.thumbnail && post.thumbnail.startsWith("http") ? (
+                    <>
+                      {post.thumbnail && (
+                        <>
+                          <img
+                            src={post.thumbnail}
+                            alt={post.title}
+                            className="post-image"
+                          />
+                        </>
+                      )}
+                    </>
 
-                <p className="post-date">
+                  ) : null}
+
+                  {/* <p className="post-date">
                   Date: {new Date(post.created_utc * 1000).toLocaleDateString()}
-                </p>
-              </div>
-            </Link>
-          ))
+                </p> */}
+                </div>
+              </Link>
+            ))}
+          </div>
         ) : (
           <p>No Reddit posts available.</p>
         )}
+
       </div>
 
       {/* <h1>Instagram Threads Posts</h1>

@@ -1,15 +1,47 @@
 const express = require("express");
 const axios = require("axios");
+const qs = require('querystring')
 require("dotenv").config();
 
 const router = express.Router();
 
-// POST method to submit a new post to Reddit
-router.post("/", async (req, res) => {
-  const { title, text, imageUrl, thumbnail } = req.body; // Assuming imageUrl is sent for link posts
-
+async function getRedditAccessToken(redditId, redditSecret, redditUsername) {
+  const auth = Buffer.from(`${redditId}:${redditSecret}`).toString('base64');
+  
   try {
     const response = await axios.post(
+      'https://www.reddit.com/api/v1/access_token',
+      qs.stringify({
+        grant_type: 'client_credentials'
+      }),
+      {
+        headers: {
+          Authorization: `bearer ${auth}`,
+          "User-Agent": `MyApp/1.0.0 (by /u/${redditUsername})`,
+        },
+      }
+    );
+
+    return response.data.access_token;
+  } catch (error) {
+    console.error('Error getting Reddit access token:', error);
+    throw error;
+  }
+}
+// POST method to submit a new post to Reddit
+router.post("/", async (req, res) => {
+  const { title, text, imageUrl, thumbnail, data } = req.body; // Assuming imageUrl is sent for link posts
+
+  const parsedData = JSON.parse(data);
+ 
+  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const parsedDecoded = JSON.parse(decodedString);
+  const {redditId, redditSecret, redditUsername} = parsedDecoded;
+
+  const auth = await getRedditAccessToken(redditId, redditSecret, redditUsername)
+
+  try {
+    const response = await axios.post( 
       "https://www.reddit.com/api/submit",
       {
         sr: "ProjektOlga",
@@ -22,7 +54,7 @@ router.post("/", async (req, res) => {
       },
       {
         headers: {
-          Authorization: `bearer ${process.env.REDDIT_ACCESS_TOKEN}`,
+          Authorization: `bearer ${auth}`,
           "User-Agent": "MyApp/1.0.0 (http://example.com)",
         },
       }

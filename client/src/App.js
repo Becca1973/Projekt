@@ -64,7 +64,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/post-content" element={<FeaturesPage />} />
-            <Route path="/details/:id" element={<DetailsPage />} />
+            <Route path="/analytics/:platform/:id" element={<DetailsPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/contact" element={<ContactPage />} />

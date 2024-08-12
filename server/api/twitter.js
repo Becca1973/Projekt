@@ -4,27 +4,26 @@ require("dotenv").config();
 
 const router = express.Router();
 
-// Twitter API credentials
-const TWITTER_API_KEY = process.env.TWITTER_API_KEY;
-const TWITTER_API_SECRET_KEY = process.env.TWITTER_API_SECRET_KEY;
-const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN;
-const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET;
-const TWITTER_BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
-
-const client = new TwitterApi({
-  appKey: TWITTER_API_KEY,
-  appSecret: TWITTER_API_SECRET_KEY,
-  accessToken: TWITTER_ACCESS_TOKEN,
-  accessSecret: TWITTER_ACCESS_TOKEN_SECRET,
-  bearerToken: TWITTER_BEARER_TOKEN,
-});
-
-const rwClient = client.readWrite;
-
 // POST route to post a tweet
 router.post("/", async (req, res) => {
-  const { text } = req.body;
+  const { text, data } = req.body;
   const image = req.file;
+
+  const parsedData = JSON.parse(data);
+
+  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const parsedDecoded = JSON.parse(decodedString);
+  const { twitterApiKey, twitterApiSecret, twitterAccessToken, twitterApiTokenSecret, twitterBearerToken } = parsedDecoded;
+
+  const client = new TwitterApi({
+    appKey: twitterApiKey,
+    appSecret: twitterApiSecret,
+    accessToken: twitterAccessToken,
+    accessSecret: twitterApiTokenSecret,
+    bearerToken: twitterBearerToken,
+  });
+
+  const rwClient = client.readWrite;
 
   try {
     let tweetOptions = { text };

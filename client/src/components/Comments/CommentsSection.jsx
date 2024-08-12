@@ -1,57 +1,46 @@
 import React, { useState } from 'react'
 import { Comment } from './Comment';
 
-const CommentSection = ({ comments, postId }) => {
+const CommentSection = ({ comments, postId, platform }) => {
     const [newCommentText, setNewCommentText] = useState('');
-
-    // const addComment = (text) => {
-    //     const newComment = {
-    //         id: Date.now(),
-    //         text: text,
-    //         replies: []
-    //     };
-    //     setComments([...comments, newComment]);
-    // };
-
-
-    // const addReply = (parentId, replyText) => {
-    //     const updateComments = (comments) => {
-    //         return comments.map(comment => {
-    //             if (comment.id === parentId) {
-    //                 return {
-    //                     ...comment,
-    //                     replies: [...comment.replies, { id: Date.now(), text: replyText, replies: [] }]
-    //                 };
-    //             }
-    //             if (comment.replies) {
-    //                 return { ...comment, replies: updateComments(comment.replies) };
-    //             }
-    //             return comment;
-    //         });
-    //     };
-
-    //     setComments(updateComments(comments));
-    // };
+    console.log('COMMS', comments)
 
     const addReply = () => { }
 
     const handleSubmitComment = async (e) => {
         e.preventDefault();
-        // addComment(newCommentText);
-        await fetch(`http://localhost:5001/api/facebook/comment/${postId}`, {
-            method: "POST",
-            body: newCommentText
-        }).then((response) => {
+    
+        try {
+            const encodedData = localStorage.getItem('encodedData');
+            const data = encodedData ? JSON.parse(encodedData) : null;
+
+            const formData = new FormData();
+            formData.append("data", JSON.stringify(data));
+            formData.append("message", newCommentText);
+
+            const response = await fetch(`http://localhost:5001/api/${platform}/comment/${postId}`, {
+                method: "POST",
+                body: formData
+            });
+    
             if (!response.ok) {
                 throw new Error("Error commenting: " + response.statusText);
             }
-            window.location.reload();
-        });
-        setNewCommentText('');
-    }; 
+    
+            const result = await response.json();
+    
+            // Optionally, you can update the local state here instead of reloading the page
+            // setComments([...comments, result.newComment]);
+    
+            setNewCommentText('');
+            window.location.reload(); // Consider removing this and updating state instead
+        } catch (error) {
+            console.error("Error posting comment:", error);
+            // Handle the error (e.g., show an error message to the user)
+        }
+    };
 
-
-    if (!comments)return;
+    if (!comments) return null;
 
     return (
         <div className="comment-section">

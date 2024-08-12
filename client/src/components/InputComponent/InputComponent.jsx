@@ -160,35 +160,53 @@ const InputComponent = () => {
 
       if (selectedPlatforms.includes("Twitter")) {
         const twitterFormData = createFormData();
-        promises.push(
-          fetch("http://localhost:5001/api/twitter", {
+        try {
+          const response = await fetch("http://localhost:5001/api/twitter", {
             method: "POST",
             body: twitterFormData,
-          }).then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to Twitter: " + response.statusText
-              );
-            }
-          })
-        );
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            setError(data.error);
+            setSuccess(false);
+            return;
+          }
+
+          setError(null);
+          setSuccess(true);
+          setLoading(false);
+
+        } catch (error) {
+          setError(error.message || 'Network error occurred');
+        }
       }
 
 
       if (selectedPlatforms.includes("Reddit")) {
-        const redditFormData = createFormData();
-        promises.push(
-          fetch("http://localhost:5001/api/reddit", {
+        const twitterFormData = createFormData();
+        try {
+          const response = await fetch("http://localhost:5001/api/reddit", {
             method: "POST",
-            body: redditFormData,
-          }).then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to Reddit: " + response.statusText
-              );
-            }
-          })
-        );
+            body: twitterFormData,
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            setError(data.error);
+            setSuccess(false);
+            return;
+          }
+
+          setError(null);
+          setSuccess(true);
+          setLoading(false);
+
+        } catch (error) {
+          setError(error.message || 'Network error occurred');
+        }
       }
 
 
