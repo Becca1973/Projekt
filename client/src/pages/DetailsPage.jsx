@@ -8,7 +8,7 @@ function DetailsPage() {
   const [data, setData] = useState({ content: "", comments: [], like_count: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  
   const handleDelete = async () => {
     setLoading(true);
     setError(null);

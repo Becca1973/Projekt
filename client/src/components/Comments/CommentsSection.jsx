@@ -3,13 +3,13 @@ import { Comment } from './Comment';
 
 const CommentSection = ({ comments, postId, platform }) => {
     const [newCommentText, setNewCommentText] = useState('');
-    console.log('COMMS', comments)
+    const [success, setSuccess] = useState(false);
 
     const addReply = () => { }
 
     const handleSubmitComment = async (e) => {
         e.preventDefault();
-    
+
         try {
             const encodedData = localStorage.getItem('encodedData');
             const data = encodedData ? JSON.parse(encodedData) : null;
@@ -22,18 +22,18 @@ const CommentSection = ({ comments, postId, platform }) => {
                 method: "POST",
                 body: formData
             });
-    
+
             if (!response.ok) {
                 throw new Error("Error commenting: " + response.statusText);
             }
-    
-            const result = await response.json();
-    
             // Optionally, you can update the local state here instead of reloading the page
             // setComments([...comments, result.newComment]);
-    
+
             setNewCommentText('');
-            window.location.reload(); // Consider removing this and updating state instead
+            setSuccess(true);
+
+
+
         } catch (error) {
             console.error("Error posting comment:", error);
             // Handle the error (e.g., show an error message to the user)
@@ -42,9 +42,12 @@ const CommentSection = ({ comments, postId, platform }) => {
 
     if (!comments) return null;
 
+    console.log(comments);
+    
     return (
         <div className="comment-section">
-            <form className='comment-form-section' onSubmit={handleSubmitComment}>
+            {success && <div className="success">Comment successful!</div>}
+            <form onSubmit={handleSubmitComment}>
                 <input
                     type="text"
                     value={newCommentText}

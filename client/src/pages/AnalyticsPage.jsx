@@ -48,6 +48,8 @@ function AnalyticsPage() {
         const formData = new FormData();
         formData.append("data", JSON.stringify(data))
 
+        if (!data) return;
+
         const response = await fetch("http://localhost:5001/api/instagram/posts", {
           method: "POST",
           body: formData

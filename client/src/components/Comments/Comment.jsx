@@ -3,12 +3,30 @@ import React, { useState } from 'react';
 export const Comment = ({ comment, addReply }) => {
     const [replyText, setReplyText] = useState('');
     const [showReplyInput, setShowReplyInput] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmitReply = (e) => {
+    const handleSubmitReply = async (e) => {
         e.preventDefault();
+
+        setLoading(true)
         addReply(comment.id, replyText);
+
+        const formData = new FormData();
+        formData.append("message", replyText);
+
+        const response = await fetch(`http://localhost:5001/api/facebook/reply/${comment.id}`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error("Error replying: " + response.statusText);
+        }
+
         setReplyText('');
         setShowReplyInput(false);
+        setLoading(false)
+        window.location.reload()
     };
 
     const formatDate = (date1) => {
@@ -25,31 +43,33 @@ export const Comment = ({ comment, addReply }) => {
 
     return (
         <div className="comment">
-            <div className='details'>
-                <p className='text'>{comment.text}</p>
-                <span className='user-details'>
-                    <p className='username'>{comment.username}</p>
-                    <p className='timestamp'>{formatDate(comment.timestamp)}</p>
-                </span>
-            </div>
-
-            <div className='reply-button'>
-                <button onClick={() => setShowReplyInput(!showReplyInput)}>Reply</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div className='details'>
+                    <p className='text'>{comment.text}</p>
+                    <span className='user-details'>
+                        <p className='username'>{comment.username}</p>
+                        <p className='timestamp'>{formatDate(comment.timestamp)}</p>
+                    </span>
+                </div>
+                <div className='reply-button'>
+                    <button onClick={() => setShowReplyInput(!showReplyInput)}>Reply</button>
+                </div>
             </div>
             {showReplyInput && (
-                <form onSubmit={handleSubmitReply}>
+                <form style={{ width: '100%', display: 'flex' }} onSubmit={handleSubmitReply}>
                     <input
                         type="text"
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         placeholder="Write a reply..."
                     />
-                    <button type="submit">Submit Reply</button>
+                    <button type="submit">{loading ? "Replying..." : "Submit"}</button>
                 </form>
             )}
-            {comment.replies && comment.replies.map(reply => (
+            {comment.comments && comment.comments.map(reply => (
                 <Comment key={reply.id} comment={reply} addReply={addReply} />
             ))}
         </div>
+
     );
 };

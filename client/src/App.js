@@ -13,6 +13,8 @@ import PricingPage from "./pages/PricingPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 import DetailsPage from "./pages/DetailsPage";
+import { AuthProvider } from "./auth/useAuth";
+import { ProtectedRoute } from "./auth/ProtectedRoute";
 
 import axios from "axios";
 
@@ -60,18 +62,41 @@ function App() {
     <UserProvider>
       <div className="App">
         <Router>
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/post-content" element={<FeaturesPage />} />
-            <Route path="/analytics/:platform/:id" element={<DetailsPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/my-profile" element={<ProfilePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-          </Routes>
+
+          <AuthProvider>
+            <Navigation />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/post-content"
+                element={
+                  <ProtectedRoute>
+                    <FeaturesPage />
+                  </ProtectedRoute>
+                } />
+              <Route path="/analytics/:platform/:id"
+                element={
+                  <ProtectedRoute>
+                    <DetailsPage />
+                  </ProtectedRoute>
+                } />
+              <Route path="/analytics" element={
+                <ProtectedRoute>
+                  <AnalyticsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/my-profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                } />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Routes>
+          </AuthProvider>
+
           <Footer />
         </Router>
       </div>

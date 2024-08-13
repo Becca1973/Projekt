@@ -34,6 +34,10 @@ router.post("/", async (req, res) => {
 
   const parsedData = JSON.parse(data);
  
+  if (!parsedData){
+    return res.status(400).json({ error: "Social tokens are not loaded" });
+  }
+  
   const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
   const parsedDecoded = JSON.parse(decodedString);
   const {redditId, redditSecret, redditUsername} = parsedDecoded;

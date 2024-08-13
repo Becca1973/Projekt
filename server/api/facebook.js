@@ -12,9 +12,13 @@ router.post("/", async (req, res) => {
   const file = req.file;
   const parsedData = JSON.parse(data);
 
+  if (!parsedData) {
+    return res.status(400).json({ error: "Social tokens are not loaded" });
+  }
+
   const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
   const parsedDecoded = JSON.parse(decodedString);
-  const {facebookPageID, facebookPageAccessToken} = parsedDecoded;
+  const { facebookPageID, facebookPageAccessToken } = parsedDecoded;
 
   // Parse profileData if needed
   // const { username, email } = typeof profileData === 'string' ? JSON.parse(profileData) : profileData;
@@ -141,33 +145,106 @@ router.post("/comment/:id", async (req, res) => {
   }
 });
 
+router.post("/reply/:commentId", async (req, res) => {
+  const { message } = req.body;
+  const commentId = req.params.commentId;
+
+  if (!commentId || !message) {
+    return res.status(400).json({ error: "Comment ID and reply message are required" });
+  }
+
+  try {
+    const response = await axios.post(
+      `https://graph.facebook.com/${commentId}/comments`,
+      {
+        message: message,
+        access_token: PAGE_ACCESS_TOKEN,
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Reply posted successfully",
+      replyId: response.data.id,
+    });
+  } catch (error) {
+    console.error(
+      "Error posting Facebook reply:",
+      error.response?.data || error.message
+    );
+    return res.status(500).json({
+      success: false,
+      error: "Failed to post reply",
+      details: error.response?.data?.error?.message || error.message,
+    });
+  }
+});
+
+
+async function getCommentsRecursively(id, accessToken, depth = 0, maxDepth = 3) {
+  if (depth >= maxDepth) return [];
+
+  const response = await axios.get(`https://graph.facebook.com/v17.0/${id}/comments`, {
+    params: {
+      access_token: accessToken,
+      fields: "id,message,created_time,from",
+      order: "reverse_chronological",
+      limit: 25
+    }
+  });
+
+  const comments = response.data.data;
+
+  for (let comment of comments) {
+    comment.comments = await getCommentsRecursively(comment.id, accessToken, depth + 1, maxDepth);
+  }
+
+  return comments;
+}
+
+async function getPostWithCircularComments(postId, PAGE_ACCESS_TOKEN) {
+  const postResponse = await axios.get(`https://graph.facebook.com/v17.0/${postId}`, {
+    params: {
+      access_token: PAGE_ACCESS_TOKEN,
+      fields: "id,message,created_time,full_picture,likes.summary(true)",
+    },
+  });
+
+  const post = postResponse.data;
+  post.comments = await getCommentsRecursively(postId, PAGE_ACCESS_TOKEN);
+
+  return post;
+}
+
+function mapComments(comments) {
+  if (!comments) return [];
+
+  return comments.map(comment => ({
+    id: comment.id,
+    text: comment.message,
+    username: comment.from.name,
+    timestamp: comment.created_time,
+    comments: mapComments(comment.comments)
+  }));
+}
+
 router.get("/:id", async (req, res) => {
   try {
     const postId = req.params.id;
-
-    const response = await axios.get(`https://graph.facebook.com/${postId}`, {
-      params: {
-        access_token: PAGE_ACCESS_TOKEN,
-        fields: "id,message,created_time,full_picture,likes.summary(true),comments{id,message,created_time,from}",
-      },
-    });
+    const postData = await getPostWithCircularComments(postId, PAGE_ACCESS_TOKEN);
 
     const standardizedResponse = {
-      id: response.data.id,
-      content: response.data.message,
-      timestamp: response.data.created_time,
-      media_url: response.data.full_picture,
-      like_count: response.data.likes.summary.total_count,
-      comments_count: response.data.comments ? response.data.comments.data.length : 0,
-      comments: response.data.comments ? response.data.comments.data.map(comment => ({
-        id: comment.id,
-        text: comment.message,
-        username: comment.from.name,
-        timestamp: comment.created_time
-      })) : [],
+      id: postData.id,
+      content: postData.message,
+      timestamp: postData.created_time,
+      media_url: postData.full_picture,
+      like_count: postData.likes.summary.total_count,
+      comments_count: postData.comments ? postData.comments.length : 0,
+      comments: mapComments(postData.comments)
     };
 
-    res.status(200).json(standardizedResponse);
+    return res.status(200).json(standardizedResponse);
+
   } catch (error) {
     console.error("Error fetching Facebook post:", error.response ? error.response.data : error.message);
     res.status(error.response?.status || 500).json({
@@ -176,5 +253,6 @@ router.get("/:id", async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;
