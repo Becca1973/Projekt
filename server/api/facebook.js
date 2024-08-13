@@ -4,8 +4,6 @@ const FormData = require("form-data");
 require("dotenv").config();
 
 const router = express.Router();
-const PAGE_ID = process.env.FACEBOOK_PAGE_ID;
-const PAGE_ACCESS_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
 
 router.post("/", async (req, res) => {
   const { title, text, data } = req.body;
@@ -81,28 +79,58 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.post("/delete/:id", async (req, res) => {
   const postId = req.params.id;
+  const { data } = req.body;
+
+  if (!data) {
+    return res.status(400).json({ error: "Data is required" });
+  }
 
   try {
+    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+    const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+    const parsedDecoded = JSON.parse(decodedString);
+    const { facebookPageAccessToken, instagramBusinessAccountID } = parsedDecoded;
+
+    if (!facebookPageAccessToken || !instagramBusinessAccountID) {
+      return res.status(400).json({ error: "Facebook Page Access Token and Instagram Business Account ID are required" });
+    }
+
     const response = await axios.delete(
-      `https://graph.facebook.com/${postId}?access_token=${PAGE_ACCESS_TOKEN}`
+      `https://graph.facebook.com/v17.0/${postId}`,
+      {
+        params: {
+          access_token: facebookPageAccessToken
+        }
+      }
     );
 
-    return res
-      .status(200)
-      .json({ message: "Post deleted successfully", data: response.data });
+    return res.status(200).json({ 
+      message: "Instagram post deleted successfully", 
+      data: response.data 
+    });
   } catch (error) {
-    console.error("Error deleting Facebook post:", error.message);
-    return res.status(500).send("Error deleting Facebook post");
+    console.error("Error deleting Instagram post:", error.response?.data || error.message);
+    return res.status(error.response?.status || 500).json({
+      error: "Error deleting Instagram post",
+      details: error.response?.data?.error || error.message
+    });
   }
 });
 
-router.get("/posts", async (req, res) => {
+router.post("/posts", async (req, res) => {
   try {
+    const {data} = req.body;
+    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+    const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+    const parsedDecoded = JSON.parse(decodedString);
+    const { facebookPageAccessToken, facebookPageID } = parsedDecoded;
+
     const response = await axios.get(
-      `https://graph.facebook.com/${PAGE_ID}/posts?access_token=${PAGE_ACCESS_TOKEN}&fields=id,message,created_time,full_picture`
+      `https://graph.facebook.com/${facebookPageID}/posts?access_token=${facebookPageAccessToken}&fields=id,message,created_time,full_picture`
     );
+    
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Error fetching Facebook posts:", error.message);
@@ -111,8 +139,14 @@ router.get("/posts", async (req, res) => {
 });
 
 router.post("/comment/:id", async (req, res) => {
-  const { message } = req.body;
+  const { message, data } = req.body;
   const postId = req.params.id;
+
+  const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const parsedDecoded = JSON.parse(decodedString);
+  const { facebookPageAccessToken } = parsedDecoded;
+
 
   if (!postId || !message) {
     return res.status(400).json({ error: "Post ID and message are required" });
@@ -123,7 +157,7 @@ router.post("/comment/:id", async (req, res) => {
       `https://graph.facebook.com/${postId}/comments`,
       {
         message: message,
-        access_token: PAGE_ACCESS_TOKEN,
+        access_token: facebookPageAccessToken,
       }
     );
 
@@ -146,8 +180,14 @@ router.post("/comment/:id", async (req, res) => {
 });
 
 router.post("/reply/:commentId", async (req, res) => {
-  const { message } = req.body;
+  const { message, data } = req.body;
   const commentId = req.params.commentId;
+
+  const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const parsedDecoded = JSON.parse(decodedString);
+  const { facebookPageAccessToken } = parsedDecoded;
+
 
   if (!commentId || !message) {
     return res.status(400).json({ error: "Comment ID and reply message are required" });
@@ -158,7 +198,7 @@ router.post("/reply/:commentId", async (req, res) => {
       `https://graph.facebook.com/${commentId}/comments`,
       {
         message: message,
-        access_token: PAGE_ACCESS_TOKEN,
+        access_token: facebookPageAccessToken,
       }
     );
 
@@ -228,10 +268,17 @@ function mapComments(comments) {
   }));
 }
 
-router.get("/:id", async (req, res) => {
+router.post("/:id", async (req, res) => {
   try {
+
+    const {data} = req.body;
+    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+    const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+    const parsedDecoded = JSON.parse(decodedString);
+    const { facebookPageAccessToken } = parsedDecoded;
+
     const postId = req.params.id;
-    const postData = await getPostWithCircularComments(postId, PAGE_ACCESS_TOKEN);
+    const postData = await getPostWithCircularComments(postId, facebookPageAccessToken);
 
     const standardizedResponse = {
       id: postData.id,

@@ -29,10 +29,23 @@ function AnalyticsPage() {
   useEffect(() => {
     const fetchFacebookPosts = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5001/api/facebook/posts"
-        );
-        setFacebookPosts(response.data.data || []);
+
+        const data = JSON.parse(localStorage.getItem('encodedData'));
+
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(data))
+
+        if (!data) return;
+
+        const response = await fetch("http://localhost:5001/api/facebook/posts", {
+          method: "POST",
+          body: formData
+        });
+
+        const dataGet = await response.json();
+
+        setFacebookPosts(dataGet.data || []);
+
       } catch (error) {
         setFacebookError(error);
       } finally {
@@ -125,12 +138,7 @@ function AnalyticsPage() {
     // fetchTwitterPosts();
   }, []);
 
-  const handleRoute = (platform, id) => {
-    return navigate("/analytics/" + platform + "/" + id);
-  };
-
-  console.log(redditPosts)
-
+  
   return (
     <div className="posts-content">
       <h1>Facebook Posts</h1>
@@ -257,9 +265,6 @@ function AnalyticsPage() {
                 <div className="post-container">
                   <p className="post-title">Title: {post.title}</p>
                   <p className="post-text">Text: {post.text}</p>
-
-                  {/* Check if the post has an image */}
-                  {console.log(post)}
                   {post.imageUrl &&
                     (post.imageUrl.endsWith(".jpg") ||
                       post.imageUrl.endsWith(".png") ||

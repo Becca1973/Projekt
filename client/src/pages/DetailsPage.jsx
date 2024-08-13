@@ -14,8 +14,17 @@ function DetailsPage() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:5001/api/${platform}/${id}`, {
-        method: "DELETE",
+
+      const data = JSON.parse(localStorage.getItem('encodedData'));
+
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(data))
+
+      if (!data) return;
+
+      const response = await fetch(`http://localhost:5001/api/${platform}/delete/${id}`, {
+        method: "POST",
+        body: formData
       });
 
       if (!response.ok) {
@@ -33,8 +42,17 @@ function DetailsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+
+        const data = JSON.parse(localStorage.getItem('encodedData'));
+
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(data))
+
+        if (!data) return;
+
         const response = await fetch(`http://localhost:5001/api/${platform}/${id}`, {
-          method: "GET",
+          method: "POST",
+          body: formData
         });
 
         if (!response.ok) {

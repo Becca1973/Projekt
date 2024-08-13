@@ -41,12 +41,10 @@ const CommentSection = ({ comments, postId, platform }) => {
     };
 
     if (!comments) return null;
-
-    console.log(comments);
     
     return (
         <div className="comment-section">
-            {success && <div className="success">Comment successful!</div>}
+            {success && <div className="success">Comment added successfully!</div>}
             <form onSubmit={handleSubmitComment}>
                 <input
                     type="text"

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 export const Comment = ({ comment, addReply }) => {
     const [replyText, setReplyText] = useState('');
     const [showReplyInput, setShowReplyInput] = useState(false);
     const [loading, setLoading] = useState(false);
+    const {platform} = useParams();
 
     const handleSubmitReply = async (e) => {
         e.preventDefault();
@@ -11,10 +13,14 @@ export const Comment = ({ comment, addReply }) => {
         setLoading(true)
         addReply(comment.id, replyText);
 
+        const encodedData = localStorage.getItem('encodedData');
+        const data = encodedData ? JSON.parse(encodedData) : null;
+
         const formData = new FormData();
+        formData.append("data", JSON.stringify(data));
         formData.append("message", replyText);
 
-        const response = await fetch(`http://localhost:5001/api/facebook/reply/${comment.id}`, {
+        const response = await fetch(`http://localhost:5001/api/${platform}/reply/${comment.id}`, {
             method: "POST",
             body: formData,
         });
