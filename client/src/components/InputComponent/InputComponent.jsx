@@ -4,10 +4,9 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "./InputComponent.css";
 import AIGenerator from "../AIGenerator/AIGenerator";
-import { decode } from 'base-64';
+import { decode } from "base-64";
 
 const InputComponent = () => {
-
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [media, setMedia] = useState(null);
@@ -46,7 +45,7 @@ const InputComponent = () => {
   const handleSave = async (event) => {
     event.preventDefault();
 
-    const data = JSON.parse(localStorage.getItem('encodedData'));
+    const data = JSON.parse(localStorage.getItem("encodedData"));
 
     if (!title || !text || selectedPlatforms.length === 0) {
       setError("Please fill out all fields and select at least one platform.");
@@ -57,14 +56,13 @@ const InputComponent = () => {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("text", text);
-      formData.append("data", JSON.stringify(data))
+      formData.append("data", JSON.stringify(data));
 
       if (media && media instanceof File) {
         formData.append("media", media); // Dodaj datoteko, če je pravilno nastavljena
       }
       return formData;
     };
-
 
     setLoading(true);
     setError(null);
@@ -93,9 +91,8 @@ const InputComponent = () => {
           setError(null);
           setSuccess(true);
           setLoading(false);
-
         } catch (error) {
-          setError(error.message || 'Network error occurred');
+          setError(error.message || "Network error occurred");
         }
       }
 
@@ -118,9 +115,8 @@ const InputComponent = () => {
           setError(null);
           setSuccess(true);
           setLoading(false);
-
         } catch (error) {
-          setError(error.message || 'Network error occurred');
+          setError(error.message || "Network error occurred");
         }
       }
 
@@ -157,7 +153,6 @@ const InputComponent = () => {
         );
       }
 
-
       if (selectedPlatforms.includes("Twitter")) {
         const twitterFormData = createFormData();
         try {
@@ -177,12 +172,10 @@ const InputComponent = () => {
           setError(null);
           setSuccess(true);
           setLoading(false);
-
         } catch (error) {
-          setError(error.message || 'Network error occurred');
+          setError(error.message || "Network error occurred");
         }
       }
-
 
       if (selectedPlatforms.includes("Reddit")) {
         const twitterFormData = createFormData();
@@ -203,12 +196,10 @@ const InputComponent = () => {
           setError(null);
           setSuccess(true);
           setLoading(false);
-
         } catch (error) {
-          setError(error.message || 'Network error occurred');
+          setError(error.message || "Network error occurred");
         }
       }
-
 
       if (selectedPlatforms.includes("Threads")) {
         const threadsFormData = createFormData();
@@ -226,9 +217,7 @@ const InputComponent = () => {
         );
       }
 
-
       await Promise.all(promises);
-
     } catch (error) {
       setError(error.message);
     } finally {
@@ -245,12 +234,10 @@ const InputComponent = () => {
             type: blob.type,
           });
 
-          // Dodaj datoteko v media stanje
           setMedia(file);
           const previewUrl = URL.createObjectURL(file);
           setMediaPreview(previewUrl);
 
-          // Simuliraj nalaganje datoteke v polje
           const dataTransfer = new DataTransfer();
           dataTransfer.items.add(file);
           if (fileInputRef.current) {
@@ -259,6 +246,11 @@ const InputComponent = () => {
         })
         .catch((error) => console.error("Error fetching image:", error));
     }
+
+    if (generatedContent.text) {
+      setText(generatedContent.text.trim());
+    }
+
     setAiDialogVisible(false);
   };
 
@@ -318,8 +310,12 @@ const InputComponent = () => {
           ))}
         </div>
       </div>
-      <button type="button" onClick={() => setAiDialogVisible(true)}>
-        Generate image with AI
+      <button
+        type="button"
+        className="ai-button"
+        onClick={() => setAiDialogVisible(true)}
+      >
+        Create post with AI
       </button>
       {error && <p className="error">{error}</p>}
       {success && <div className="success">Post successful!</div>}

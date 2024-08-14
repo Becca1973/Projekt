@@ -4,6 +4,7 @@ import "./AIGenerator.css";
 const AIGenerator = ({ onContentGenerated }) => {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [generatedText, setGeneratedText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,8 +37,41 @@ const AIGenerator = ({ onContentGenerated }) => {
     }
   };
 
-  const handleUseImage = () => {
-    onContentGenerated({ imageUrl }); // Poslednja sprememba tukaj
+  const generateText = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      // Generiraj vsebino brez naslova
+      const contentResponse = await fetch(
+        "http://localhost:5001/api/ai/generate-text",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: `Write a very short content for a social media post about "${prompt}".`,
+          }),
+        }
+      );
+
+      if (!contentResponse.ok) {
+        const errorData = await contentResponse.json();
+        throw new Error(errorData.message || "Error generating content");
+      }
+
+      const contentData = await contentResponse.json();
+      setGeneratedText(contentData.text.trim());
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUseContent = () => {
+    onContentGenerated({ imageUrl, text: generatedText });
   };
 
   return (
@@ -49,21 +83,44 @@ const AIGenerator = ({ onContentGenerated }) => {
         >
           &times;
         </button>
-        <h2>Generate Image with AI</h2>
+        <h2>Generate your post with AI</h2>
         <input
           type="text"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Enter prompt for image"
+          placeholder="Enter prompt for image or text"
         />
-        <button onClick={generateImage} disabled={loading}>
-          {loading ? "Generating..." : "Generate Image"}
-        </button>
+        <div className="button-group">
+          <button onClick={generateText} disabled={loading}>
+            {loading ? "Generating Content..." : "Generate Content"}
+          </button>
+          <button onClick={generateImage} disabled={loading}>
+            {loading ? "Generating Image..." : "Generate Image"}
+          </button>
+        </div>
         {error && <p className="error">{error}</p>}
         {imageUrl && (
           <div>
             <img src={imageUrl} alt="Generated" />
-            <button onClick={handleUseImage}>Use Generated Image</button>
+            <button
+              className="generated"
+              onClick={handleUseContent}
+              disabled={loading}
+            >
+              Use Generated Image
+            </button>
+          </div>
+        )}
+        {generatedText && (
+          <div>
+            <p>{generatedText}</p>
+            <button
+              className="generated"
+              onClick={handleUseContent}
+              disabled={loading}
+            >
+              Use Generated Content
+            </button>
           </div>
         )}
       </div>

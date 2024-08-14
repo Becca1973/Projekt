@@ -12,42 +12,45 @@
 }
 
 .modal-content {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 25px;
   width: 80%;
-  max-width: 600px;
-  max-height: 80%; /* Nastavi največjo višino modalnega okna */
+  max-width: 500px;
+  max-height: 80%;
   position: relative;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  overflow: auto; /* Omogoči pomikanje, če vsebina presega višino */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+  overflow: auto;
 }
 
 .modal-content h2 {
   margin-top: 0;
-  margin-bottom: 20px; /* Dodaj več prostora pod naslovom */
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 24px;
 }
 
 .modal-content input[type="text"] {
-  width: calc(100% - 22px);
+  width: calc(100% - 24px);
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 16px;
 }
 
 .modal-content img {
   max-width: 100%;
-  max-height: 400px; /* Omeji višino slike */
-  object-fit: contain; /* Ohrani razmerje slike */
-  border-radius: 4px;
-  margin-bottom: 20px;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 15px;
 }
 
 .modal-content button {
-  padding: 10px 20px;
+  padding: 10px 18px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background: #007bff;
   color: #fff;
   cursor: pointer;
@@ -60,7 +63,7 @@
 }
 
 .modal-content button:hover:not(:disabled) {
-  opacity: 0.9;
+  background: #0056b3;
 }
 
 .modal-content button:focus {
@@ -69,15 +72,22 @@
 
 .modal-close-btn {
   position: absolute;
-  top: 10px; /* Povečano za boljši dostop */
-  right: 10px; /* Povečano za boljši dostop */
-  background: none;
+  top: 1px;
+  right: 1px;
+  background: none !important;
   border: none;
-  font-size: 20px; /* Povečano za boljši vizualni učinek */
-  color: #333;
+  font-size: 24px;
+  color: #666 !important;
   cursor: pointer;
+  width: auto;
+  height: auto;
+  padding: 0;
 }
 
 .modal-close-btn:hover {
-  color: #000;
+  color: #000000 !important;
+}
+
+.generated button {
+  margin: 10px;
 }
