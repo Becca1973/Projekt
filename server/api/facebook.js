@@ -106,9 +106,9 @@ router.post("/delete/:id", async (req, res) => {
       }
     );
 
-    return res.status(200).json({ 
-      message: "Instagram post deleted successfully", 
-      data: response.data 
+    return res.status(200).json({
+      message: "Instagram post deleted successfully",
+      data: response.data
     });
   } catch (error) {
     console.error("Error deleting Instagram post:", error.response?.data || error.message);
@@ -121,16 +121,16 @@ router.post("/delete/:id", async (req, res) => {
 
 router.post("/posts", async (req, res) => {
   try {
-    const {data} = req.body;
+    const { data } = req.body;
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
     const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
     const parsedDecoded = JSON.parse(decodedString);
     const { facebookPageAccessToken, facebookPageID } = parsedDecoded;
 
     const response = await axios.get(
-      `https://graph.facebook.com/${facebookPageID}/posts?access_token=${facebookPageAccessToken}&fields=id,message,created_time,full_picture`
+      `https://graph.facebook.com/${facebookPageID}/posts?access_token=${facebookPageAccessToken}&fields=id,message,created_time,full_picture,likes.summary(true),comments.summary(true)`
     );
-    
+
     res.status(200).json(response.data);
   } catch (error) {
     console.error("Error fetching Facebook posts:", error.message);
@@ -271,7 +271,7 @@ function mapComments(comments) {
 router.post("/:id", async (req, res) => {
   try {
 
-    const {data} = req.body;
+    const { data } = req.body;
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
     const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
     const parsedDecoded = JSON.parse(decodedString);

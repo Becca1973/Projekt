@@ -19,21 +19,21 @@ import { ProtectedRoute } from "./auth/ProtectedRoute";
 import axios from "axios";
 
 // MOGOCE JE TISTO BOLJSE PREBACIT V MYPROFILE PAGE AMPAK ZDAJ KO RAZVIJAMO NEK BO TUKAJ
-const sendDataToServer = async () => {
-  const socialTokens = JSON.parse(localStorage.getItem("socialTokens"));
+// const sendDataToServer = async () => {
+//   const socialTokens = JSON.parse(localStorage.getItem("socialTokens"));
 
-  if (socialTokens) {
-    try {
-      await axios.post("http://localhost:5001/api/env", socialTokens);
-      console.log("Data sent to server successfully.");
-    } catch (error) {
-      console.error("Error sending data to server:", error);
-    }
-  } else {
-    console.error("No socialTokens found in localStorage.");
-  }
-};
-sendDataToServer();
+//   if (socialTokens) {
+//     try {
+//       await axios.post("http://localhost:5001/api/env", socialTokens);
+//       console.log("Data sent to server successfully.");
+//     } catch (error) {
+//       console.error("Error sending data to server:", error);
+//     }
+//   } else {
+//     console.error("No socialTokens found in localStorage.");
+//   }
+// };
+// sendDataToServer();
 
 
 function App() {

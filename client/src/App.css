@@ -17,6 +17,23 @@
   display: flex;
 }
 
+.select-fields {
+  display: flex;
+  gap: 10px;
+}
+
+.custom-select select {
+  appearance: none;
+  font-size: 1.15rem;
+  padding: 0.675em 6em 0.675em 1em;
+  background-color: #fff;
+  border: 1px solid #caced1;
+  border-radius: 0.25rem;
+  color: #000;
+  cursor: pointer;
+  margin: 10px 0;
+}
+
 .comment-section input[type="text"] {
   width: 100%;
   padding: 10px;
@@ -450,7 +467,7 @@ h2 {
 /* Home.css */
 
 .container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -714,11 +731,6 @@ h2 {
 .footer-bottom {
   border-top: 1px solid #444;
   padding-top: 10px;
-}
-
-.posts-container {
-  margin: auto;
-  max-width: 1100px;
 }
 
 .posts-content {

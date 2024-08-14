@@ -180,7 +180,7 @@ router.post("/posts", async (req, res) => {
       `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
       {
         params: {
-          fields: "id,caption,media_type,media_url,thumbnail_url,timestamp",
+          fields: "id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count",
           access_token: facebookPageAccessToken,
         },
       }
