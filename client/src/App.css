@@ -19,19 +19,25 @@
 
 .select-fields {
   display: flex;
+  flex-direction: row;
   gap: 10px;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 .custom-select select {
   appearance: none;
   font-size: 1.15rem;
-  padding: 0.675em 6em 0.675em 1em;
+  padding: 16px;
   background-color: #fff;
   border: 1px solid #caced1;
   border-radius: 0.25rem;
   color: #000;
   cursor: pointer;
   margin: 10px 0;
+  width: auto;
+  min-width: 300px;
+  width: 25%;
 }
 
 .comment-section input[type="text"] {
@@ -44,7 +50,7 @@
 
 .comment-section button {
   padding: 10px 15px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -68,12 +74,12 @@
 }
 
 .comment button {
-  background-color: #008CBA;
+  background-color: #008cba;
   font-size: 0.9em;
 }
 
 .comment button:hover {
-  background-color: #007B9A;
+  background-color: #007b9a;
 }
 
 .comment .comment {
@@ -343,12 +349,15 @@ button {
   margin: 10px 0;
 }
 
-.nav-elements {
-}
-
 .nav-elements ul {
   display: flex;
+  justify-content: center;
   list-style-type: none;
+}
+
+.nav-elements ul div {
+  display: flex;
+  flex-direction: row;
 }
 
 .nav-elements ul li:not(:last-child) {
@@ -369,7 +378,7 @@ button {
 }
 
 .nav-elements ul a.active::after {
-  content: '';
+  content: "";
   position: fixed;
   bottom: -4px;
   left: 0;
@@ -381,6 +390,9 @@ button {
 @media (max-width: 768px) {
   .nav-elements ul li:not(:last-child) {
     margin-right: 30px;
+  }
+  .select-fields {
+    flex-direction: column;
   }
 }
 
@@ -415,8 +427,6 @@ button {
     margin-top: 22px;
   }
 }
-
-
 
 .App-header {
   background-color: #282c34;
@@ -747,12 +757,14 @@ h2 {
 @media screen and (max-width: 1100px) {
   .posts {
     grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
   }
 }
 
 @media screen and (max-width: 700px) {
   .posts {
     display: grid;
+    max-width: 400px;
     grid-template-columns: repeat(1, 1fr);
     gap: 10px;
     grid-auto-rows: minmax(100px, 2);
@@ -762,16 +774,15 @@ h2 {
 .post-container {
   border: 1px solid #ddd; /* Svetel obrobni rob */
   border-radius: 8px; /* Rahlo zaobljeni robovi */
-  padding: 16px; /* Notranji robovi za vsebino */
-   /* Razdalja med posameznimi objavami */
-  transition:
-    box-shadow 0.3s ease,
-    transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
+  padding: 20px; /* Notranji robovi za vsebino */
+  /* Razdalja med posameznimi objavami */
+  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
   width: 100%; /* Določite širino kvadratne kartice */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
   display: inline-block; /* Omogoči več kartic v enem vrstici */
   height: 100%;
+  min-height: 250px;
 }
 
 .post-container:hover {
@@ -793,9 +804,24 @@ h2 {
   align-items: center;
   justify-content: space-between;
 }
+.posts-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content; /* or specify a fixed width */
+}
 
 .post-caption {
   font-size: 16px;
+  margin-bottom: 16px;
+  display: -webkit-box; /* Use a flexbox model for the element */
+  -webkit-line-clamp: 2; /* Show only two lines of text */
+  -webkit-box-orient: vertical; /* Orient the box vertically */
+  overflow: hidden; /* Hide any overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis (...) at the end if text overflows */
+  max-height: calc(
+    2 * 1.5em
+  ); /* Ensure height is restricted to 2 lines based on line height */
+  line-height: 1.5em; /* Set a consistent line height */
 }
 
 .post-date {

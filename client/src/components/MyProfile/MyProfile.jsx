@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useUser } from "./UserContext";
 import { db } from "../../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { encode as base64Encode } from 'base-64';
+import { encode as base64Encode } from "base-64";
 
 function MyProfile() {
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
-
 
   const [socialTokens, setSocialTokens] = useState({
     facebookPageID: "",
@@ -16,17 +15,10 @@ function MyProfile() {
     instagramUsername: "",
     instagramPassword: "",
     imgurClientID: "",
-    twitterApiKey: "",
-    twitterApiSecret: "",
-    twitterAccessToken: "",
-    twitterApiTokenSecret: "",
-    twitterBearerToken: "",
     redditUsername: "",
     redditPassword: "",
     redditId: "",
     redditSecret: "",
-    threadsPassword: "",
-    threadsUsername: ""
   });
 
   const [profileData, setProfileData] = useState({
@@ -46,10 +38,12 @@ function MyProfile() {
           // Encode sensitive data
           const encodedData = {
             socialTokens: base64Encode(JSON.stringify(data.socialTokens || {})),
-            profileData: base64Encode(JSON.stringify({
-              username: data.username || "",
-              email: data.email || "",
-            }))
+            profileData: base64Encode(
+              JSON.stringify({
+                username: data.username || "",
+                email: data.email || "",
+              })
+            ),
           };
 
           // Set state with encoded data
@@ -67,9 +61,7 @@ function MyProfile() {
     };
 
     fetchTokens();
-
   }, [user]);
-
 
   const handleTokenChange = (e) => {
     const { name, value } = e.target;
@@ -225,59 +217,6 @@ function MyProfile() {
             </div>
             <div className="social-group">
               <div className="form-group">
-                <label htmlFor="twitterApiKey">Twitter Api Key</label>
-                <input
-                  type="text"
-                  id="twitterApiKey"
-                  name="twitterApiKey"
-                  value={socialTokens.twitterApiKey}
-                  onChange={handleTokenChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="twitterApiSecret">Twitter Api Secret</label>
-                <input
-                  type="text"
-                  id="twitterApiSecret"
-                  name="twitterApiSecret"
-                  value={socialTokens.twitterApiSecret}
-                  onChange={handleTokenChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="twitterAccessToken">Twitter Access Token</label>
-                <input
-                  type="text"
-                  id="twitterAccessToken"
-                  name="twitterAccessToken"
-                  value={socialTokens.twitterAccessToken}
-                  onChange={handleTokenChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="twitterApiTokenSecret">Twitter Secret Token</label>
-                <input
-                  type="text"
-                  id="twitterApiTokenSecret"
-                  name="twitterApiTokenSecret"
-                  value={socialTokens.twitterApiTokenSecret}
-                  onChange={handleTokenChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="twitterBearerToken">Twitter Bearer Token</label>
-                <input
-                  type="text"
-                  id="twitterBearerToken"
-                  name="twitterBearerToken"
-                  value={socialTokens.twitterBearerToken}
-                  onChange={handleTokenChange}
-                />
-              </div>
-            </div>
-
-            <div className="social-group">
-              <div className="form-group">
                 <label htmlFor="redditUsername">Reddit Username</label>
                 <input
                   type="text"
@@ -317,31 +256,6 @@ function MyProfile() {
                   onChange={handleTokenChange}
                 />
               </div>
-         
-            </div>
-            <div className="social-group">
-
-
-              <div className="form-group">
-                <label htmlFor="threadsUsername">Threads Username</label>
-                <input
-                  type="text"
-                  id="threadsUsername"
-                  name="threadsUsername"
-                  value={socialTokens.threadsUsername}
-                  onChange={handleTokenChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="threadsPassword">Threads Password</label>
-                <input
-                  type="text"
-                  id="threadsPassword"
-                  name="threadsPassword"
-                  value={socialTokens.threadsPassword}
-                  onChange={handleTokenChange}
-                />
-              </div>
             </div>
             <button className="save-button" onClick={saveTokensToFirestore}>
               Save Tokens
@@ -349,7 +263,6 @@ function MyProfile() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -47,31 +47,34 @@ function Navigation() {
             <li>
               <Link to="/contact">Contact</Link>
             </li>
-            {user ? (
-              <>
-                <li>
-                  <Link to="/my-profile">My Profile</Link>
-                </li>
-                <li>
-                  <a href="#" onClick={handleLogout}>Logout</a>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <Link to="/login">Login</Link>
-                </li>
-                <li>
-                  <Link to="/register">Register</Link>
-                </li>
-              </>
-            )}
+            <div>
+              {user ? (
+                <>
+                  <li>
+                    <Link to="/my-profile">My Profile</Link>
+                  </li>
+                  <li>
+                    <a href="#" onClick={handleLogout}>
+                      Logout
+                    </a>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link to="/login">Login</Link>
+                  </li>
+                  <li>
+                    <Link to="/register">Register</Link>
+                  </li>
+                </>
+              )}
+            </div>
           </ul>
         </div>
       </div>
     </nav>
   );
 }
-
 
 export default Navigation;

@@ -17,7 +17,7 @@ const InputComponent = () => {
   const [success, setSuccess] = useState(false);
   const [aiDialogVisible, setAiDialogVisible] = useState(false);
 
-  const platforms = ["Facebook", "Twitter", "Instagram", "Reddit", "Threads"];
+  const platforms = ["Facebook", "Instagram", "Reddit"];
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
@@ -119,64 +119,6 @@ const InputComponent = () => {
           setError(error.message || "Network error occurred");
         }
       }
-
-      // if (selectedPlatforms.includes("LinkedIn")) {
-      //   const linkedInFormData = createFormData();
-      //   logFormData(linkedInFormData);
-      //   promises.push(
-      //     await fetch("http://localhost:5001/api/linkedin", {
-      //       method: "POST",
-      //       body: linkedInFormData,
-      //     }).then((response) => {
-      //       if (!response.ok) {
-      //         throw new Error(
-      //           "Error posting to LinkedIn: " + response.statusText
-      //         );
-      //       }
-      //     })
-      //   );
-      // }
-
-      if (selectedPlatforms.includes("LinkedIn")) {
-        const linkedInFormData = createFormData();
-        promises.push(
-          fetch("http://localhost:5001/api/linkedin", {
-            method: "POST",
-            body: linkedInFormData,
-          }).then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to LinkedIn: " + response.statusText
-              );
-            }
-          })
-        );
-      }
-
-      if (selectedPlatforms.includes("Twitter")) {
-        const twitterFormData = createFormData();
-        try {
-          const response = await fetch("http://localhost:5001/api/twitter", {
-            method: "POST",
-            body: twitterFormData,
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            setError(data.error);
-            setSuccess(false);
-            return;
-          }
-
-          setError(null);
-          setSuccess(true);
-          setLoading(false);
-        } catch (error) {
-          setError(error.message || "Network error occurred");
-        }
-      }
-
       if (selectedPlatforms.includes("Reddit")) {
         const twitterFormData = createFormData();
         try {
@@ -199,22 +141,6 @@ const InputComponent = () => {
         } catch (error) {
           setError(error.message || "Network error occurred");
         }
-      }
-
-      if (selectedPlatforms.includes("Threads")) {
-        const threadsFormData = createFormData();
-        promises.push(
-          fetch("http://localhost:5001/api/threads", {
-            method: "POST",
-            body: threadsFormData,
-          }).then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                "Error posting to Threads: " + response.statusText
-              );
-            }
-          })
-        );
       }
 
       await Promise.all(promises);
