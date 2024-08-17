@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import { AiFillLike } from "react-icons/ai";
 import { FaComment } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import AnalyticsCharts from "../components/AnalyticsCharts/AnalyticsCharts";
 
 function AnalyticsDetailedPage() {
   const [currentPost, setCurrentPost] = useState(null);
+  const [showChart, setShowChart] = useState(false); // State to manage chart visibility
+  const [loading, setLoading] = useState(false); // State to manage loading state
 
   useEffect(() => {
     const storedPost = JSON.parse(localStorage.getItem("currentPost"));
@@ -19,6 +22,7 @@ function AnalyticsDetailedPage() {
     <div className="container post-detail">
       <h2>Post Details</h2>
 
+      {/* Facebook Post Details */}
       {currentPost.facebook && (
         <Link to={`/analytics/details/facebook/${currentPost.facebook.id}`}>
           <div className="post-container">
@@ -54,6 +58,7 @@ function AnalyticsDetailedPage() {
         </Link>
       )}
 
+      {/* Instagram Post Details */}
       {currentPost.instagram && (
         <Link to={`/analytics/details/instagram/${currentPost.instagram.id}`}>
           <div className="post-container">
@@ -86,6 +91,10 @@ function AnalyticsDetailedPage() {
           </div>
         </Link>
       )}
+      <AnalyticsCharts
+        facebookPost={currentPost.facebook}
+        instagramPost={currentPost.instagram}
+      />
     </div>
   );
 }

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AiFillLike } from "react-icons/ai";
-import { FaComment } from "react-icons/fa";
 
 const sorts = [
   {
@@ -11,21 +9,6 @@ const sorts = [
   {
     name: "Comments",
     value: "comments",
-  },
-];
-
-const filters = [
-  {
-    name: "Instagram",
-    value: "instagram",
-  },
-  {
-    name: "Facebook",
-    value: "facebook",
-  },
-  {
-    name: "Merged",
-    value: "merged",
   },
 ];
 
@@ -190,16 +173,6 @@ function AnalyticsPage() {
           <select onChange={(e) => handleSort(e.target.value)}>
             <option value="">Sort by</option>
             {sorts.map(({ value, name }, index) => (
-              <option key={index} value={value}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="custom-select">
-          <select onChange={(e) => setFilter(e.target.value)}>
-            <option value="">All platforms</option>
-            {filters.map(({ value, name }, index) => (
               <option key={index} value={value}>
                 {name}
               </option>
