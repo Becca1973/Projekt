@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AiFillLike } from "react-icons/ai";
 import { FaComment } from "react-icons/fa";
 
@@ -25,34 +24,29 @@ const filters = [
     value: "facebook",
   },
   {
-    name: "Reddit",
-    value: "reddit",
+    name: "Merged",
+    value: "merged",
   },
 ];
 
 function AnalyticsPage() {
-  const navigate = useNavigate();
-
   const [sort, setSort] = useState("");
   const [filter, setFilter] = useState("");
 
   const [facebookPosts, setFacebookPosts] = useState([]);
   const [instagramPosts, setInstagramPosts] = useState([]);
-  const [redditPosts, setRedditPosts] = useState([]);
+  const [mergedPosts, setMergedPosts] = useState([]);
 
   const [facebookError, setFacebookError] = useState(null);
   const [instagramError, setInstagramError] = useState(null);
-  const [redditError, setRedditError] = useState(null);
 
   const [facebookLoading, setFacebookLoading] = useState(true);
   const [instagramLoading, setInstagramLoading] = useState(true);
-  const [redditLoading, setRedditLoading] = useState(true);
 
   useEffect(() => {
     const fetchFacebookPosts = async () => {
       try {
         const data = JSON.parse(localStorage.getItem("encodedData"));
-
         const formData = new FormData();
         formData.append("data", JSON.stringify(data));
 
@@ -67,10 +61,11 @@ function AnalyticsPage() {
         );
 
         const dataGet = await response.json();
-
         setFacebookPosts(dataGet.data || []);
+        return dataGet.data || [];
       } catch (error) {
         setFacebookError(error);
+        return [];
       } finally {
         setFacebookLoading(false);
       }
@@ -79,7 +74,6 @@ function AnalyticsPage() {
     const fetchInstagramPosts = async () => {
       try {
         const data = JSON.parse(localStorage.getItem("encodedData"));
-
         const formData = new FormData();
         formData.append("data", JSON.stringify(data));
 
@@ -94,258 +88,183 @@ function AnalyticsPage() {
         );
 
         const dataGet = await response.json();
-
         setInstagramPosts(dataGet || []);
+        return dataGet || [];
       } catch (error) {
         setInstagramError(error);
+        return [];
       } finally {
         setInstagramLoading(false);
       }
     };
 
-    const fetchRedditPosts = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5001/api/reddit/posts"
+    const mergePosts = (facebookPosts, instagramPosts) => {
+      const combinedPosts = [...facebookPosts, ...instagramPosts];
+
+      const merged = combinedPosts.reduce((acc, post) => {
+        const messageOrCaption = post.message || post.caption;
+
+        let existingPost = acc.find(
+          (p) =>
+            p.message === messageOrCaption || p.caption === messageOrCaption
         );
-        setRedditPosts(response.data || []);
-      } catch (error) {
-        setRedditError(error);
-      } finally {
-        setRedditLoading(false);
-      }
+
+        if (existingPost) {
+          if (post.message) {
+            existingPost.facebook = { ...post };
+          } else if (post.caption) {
+            existingPost.instagram = { ...post };
+          }
+        } else {
+          const newPost = post.message
+            ? { facebook: { ...post }, message: post.message }
+            : { instagram: { ...post }, caption: post.caption };
+          acc.push(newPost);
+        }
+
+        return acc;
+      }, []);
+
+      localStorage.setItem("combinedPosts", JSON.stringify(combinedPosts));
+      localStorage.setItem("mergedPosts", JSON.stringify(merged));
+      setMergedPosts(merged);
     };
 
-    function reset() {
-      setFacebookPosts(null);
-      setInstagramPosts(null);
-      setRedditPosts(null);
-    }
+    const fetchPosts = async () => {
+      const facebook = await fetchFacebookPosts();
+      const instagram = await fetchInstagramPosts();
+      mergePosts(facebook, instagram);
+    };
 
-    switch (filter) {
-      case "instagram":
-        reset();
-        fetchInstagramPosts();
-        break;
-      case "facebook":
-        reset();
-        fetchFacebookPosts();
-        break;
-      case "reddit":
-        reset();
-        fetchRedditPosts();
-        break;
-      default:
-        reset();
-        fetchInstagramPosts();
-        fetchFacebookPosts();
-        fetchRedditPosts();
-        break;
-    }
-  }, [filter]);
+    fetchPosts();
+  }, []);
 
   const handleSort = (sort) => {
     switch (sort) {
       case "likes":
-        if (facebookPosts)
-          setFacebookPosts(
-            [...facebookPosts].sort(
-              (a, b) =>
-                (b.likes?.data.length || 0) - (a.likes?.data.length || 0)
-            )
-          );
-        if (instagramPosts)
-          setInstagramPosts(
-            [...instagramPosts].sort(
-              (a, b) => (b.like_count || 0) - (a.like_count || 0)
-            )
-          );
+        setMergedPosts((prevPosts) =>
+          [...prevPosts].sort(
+            (a, b) =>
+              (b.facebook?.likes?.data.length || b.instagram?.like_count || 0) -
+              (a.facebook?.likes?.data.length || a.instagram?.like_count || 0)
+          )
+        );
         break;
       case "comments":
-        if (facebookPosts)
-          setFacebookPosts(
-            [...facebookPosts].sort(
-              (a, b) =>
-                (b.comments?.data.length || 0) - (a.comments?.data.length || 0)
-            )
-          );
-        if (instagramPosts)
-          setInstagramPosts(
-            [...instagramPosts].sort(
-              (a, b) => (b.comments_count || 0) - (a.comments_count || 0)
-            )
-          );
+        setMergedPosts((prevPosts) =>
+          [...prevPosts].sort(
+            (a, b) =>
+              (b.facebook?.comments?.data.length ||
+                b.instagram?.comments_count ||
+                0) -
+              (a.facebook?.comments?.data.length ||
+                a.instagram?.comments_count ||
+                0)
+          )
+        );
         break;
       default:
         break;
     }
   };
 
+  const getFilteredPosts = () => {
+    switch (filter) {
+      case "instagram":
+        return instagramPosts;
+      case "facebook":
+        return facebookPosts;
+      default:
+        return mergedPosts;
+    }
+  };
+
+  const handlePostClick = (post) => {
+    localStorage.setItem("currentPost", JSON.stringify(post));
+  };
+
   return (
     <div className="container posts-content">
       <div className="select-fields">
-        <div class="custom-select">
+        <div className="custom-select">
           <select onChange={(e) => handleSort(e.target.value)}>
-            <option value="0">Sort by</option>
-            {sorts.map(({ value, name }, index) => {
-              return (
-                <option key={index} value={value}>
-                  {name}
-                </option>
-              );
-            })}
+            <option value="">Sort by</option>
+            {sorts.map(({ value, name }, index) => (
+              <option key={index} value={value}>
+                {name}
+              </option>
+            ))}
           </select>
         </div>
-        <div class="custom-select">
+        <div className="custom-select">
           <select onChange={(e) => setFilter(e.target.value)}>
-            <option value="0">All platforms</option>
-            {filters.map(({ value, name }, index) => {
-              return (
-                <option key={index} value={value}>
-                  {name}
-                </option>
-              );
-            })}
+            <option value="">All platforms</option>
+            {filters.map(({ value, name }, index) => (
+              <option key={index} value={value}>
+                {name}
+              </option>
+            ))}
           </select>
         </div>
       </div>
       <div>
-        {facebookPosts && (
-          <div>
-            <h1>Facebook Posts</h1>
-
-            <div className="posts-container">
-              {facebookLoading ? (
-                <p>Loading Facebook posts...</p>
-              ) : facebookError ? (
-                <p>Error loading Facebook posts: {facebookError.message}</p>
-              ) : facebookPosts.length > 0 ? (
-                <div className="posts">
-                  {facebookPosts.map((post) => (
-                    <Link to={`/analytics/facebook/${post.id}`} key={post.id}>
-                      <div className="post-container">
-                        <p className="post-caption">{post.message}</p>
-
-                        {post.full_picture ? (
-                          <img
-                            src={post.full_picture}
-                            alt={post.message}
-                            className="post-image"
-                          />
-                        ) : (
-                          <p className="post-no-image">No image</p>
-                        )}
-                        <p className="post-date">
-                          Date:{" "}
-                          {new Date(post.created_time).toLocaleDateString()}
-                        </p>
-                        <div className="select-fields">
-                          <p>
-                            <AiFillLike /> {post.likes.data.length}
-                          </p>
-                          <p>
-                            <FaComment /> {post.comments.data.length}
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p>No Facebook posts available.</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {instagramPosts && (
-          <div>
-            <h1>Instagram Posts</h1>
-            <div className="posts-container">
-              {instagramLoading ? (
-                <p>Loading Instagram posts...</p>
-              ) : instagramError ? (
-                <p>Error loading Instagram posts: {instagramError.message}</p>
-              ) : instagramPosts.length > 0 ? (
-                <div className="posts">
-                  {instagramPosts.map((post) => (
-                    <Link to={`/analytics/instagram/${post.id}`} key={post.id}>
-                      <div className="post-container">
-                        <p className="post-caption">Caption: {post.caption}</p>
-                        {post.media_url && (
-                          <img
-                            src={post.media_url}
-                            alt={post.caption}
-                            className="post-image"
-                          />
-                        )}
-                        <p className="post-date">
-                          Date: {new Date(post.timestamp).toLocaleDateString()}
-                        </p>
-                        <div className="select-fields">
-                          <p>
-                            <AiFillLike /> {post.like_count}
-                          </p>
-                          <p>
-                            <FaComment /> {post.comments_count}
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p>No Instagram posts available.</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {redditPosts && (
+        {getFilteredPosts().length > 0 ? (
           <div className="posts-container">
-            <h1>Reddit Posts</h1>
-            {redditLoading ? (
-              <p>Loading Reddit posts...</p>
-            ) : redditError ? (
-              <p>Error loading Reddit posts: {redditError.message}</p>
-            ) : redditPosts.length > 0 ? (
-              <div className="posts">
-                {redditPosts.map((post) => (
-                  <Link to={`/analytics/reddit/${post.id}`} key={post.id}>
-                    <div className="post-container">
-                      <p className="post-title">Title: {post.title}</p>
-                      <p className="post-text">Text: {post.text}</p>
-                      {post.imageUrl &&
-                      (post.imageUrl.endsWith(".jpg") ||
-                        post.imageUrl.endsWith(".png") ||
-                        post.imageUrl.endsWith(".gif")) ? (
-                        <img
-                          src={post.imageUrl}
-                          alt={post.title}
-                          className="post-image"
-                        />
-                      ) : post.thumbnail &&
-                        post.thumbnail.startsWith("http") ? (
-                        <>
-                          {post.thumbnail && (
-                            <>
-                              <img
-                                src={post.thumbnail}
-                                alt={post.title}
-                                className="post-image"
-                              />
-                            </>
-                          )}
-                        </>
-                      ) : null}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <p>No Reddit posts available.</p>
-            )}
+            {getFilteredPosts().map((post) => (
+              <Link
+                to={`/analytics/details`}
+                key={post.facebook ? post.facebook.id : post.instagram.id}
+                onClick={() => handlePostClick(post)}
+              >
+                <div className="post-container">
+                  <p className="post-caption">
+                    {post.message?.match(/^[^\n]+/)[0] ||
+                      post.caption?.match(/^[^\n]+/)[0] ||
+                      "No caption"}
+                  </p>
+                  {post.facebook && post.facebook.full_picture ? (
+                    <img
+                      src={post.facebook.full_picture}
+                      alt={post.facebook.message}
+                      className="post-image"
+                    />
+                  ) : post.instagram && post.instagram.media_url ? (
+                    <img
+                      src={post.instagram.media_url}
+                      alt={post.instagram.caption}
+                      className="post-image"
+                    />
+                  ) : (
+                    <p className="post-no-image">No image</p>
+                  )}
+                  <p className="post-date">
+                    Date:{" "}
+                    {new Date(
+                      post.facebook
+                        ? post.facebook.created_time
+                        : post.instagram.timestamp
+                    ).toLocaleDateString()}
+                  </p>
+                  <div className="select-fields">
+                    <p>
+                      <AiFillLike />{" "}
+                      {post.facebook
+                        ? post.facebook.likes?.data.length || 0
+                        : post.instagram.like_count || 0}
+                    </p>
+                    <p>
+                      <FaComment />{" "}
+                      {post.facebook
+                        ? post.facebook.comments?.data.length || 0
+                        : post.instagram.comments_count || 0}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
+        ) : (
+          <p>Loading...</p>
         )}
       </div>
     </div>

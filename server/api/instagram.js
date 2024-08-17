@@ -15,28 +15,30 @@ cloudinary.config({
 });
 
 router.post("/", async (req, res) => {
-
   const { title, text, data } = req.body;
   const file = req.file;
 
   const parsedData = JSON.parse(data);
 
-  if (!parsedData){
+  if (!parsedData) {
     return res.status(400).json({ error: "Social tokens are not loaded" });
   }
 
-  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const decodedString = Buffer.from(parsedData.socialTokens, "base64").toString(
+    "utf-8"
+  );
   const parsedDecoded = JSON.parse(decodedString);
   const { instagramBusinessAccountID, facebookPageAccessToken } = parsedDecoded;
 
   if (!title || !text) {
     return res
       .status(400)
-      .json({ error: "Please fill out all fields and select at least one platform." });
+      .json({
+        error: "Please fill out all fields and select at least one platform.",
+      });
   }
 
   try {
-
     if (file == undefined) {
       return res.status(400).json({ error: "Upload file to post" });
     }
@@ -117,9 +119,7 @@ router.post("/", async (req, res) => {
         throw new Error(publishResponse.data.error.message);
       }
 
-      res
-        .status(200)
-        .json({ success: true, postId: publishResponse.data.id });
+      res.status(200).json({ success: true, postId: publishResponse.data.id });
     } else if (mediaType === "image") {
       // For images, initialize media container without resumable upload
       const initResponse = await axios.post(
@@ -155,23 +155,24 @@ router.post("/", async (req, res) => {
         .status(200)
         .json({ success: true, postId: publishResponse.data.id });
     }
-
   } catch (error) {
     console.error("Error posting to Instagram:", error);
-    return res.status(400).json({ error: "Instagram tokens are not valid or an error occurred" });
+    return res
+      .status(400)
+      .json({ error: "Instagram tokens are not valid or an error occurred" });
   }
-
 });
 
 router.post("/posts", async (req, res) => {
-
   const parsedData = JSON.parse(req.body.data);
 
-  if (!parsedData){
+  if (!parsedData) {
     return res.status(400).json({ error: "Social tokens are not loaded" });
   }
 
-  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const decodedString = Buffer.from(parsedData.socialTokens, "base64").toString(
+    "utf-8"
+  );
   const parsedDecoded = JSON.parse(decodedString);
   const { instagramBusinessAccountID, facebookPageAccessToken } = parsedDecoded;
 
@@ -180,7 +181,8 @@ router.post("/posts", async (req, res) => {
       `https://graph.facebook.com/v20.0/${instagramBusinessAccountID}/media`,
       {
         params: {
-          fields: "id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count",
+          fields:
+            "id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count",
           access_token: facebookPageAccessToken,
         },
       }
@@ -195,16 +197,16 @@ router.post("/posts", async (req, res) => {
   }
 });
 
-
 async function fetchAllComments(postId, accessToken, after = null) {
   const response = await axios.get(
     `https://graph.facebook.com/v17.0/${postId}/comments`,
     {
       params: {
-        fields: "id,text,username,timestamp,replies{id,text,username,timestamp}",
+        fields:
+          "id,text,username,timestamp,replies{id,text,username,timestamp}",
         access_token: accessToken,
         after: after,
-        limit: 100 // Adjust this value as needed
+        limit: 100, // Adjust this value as needed
       },
     }
   );
@@ -218,7 +220,11 @@ async function fetchAllComments(postId, accessToken, after = null) {
 
   // If there are more comments, fetch the next page
   if (response.data.paging && response.data.paging.next) {
-    const nextComments = await fetchAllComments(postId, accessToken, response.data.paging.cursors.after);
+    const nextComments = await fetchAllComments(
+      postId,
+      accessToken,
+      response.data.paging.cursors.after
+    );
     comments = comments.concat(nextComments);
   }
 
@@ -234,7 +240,7 @@ async function fetchAllReplies(commentId, accessToken, after = null) {
         fields: "id,text,username,timestamp",
         access_token: accessToken,
         after: after,
-        limit: 100 // Adjust this value as needed
+        limit: 100, // Adjust this value as needed
       },
     }
   );
@@ -243,7 +249,11 @@ async function fetchAllReplies(commentId, accessToken, after = null) {
 
   // If there are more replies, fetch the next page
   if (response.data.paging && response.data.paging.next) {
-    const nextReplies = await fetchAllReplies(commentId, accessToken, response.data.paging.cursors.after);
+    const nextReplies = await fetchAllReplies(
+      commentId,
+      accessToken,
+      response.data.paging.cursors.after
+    );
     replies = replies.concat(nextReplies);
   }
 
@@ -259,20 +269,30 @@ router.post("/:id", async (req, res) => {
   }
 
   try {
-    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-    const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+    const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+    const decodedString = Buffer.from(
+      parsedData.socialTokens,
+      "base64"
+    ).toString("utf-8");
     const parsedDecoded = JSON.parse(decodedString);
-    const { facebookPageAccessToken, instagramBusinessAccountID } = parsedDecoded;
+    const { facebookPageAccessToken, instagramBusinessAccountID } =
+      parsedDecoded;
 
     if (!facebookPageAccessToken || !instagramBusinessAccountID) {
-      return res.status(400).json({ error: "Facebook Page Access Token and Instagram Business Account ID are required" });
+      return res
+        .status(400)
+        .json({
+          error:
+            "Facebook Page Access Token and Instagram Business Account ID are required",
+        });
     }
 
     const response = await axios.get(
       `https://graph.facebook.com/v17.0/${postId}`,
       {
         params: {
-          fields: "id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count",
+          fields:
+            "id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count",
           access_token: facebookPageAccessToken,
         },
       }
@@ -285,12 +305,12 @@ router.post("/:id", async (req, res) => {
 
     const mapComments = (comments) => {
       if (!comments) return [];
-      return comments.map(comment => ({
+      return comments?.map((comment) => ({
         id: comment.id,
         text: comment.text,
         username: comment.username,
         timestamp: comment.timestamp,
-        comments: mapComments(comment.replies)
+        comments: mapComments(comment.replies),
       }));
     };
 
@@ -307,7 +327,10 @@ router.post("/:id", async (req, res) => {
 
     res.status(200).json(standardizedResponse);
   } catch (error) {
-    console.error(`Error fetching Instagram post with ID ${postId}:`, error.response?.data || error.message);
+    console.error(
+      `Error fetching Instagram post with ID ${postId}:`,
+      error.response?.data || error.message
+    );
     res.status(error.response?.status || 500).json({
       message: `Error fetching Instagram post with ID ${postId}`,
       error: error.response?.data?.error || error.message,
@@ -315,18 +338,20 @@ router.post("/:id", async (req, res) => {
   }
 });
 
-
-
 router.post("/reply/:commentId", async (req, res) => {
   const { message, data } = req.body;
   const commentId = req.params.commentId;
 
   if (!commentId || !message) {
-    return res.status(400).json({ error: "Comment ID and reply message are required" });
+    return res
+      .status(400)
+      .json({ error: "Comment ID and reply message are required" });
   }
 
-  const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-  const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+  const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+  const decodedString = Buffer.from(parsedData.socialTokens, "base64").toString(
+    "utf-8"
+  );
   const parsedDecoded = JSON.parse(decodedString);
   const { facebookPageAccessToken } = parsedDecoded;
 
@@ -357,20 +382,27 @@ router.post("/reply/:commentId", async (req, res) => {
   }
 });
 
-// IMPORTANT! Instagram API doesn't support direct deletion of posts 
+// IMPORTANT! Instagram API doesn't support direct deletion of posts
 router.post("/delete/:id", async (req, res) => {
   const postId = req.params.id;
 
   try {
-
-    const {data} = req.body;
-    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-    const decodedString = Buffer.from(parsedData.socialTokens, 'base64').toString('utf-8');
+    const { data } = req.body;
+    const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+    const decodedString = Buffer.from(
+      parsedData.socialTokens,
+      "base64"
+    ).toString("utf-8");
     const parsedDecoded = JSON.parse(decodedString);
     const { facebookPageAccessToken } = parsedDecoded;
 
     if (!facebookPageAccessToken) {
-      return res.status(400).json({ error: "Facebook Page Access Token and Instagram Business Account ID are required" });
+      return res
+        .status(400)
+        .json({
+          error:
+            "Facebook Page Access Token and Instagram Business Account ID are required",
+        });
     }
     // Update the post to hide it from the feed
     const updateResponse = await axios.post(
@@ -386,27 +418,33 @@ router.post("/delete/:id", async (req, res) => {
     );
 
     if (updateResponse.data && updateResponse.data.success) {
-      console.log(`Successfully hid Instagram post with ID ${postId} from profile`);
-      return res.status(200).json({ 
-        message: "Post hidden from profile successfully", 
-        data: updateResponse.data 
+      console.log(
+        `Successfully hid Instagram post with ID ${postId} from profile`
+      );
+      return res.status(200).json({
+        message: "Post hidden from profile successfully",
+        data: updateResponse.data,
       });
     } else {
       throw new Error("Failed to hide post from profile");
     }
   } catch (error) {
-    console.error(`Error hiding Instagram post with ID ${postId}:`, error.response?.data || error.message);
-    
+    console.error(
+      `Error hiding Instagram post with ID ${postId}:`,
+      error.response?.data || error.message
+    );
+
     if (error.response?.data?.error?.code === 100) {
       return res.status(404).json({
         message: "Post not found or not accessible",
-        error: "The post may not exist, or your app doesn't have permission to access it."
+        error:
+          "The post may not exist, or your app doesn't have permission to access it.",
       });
     }
 
     return res.status(error.response?.status || 500).json({
       message: "Error hiding Instagram post from profile",
-      error: error.response?.data?.error?.message || error.message
+      error: error.response?.data?.error?.message || error.message,
     });
   }
 });
@@ -415,36 +453,42 @@ router.post("/comment/:id", async (req, res) => {
   const postId = req.params.id;
   const { message } = req.body;
   const data = JSON.parse(req.body.data);
-  const decodedString = Buffer.from(data.socialTokens, 'base64').toString('utf-8');
+  const decodedString = Buffer.from(data.socialTokens, "base64").toString(
+    "utf-8"
+  );
   const parsedDecoded = JSON.parse(decodedString);
   const { facebookPageAccessToken, instagramBusinessAccountID } = parsedDecoded;
 
   if (!message || !instagramBusinessAccountID || !facebookPageAccessToken) {
-    return res.status(400).json({ error: "Comment message, Instagram Business Account ID, and Facebook Page Access Token are required" });
+    return res
+      .status(400)
+      .json({
+        error:
+          "Comment message, Instagram Business Account ID, and Facebook Page Access Token are required",
+      });
   }
 
   try {
-
     const response = await axios.post(
       `https://graph.facebook.com/v17.0/${postId}/replies`,
       null,
       {
         params: {
           message: message,
-          access_token: facebookPageAccessToken
-        }
+          access_token: facebookPageAccessToken,
+        },
       }
     );
 
     res.status(200).json({
       message: "Comment posted successfully",
-      data: response.data
+      data: response.data,
     });
   } catch (error) {
-    console.error('Error:', error.response?.data || error.message);
+    console.error("Error:", error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
       error: "Error occurred",
-      details: error.response?.data?.error || error.message
+      details: error.response?.data?.error || error.message,
     });
   }
 });

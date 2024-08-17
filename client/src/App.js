@@ -17,6 +17,7 @@ import { AuthProvider } from "./auth/useAuth";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 
 import axios from "axios";
+import AnalyticsDetailedPage from "./pages/AnalyticsDetailedPage";
 
 // MOGOCE JE TISTO BOLJSE PREBACIT V MYPROFILE PAGE AMPAK ZDAJ KO RAZVIJAMO NEK BO TUKAJ
 // const sendDataToServer = async () => {
@@ -35,24 +36,19 @@ import axios from "axios";
 // };
 // sendDataToServer();
 
-
 function App() {
   const [user, setUser] = useState(null);
-
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
-
 
     const handleStorageChange = () => {
       const updatedUser = JSON.parse(localStorage.getItem("user"));
       setUser(updatedUser);
     };
 
-
     window.addEventListener("storage", handleStorageChange);
-
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
@@ -62,36 +58,52 @@ function App() {
     <UserProvider>
       <div className="App">
         <Router>
-
           <AuthProvider>
             <Navigation />
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/post-content"
+              <Route
+                path="/post-content"
                 element={
                   <ProtectedRoute>
                     <FeaturesPage />
                   </ProtectedRoute>
-                } />
-              <Route path="/analytics/:platform/:id"
+                }
+              />
+              <Route
+                path="/analytics/details/:platform/:id"
                 element={
                   <ProtectedRoute>
                     <DetailsPage />
                   </ProtectedRoute>
-                } />
-              <Route path="/analytics" element={
-                <ProtectedRoute>
-                  <AnalyticsPage />
-                </ProtectedRoute>
-              } />
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <ProtectedRoute>
+                    <AnalyticsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analytics/details"
+                element={
+                  <ProtectedRoute>
+                    <AnalyticsDetailedPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/contact" element={<ContactPage />} />
-              <Route path="/my-profile"
+              <Route
+                path="/my-profile"
                 element={
                   <ProtectedRoute>
                     <ProfilePage />
                   </ProtectedRoute>
-                } />
+                }
+              />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Routes>
@@ -103,6 +115,5 @@ function App() {
     </UserProvider>
   );
 }
-
 
 export default App;

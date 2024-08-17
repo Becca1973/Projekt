@@ -17,7 +17,7 @@ const InputComponent = () => {
   const [success, setSuccess] = useState(false);
   const [aiDialogVisible, setAiDialogVisible] = useState(false);
 
-  const platforms = ["Facebook", "Instagram", "Reddit"];
+  const platforms = ["Facebook", "Instagram"];
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
@@ -119,29 +119,29 @@ const InputComponent = () => {
           setError(error.message || "Network error occurred");
         }
       }
-      if (selectedPlatforms.includes("Reddit")) {
-        const twitterFormData = createFormData();
-        try {
-          const response = await fetch("http://localhost:5001/api/reddit", {
-            method: "POST",
-            body: twitterFormData,
-          });
+      // if (selectedPlatforms.includes("Reddit")) {
+      //   const twitterFormData = createFormData();
+      //   try {
+      //     const response = await fetch("http://localhost:5001/api/reddit", {
+      //       method: "POST",
+      //       body: twitterFormData,
+      //     });
 
-          const data = await response.json();
+      //     const data = await response.json();
 
-          if (!response.ok) {
-            setError(data.error);
-            setSuccess(false);
-            return;
-          }
+      //     if (!response.ok) {
+      //       setError(data.error);
+      //       setSuccess(false);
+      //       return;
+      //     }
 
-          setError(null);
-          setSuccess(true);
-          setLoading(false);
-        } catch (error) {
-          setError(error.message || "Network error occurred");
-        }
-      }
+      //     setError(null);
+      //     setSuccess(true);
+      //     setLoading(false);
+      //   } catch (error) {
+      //     setError(error.message || "Network error occurred");
+      //   }
+      // }
 
       await Promise.all(promises);
     } catch (error) {
