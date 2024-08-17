@@ -10,10 +10,17 @@ const sorts = [
     name: "Comments",
     value: "comments",
   },
+  {
+    name: "Date",
+    value: "date",
+  },
+  {
+    name: "A-Z",
+    value: "a-z",
+  },
 ];
 
 function AnalyticsPage() {
-  const [sort, setSort] = useState("");
   const [filter, setFilter] = useState("");
 
   const [facebookPosts, setFacebookPosts] = useState([]);
@@ -144,6 +151,32 @@ function AnalyticsPage() {
                 a.instagram?.comments_count ||
                 0)
           )
+        );
+        break;
+      case "date":
+        setMergedPosts((prevPosts) =>
+          [...prevPosts].sort((a, b) => {
+            // Extract timestamps from both Facebook and Instagram, default to 0 if undefined
+            const aTimestamp =
+              a.facebook?.timestamp || a.instagram?.timestamp || 0;
+            const bTimestamp =
+              b.facebook?.timestamp || b.instagram?.timestamp || 0;
+
+            // Convert timestamps to numeric values for accurate comparison
+            return new Date(bTimestamp) - new Date(aTimestamp);
+          })
+        );
+        break;
+      case "a-z":
+        setMergedPosts((prevPosts) =>
+          [...prevPosts].sort((a, b) => {
+            // Extract captions from both Facebook and Instagram, default to an empty string if undefined
+            const aCaption = a.facebook?.caption || a.instagram?.caption || "";
+            const bCaption = b.facebook?.caption || b.instagram?.caption || "";
+
+            // Compare captions alphabetically
+            return aCaption.localeCompare(bCaption);
+          })
         );
         break;
       default:

@@ -2,7 +2,7 @@ import React from "react";
 
 function Footer() {
   return (
-    <footer className="footer-container">
+    <footer className="container">
       <div className="footer-content">
         <div className="footer-section">
           <h3>Quick Links</h3>

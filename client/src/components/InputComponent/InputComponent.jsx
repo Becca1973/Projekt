@@ -181,83 +181,85 @@ const InputComponent = () => {
   };
 
   return (
-    <div className="input-container">
-      <h2>Post Content to Social Media</h2>
-      <div className="form-group">
-        <label htmlFor="title">Title</label>
-        <input
-          className="title-input"
-          type="text"
-          id="title"
-          placeholder="Enter title..."
-          value={title}
-          onChange={handleTitleChange}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="text">Content</label>
-        <textarea
-          className="text-input"
-          id="text"
-          placeholder="Enter text..."
-          value={text}
-          onChange={handleTextChange}
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="media">Upload Image or Video</label>
-        <input
-          ref={fileInputRef} // Dodano za referenco
-          className="media-input"
-          type="file"
-          id="media"
-          accept="image/*,video/*"
-          onChange={handleMediaChange}
-        />
-        {mediaPreview && (
-          <div className="media-preview">
-            <img src={mediaPreview} alt="Preview" />
+    <div className="container">
+      <div className="input-container">
+        <h2>Post Content</h2>
+        <div className="form-group">
+          <label htmlFor="title">Title</label>
+          <input
+            className="title-input"
+            type="text"
+            id="title"
+            placeholder="Enter title..."
+            value={title}
+            onChange={handleTitleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="text">Content</label>
+          <textarea
+            className="text-input"
+            id="text"
+            placeholder="Enter text..."
+            value={text}
+            onChange={handleTextChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="media">Upload Image or Video</label>
+          <input
+            ref={fileInputRef} // Dodano za referenco
+            className="media-input"
+            type="file"
+            id="media"
+            accept="image/*,video/*"
+            onChange={handleMediaChange}
+          />
+          {mediaPreview && (
+            <div className="media-preview">
+              <img src={mediaPreview} alt="Preview" />
+            </div>
+          )}
+        </div>
+        <div className="form-group">
+          <label>Choose Platforms</label>
+          <div className="platforms">
+            {platforms.map((platform) => (
+              <div key={platform} className="checkbox-group">
+                <input
+                  type="checkbox"
+                  id={platform}
+                  checked={selectedPlatforms.includes(platform)}
+                  onChange={() => handlePlatformChange(platform)}
+                />
+                <label htmlFor={platform}>{platform}</label>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button
+          type="button"
+          className="ai-button"
+          onClick={() => setAiDialogVisible(true)}
+        >
+          Create post with AI
+        </button>
+        {error && <p className="error">{error}</p>}
+        {success && <div className="success">Post successful!</div>}
+        <button className="save-button" onClick={handleSave} disabled={loading}>
+          {loading ? "Posting..." : "Post"}
+        </button>
+        {aiDialogVisible && (
+          <div
+            className="modal-overlay"
+            onClick={() => setAiDialogVisible(false)}
+          >
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <AIGenerator onContentGenerated={handleAIGenerateContent} />
+            </div>
           </div>
         )}
       </div>
-      <div className="form-group">
-        <label>Choose Platforms</label>
-        <div className="platforms">
-          {platforms.map((platform) => (
-            <div key={platform} className="checkbox-group">
-              <input
-                type="checkbox"
-                id={platform}
-                checked={selectedPlatforms.includes(platform)}
-                onChange={() => handlePlatformChange(platform)}
-              />
-              <label htmlFor={platform}>{platform}</label>
-            </div>
-          ))}
-        </div>
-      </div>
-      <button
-        type="button"
-        className="ai-button"
-        onClick={() => setAiDialogVisible(true)}
-      >
-        Create post with AI
-      </button>
-      {error && <p className="error">{error}</p>}
-      {success && <div className="success">Post successful!</div>}
-      <button className="save-button" onClick={handleSave} disabled={loading}>
-        {loading ? "Posting..." : "Post"}
-      </button>
-      {aiDialogVisible && (
-        <div
-          className="modal-overlay"
-          onClick={() => setAiDialogVisible(false)}
-        >
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <AIGenerator onContentGenerated={handleAIGenerateContent} />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

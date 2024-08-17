@@ -146,7 +146,7 @@ function DetailsPage() {
   };
 
   return (
-    <div className="input-container">
+    <div className="input-container container">
       {platform === "facebook" ? (
         <h2>Facebook Detailed Post</h2>
       ) : (
@@ -169,6 +169,10 @@ function DetailsPage() {
           <div className="form-group">
             <label htmlFor="likes">Likes</label>
             <p>{data.like_count}</p>
+          </div>
+          <div className="form-group">
+            <label htmlFor="views">Views</label>
+            <p>{data.views}</p>
           </div>
           <div className="form-group">
             <label htmlFor="comments">Comments</label>

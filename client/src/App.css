@@ -21,8 +21,6 @@
   display: flex;
   flex-direction: row;
   gap: 10px;
-  padding-left: 25px;
-  padding-right: 25px;
 }
 
 .custom-select select {
@@ -41,8 +39,7 @@
 }
 
 .related-post-container {
-  max-width: 280px;
-  margin-top: 300px;
+  margin-top: 100px;
 }
 
 .comment-section input[type="text"] {
@@ -105,15 +102,15 @@
 
 .banner-start-container {
   padding: 100px 0;
+  text-align: left;
 }
 .banner-container {
-  display: flex;
-  align-items: center;
-  margin-bottom: 40px;
-  padding: 100px 0;
-}
-.banner-container.left {
-  text-align: left;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr; /* Two equal sections */
+  width: 100%;
+  padding: 20px 0;
+  box-sizing: border-box; /* Include padding in the element's width and height */
 }
 
 button {
@@ -124,16 +121,21 @@ button {
   font-size: 1rem;
   transition: background-color 0.3s ease;
 }
+
 .start-button {
-  margin-top: 15px;
+  padding: 10px 20px;
+  margin: 10px 0;
+  float: left;
 }
 
 .email-subscription {
-  width: 400px;
+  max-width: 500px;
+  width: 100%;
   margin: auto;
   display: flex;
   gap: 10px;
   margin-top: 10px;
+  float: left;
 }
 
 .email-subscription input {
@@ -141,22 +143,28 @@ button {
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
-  flex: 1;
 }
-.banner-text {
-  flex: 1;
-  padding-right: 100px;
+
+.email-subscription button {
+  padding: 10px 20px;
 }
+
 .light-gray {
   background-color: rgb(248, 248, 248);
   width: 100%;
+}
+
+.steps-container {
+  text-align: left;
+}
+.steps-container h2 {
+  text-align: left;
 }
 
 .banner-text h2 {
   font-size: 2rem;
   text-align: left;
   color: #333333;
-  margin-bottom: 10px;
 }
 .step-one {
   color: #007bff !important;
@@ -164,9 +172,9 @@ button {
 }
 .banner-text p {
   font-size: 1.2rem;
+  padding: 10px 0;
+  text-align: left;
   color: #666666;
-  padding-top: 20px;
-  padding-bottom: 20px;
 }
 
 .login-container {
@@ -310,10 +318,6 @@ button {
   background-color: #0056b3;
 }
 
-.banner-image {
-  flex: 1;
-}
-
 .banner-image img {
   width: 100%;
   border-radius: 5px;
@@ -321,15 +325,6 @@ button {
 }
 .recharts-surface {
   margin: 0 auto;
-}
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 100px 0;
-  justify-content: space-between;
-  align-items: center;
-  display: block;
-  align-content: center;
 }
 
 .navbar {
@@ -359,7 +354,6 @@ button {
 
 .nav-elements ul {
   display: flex;
-  justify-content: center;
   list-style-type: none;
 }
 
@@ -404,10 +398,18 @@ button {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .menu-icon {
     display: block;
     cursor: pointer;
+  }
+
+  .banner-container {
+    grid-template-columns: 1fr; /* Stack sections vertically */
+  }
+
+  .email-subscription {
+    flex-direction: column;
   }
 
   .nav-elements {
@@ -482,17 +484,25 @@ h2 {
 .contact-form textarea {
   resize: vertical;
 }
+
+.container-details {
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
 /* Home.css */
 
 .container {
   max-width: 1100px;
-  margin: 0 auto;
+  margin: auto;
   padding: 20px;
 }
 
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 h2 {
-  margin-bottom: 20px;
-  font-size: 2rem;
   color: #333;
 }
 
@@ -556,12 +566,6 @@ h2 {
   }
 }
 
-.input-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px;
-}
 
 .text-input {
   padding: 10px;
@@ -677,24 +681,23 @@ h2 {
 }
 /* Footer.css */
 
-.footer-container {
-  background-color: rgb(248, 248, 248);
-  color: rgb(100, 100, 100);
-  padding: 20px 0;
-  text-align: center;
-}
-
 .footer-content {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: 20px;
 }
 
+.social-metrics {
+  display: flex;
+  padding: 20px;
+  flex-direction: column;
+  align-items: center;
+}
+
 .footer-section {
-  flex: 1;
-  min-width: 200px;
-  margin: 20px;
+  margin: 0 auto;
 }
 
 .footer-section h3 {
@@ -705,6 +708,7 @@ h2 {
 .footer-section ul {
   list-style: none;
   padding: 0;
+  text-align: center;
 }
 
 .footer-section ul li {
@@ -752,7 +756,8 @@ h2 {
 }
 
 .posts-content {
-  padding: 100px 0;
+  padding-top: 100px;
+  padding-bottom: 100px;
 }
 /* AnalyticsPage.css */
 .posts {

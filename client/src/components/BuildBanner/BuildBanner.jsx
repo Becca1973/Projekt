@@ -6,8 +6,8 @@ import BannerTwo from "./BannerTwo";
 
 function BuildBanner() {
   return (
-    <div className="steps-container">
-      <div>
+    <div>
+      <div className="steps-container">
         <h2>Build a following without draining your time</h2>
         <p>
           Creating content is hard enough. Let alone distributing it to all the

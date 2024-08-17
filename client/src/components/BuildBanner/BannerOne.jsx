@@ -1,6 +1,6 @@
 function BannerOne() {
   return (
-    <div className="banner-container left">
+    <div className="banner-container">
       <div className="banner-text">
         <p className="step-one">1. CREATE CLICK-WORTHY CONTENT</p>
         <h2>Build a library of content ideas</h2>

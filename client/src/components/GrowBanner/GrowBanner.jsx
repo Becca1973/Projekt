@@ -10,10 +10,10 @@ function GrowBanner() {
           company that provides affordable, intuitive marketing tools for
           ambitious people and teams.
         </p>
-        <div className="email-subscription">
+        <form className="email-subscription">
           <input type="email" placeholder="Enter your email" />
-          <button>Get Started Now</button>
-        </div>
+          <button type="submit">Get Started Now</button>
+        </form>
       </div>
       <div className="banner-image">
         <img

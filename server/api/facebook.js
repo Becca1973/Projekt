@@ -246,11 +246,12 @@ async function getPostWithCircularComments(postId, PAGE_ACCESS_TOKEN) {
   const postResponse = await axios.get(`https://graph.facebook.com/v17.0/${postId}`, {
     params: {
       access_token: PAGE_ACCESS_TOKEN,
-      fields: "id,message,created_time,full_picture,likes.summary(true)",
+      fields: "id,message,created_time,full_picture,likes.summary(true),insights.metric(post_impressions)",
     },
-  });
+  }); 
 
   const post = postResponse.data;
+  post.views = post.insights.data.length;
   post.comments = await getCommentsRecursively(postId, PAGE_ACCESS_TOKEN);
 
   return post;
@@ -287,6 +288,7 @@ router.post("/:id", async (req, res) => {
       media_url: postData.full_picture,
       like_count: postData.likes.summary.total_count,
       comments_count: postData.comments ? postData.comments.length : 0,
+      views: postData.views,
       comments: mapComments(postData.comments)
     };
 

@@ -21,9 +21,12 @@ function Navigation() {
   return (
     <nav className="navbar">
       <div className="container">
-        <div className="menu-icon" onClick={handleShowNavbar}>
-          <AiOutlineMenu />
-        </div>
+        <div className="navbar-container">
+          <h3 style={{textTransform: 'uppercase'}}>BrandBoost</h3>
+          <div className="menu-icon" onClick={handleShowNavbar}>
+            <AiOutlineMenu />
+          </div>
+     
         <div className={`nav-elements  ${showNavbar && "active"}`}>
           <ul>
             <li>
@@ -47,30 +50,30 @@ function Navigation() {
             <li>
               <Link to="/contact">Contact</Link>
             </li>
-            <div>
-              {user ? (
-                <>
-                  <li>
-                    <Link to="/my-profile">My Profile</Link>
-                  </li>
-                  <li>
-                    <a href="#" onClick={handleLogout}>
-                      Logout
-                    </a>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li>
-                    <Link to="/login">Login</Link>
-                  </li>
-                  <li>
-                    <Link to="/register">Register</Link>
-                  </li>
-                </>
-              )}
-            </div>
+
+            {user ? (
+              <ul>
+                <li>
+                  <Link to="/my-profile">My Profile</Link>
+                </li>
+                <li>
+                  <a href="#" onClick={handleLogout}>
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            ) : (
+              <ul>
+                <li>
+                  <Link to="/login">Login</Link>
+                </li>
+                <li>
+                  <Link to="/register">Register</Link>
+                </li>
+              </ul>
+            )}
           </ul>
+        </div>
         </div>
       </div>
     </nav>

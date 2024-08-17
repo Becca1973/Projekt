@@ -297,8 +297,23 @@ router.post("/:id", async (req, res) => {
         },
       }
     );
+ // Add the view count to the post object
+
 
     const post = response.data;
+
+    const insightsResponse = await axios.get(
+      `https://graph.facebook.com/v17.0/${postId}/insights`,
+      {
+        params: {
+          metric: "impressions",
+          access_token: facebookPageAccessToken,
+        },
+      }
+    );
+
+    const impressions = insightsResponse.data.data[0].values[0].value;
+    post.views = impressions;
 
     // Fetch all comments recursively
     const comments = await fetchAllComments(postId, facebookPageAccessToken);
@@ -323,6 +338,7 @@ router.post("/:id", async (req, res) => {
       like_count: post.like_count,
       comments_count: post.comments_count,
       comments: mapComments(comments),
+      views: post.views
     };
 
     res.status(200).json(standardizedResponse);
