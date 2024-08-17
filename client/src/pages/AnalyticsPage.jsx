@@ -245,20 +245,6 @@ function AnalyticsPage() {
                         : post.instagram.timestamp
                     ).toLocaleDateString()}
                   </p>
-                  <div className="select-fields">
-                    <p>
-                      <AiFillLike />{" "}
-                      {post.facebook
-                        ? post.facebook.likes?.data.length || 0
-                        : post.instagram.like_count || 0}
-                    </p>
-                    <p>
-                      <FaComment />{" "}
-                      {post.facebook
-                        ? post.facebook.comments?.data.length || 0
-                        : post.instagram.comments_count || 0}
-                    </p>
-                  </div>
                 </div>
               </Link>
             ))}
