@@ -3,6 +3,22 @@ import { useUser } from "./UserContext";
 import { db } from "../../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { encode as base64Encode } from "base-64";
+import ScheduleForm from "../ScheduleForm/ScheduleForm";
+
+const options = [
+  {
+    name: "Once a week",
+  },
+  {
+    name: "Every day",
+  },
+  {
+    name: "Every 12 hours",
+  },
+  {
+    name: "Every 6 hours",
+  },
+];
 
 function MyProfile() {
   const { user } = useUser();
@@ -34,6 +50,15 @@ function MyProfile() {
 
         if (docSnap.exists()) {
           const data = docSnap.data();
+          const data_ = { frequency: data.frequency, to: data.email };
+
+          await fetch("http://localhost:5001/api/set-schedule", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data_),
+          });
 
           // Encode sensitive data
           const encodedData = {
@@ -45,7 +70,6 @@ function MyProfile() {
               })
             ),
           };
-
           // Set state with encoded data
           setSocialTokens(data.socialTokens || {});
           setProfileData({
@@ -90,6 +114,34 @@ function MyProfile() {
     }));
   };
 
+  const setSchedule = async (scheduleData) => {
+    if (!user) return;
+
+    const userDoc = doc(db, "users", user.uid);
+    await setDoc(userDoc, { socialTokens, ...scheduleData }, { merge: true });
+
+    const docSnap = await getDoc(userDoc);
+
+    if (!docSnap.exists()) return;
+
+    const { frequency, email } = docSnap.data();
+    const data = { frequency, to: email};
+
+    try {
+      const response = await fetch("http://localhost:5001/api/set-schedule", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      console.log(result.message);
+    } catch (error) {
+      console.error("Error setting schedule:", error);
+    }
+  };
+
   if (!user) {
     return <div>Please log in to view your profile.</div>;
   }
@@ -124,6 +176,10 @@ function MyProfile() {
                 onChange={handleProfileChange}
               />
             </label>
+          </div>
+          <div className="notifications">
+            <h3>Notifications</h3>
+            <ScheduleForm onSubmit={setSchedule} />
           </div>
           <div className="social-tokens">
             <h3>Social Media Tokens</h3>

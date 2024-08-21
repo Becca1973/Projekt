@@ -1,3 +1,7 @@
+* {
+  list-style: none;
+}
+
 .App {
   text-align: center;
 }
@@ -15,6 +19,29 @@
 .comment-section form {
   margin-bottom: 20px;
   display: flex;
+}
+
+.notifications {
+  text-align: left;
+}
+
+.notifications-list {
+  padding: 20px 0;
+}
+
+.notifications-list li {
+  display: flex;
+  align-items: center; 
+  gap: 10px; 
+}
+
+.notifications-list li label {
+  font-weight: 500;
+}
+
+.notifications-list li input {
+  width: 15px;
+  height: 15px;
 }
 
 .select-fields {
@@ -355,6 +382,7 @@ button {
 .nav-elements ul {
   display: flex;
   list-style-type: none;
+  gap: 20px;
 }
 
 .nav-elements ul div {
@@ -362,9 +390,6 @@ button {
   flex-direction: row;
 }
 
-.nav-elements ul li:not(:last-child) {
-  margin-right: 60px;
-}
 
 .nav-elements ul a {
   font-size: 16px;
@@ -499,6 +524,7 @@ h2 {
 
 .navbar-container {
   display: flex;
+  gap: 20px;
   justify-content: space-between;
 }
 

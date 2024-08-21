@@ -15,8 +15,6 @@ import RegisterPage from "./pages/RegisterPage";
 import DetailsPage from "./pages/DetailsPage";
 import { AuthProvider } from "./auth/useAuth";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
-
-import axios from "axios";
 import AnalyticsDetailedPage from "./pages/AnalyticsDetailedPage";
 
 // MOGOCE JE TISTO BOLJSE PREBACIT V MYPROFILE PAGE AMPAK ZDAJ KO RAZVIJAMO NEK BO TUKAJ
@@ -104,6 +102,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+           
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Routes>
