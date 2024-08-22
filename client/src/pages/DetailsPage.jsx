@@ -11,8 +11,10 @@ function DetailsPage() {
     content: "",
     comments: [],
     like_count: 0,
+    share_count: 0,
     media_url: "",
     timestamp: "",
+    views: 0,
   });
   const [relatedPost, setRelatedPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,7 +82,8 @@ function DetailsPage() {
           timestamp: result.timestamp,
           comments: result.comments,
           like_count: result.like_count,
-          ...result,
+          share_count: result.share_count || 0,
+          views: result.views || 0,
         });
 
         const mergedPosts =
@@ -94,8 +97,6 @@ function DetailsPage() {
           }
           return false;
         });
-
-        console.log("Current post:", currentPost);
 
         if (currentPost) {
           const related = mergedPosts.find((post) => {
@@ -112,8 +113,6 @@ function DetailsPage() {
             }
             return false;
           });
-
-          console.log("Related post:", related);
 
           setRelatedPost(
             related
@@ -156,57 +155,67 @@ function DetailsPage() {
         <>Loading...</>
       ) : (
         <>
-          <div className="form-group">
-            <label htmlFor="content">Title</label>
-            <p>{data.content.match(/^[^\n]+/)[0] || "No content"}</p>
-          </div>
-          <div className="form-group">
-            <label htmlFor="content">Description</label>
-            <p>
-              {data.content.split("\n").slice(1).join("\n") || "No content"}
-            </p>
-          </div>
-          <div className="form-group">
-            <label htmlFor="likes">Likes</label>
-            <p>{data.like_count}</p>
-          </div>
-          <div className="form-group">
-            <label htmlFor="views">Views</label>
-            <p>{data.views}</p>
-          </div>
-          <div className="form-group">
-            <label htmlFor="comments">Comments</label>
-            {data.comments && (
-              <CommentSection
-                comments={data.comments}
-                postId={id}
-                platform={platform}
-              />
-            )}
-          </div>
-          <div className="form-group">
-            {data.media_url && (
-              <img
-                style={{ width: "100%" }}
-                src={data.media_url}
-                alt="Post media"
-              />
-            )}
-          </div>
+          <div className="post-details-image-container">
+            <div className="form-group">
+              <label htmlFor="content">Title</label>
+              <p>{data.content.match(/^[^\n]+/)[0] || "No content"}</p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="content">Description</label>
+              <p>
+                {data.content.split("\n").slice(1).join("\n") || "No content"}
+              </p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="likes">Likes</label>
+              <p>{data.like_count}</p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="shares">Shares</label>
+              {platform === "instagram" ? (
+                <p>Instagram API does not support share count.</p>
+              ) : (
+                <p>{data.share_count}</p>
+              )}
+            </div>
+            <div className="form-group">
+              <label htmlFor="views">Views</label>
+              <p>{data.views}</p>
+            </div>
+            <div className="form-group">
+              <label htmlFor="comments">Comments</label>
+              {data.comments && (
+                <CommentSection
+                  comments={data.comments}
+                  postId={id}
+                  platform={platform}
+                />
+              )}
+            </div>
+            <div className="form-group">
+              {data.media_url && (
+                <img
+                  style={{ width: "100%" }}
+                  src={data.media_url}
+                  alt="Post media"
+                />
+              )}
+            </div>
 
-          {error && <p className="error">{error}</p>}
-          <div className="details-buttons">
-            {platform !== "instagram" ? (
-              <button
-                className="delete-button"
-                onClick={handleDelete}
-                disabled={loading}
-              >
-                {loading ? "Deleting..." : "Delete"}
-              </button>
-            ) : (
-              <p>Instagram does not support deleting posts with API.</p>
-            )}
+            {error && <p className="error">{error}</p>}
+            <div className="details-buttons">
+              {platform !== "instagram" ? (
+                <button
+                  className="delete-button"
+                  onClick={handleDelete}
+                  disabled={loading}
+                >
+                  {loading ? "Deleting..." : "Delete"}
+                </button>
+              ) : (
+                <p>Instagram does not support deleting posts with API.</p>
+              )}
+            </div>
           </div>
 
           {relatedPost && (
@@ -222,15 +231,23 @@ function DetailsPage() {
                       relatedPost.caption?.match(/^[^\n]+/)[0] ||
                       "No caption"}
                   </p>
-                  {relatedPost.full_picture || relatedPost.media_url ? (
-                    <img
-                      style={{ width: "100%" }}
-                      src={relatedPost.full_picture || relatedPost.media_url}
-                      alt="Related post media"
-                    />
-                  ) : (
-                    <p className="post-no-image">No image</p>
-                  )}
+                  {/* Conditionally render the image based on the platform */}
+                  {platform === "instagram"
+                    ? (data.media_url || data.thumbnail_url) && (
+                        <img
+                          style={{ width: "100%" }}
+                          src={data.thumbnail_url || data.media_url}
+                          alt={data.content.split("\n")[0] || "Post media"}
+                        />
+                      )
+                    : data.media_url && (
+                        <img
+                          style={{ width: "100%" }}
+                          src={data.media_url}
+                          alt="Post media"
+                        />
+                      )}
+
                   <p className="post-date">
                     Date:{" "}
                     {new Date(
@@ -240,13 +257,15 @@ function DetailsPage() {
                   <div className="select-fields">
                     <p>
                       <AiFillLike />{" "}
-                      {relatedPost.likes?.data?.length ||
+                      {relatedPost.likes?.summary?.total_count ||
+                        relatedPost.likes?.data?.length ||
                         relatedPost.like_count ||
                         0}
                     </p>
                     <p>
                       <FaComment />{" "}
-                      {relatedPost.comments?.data?.length ||
+                      {relatedPost.comments?.summary?.total_count ||
+                        relatedPost.comments?.data?.length ||
                         relatedPost.comments_count ||
                         0}
                     </p>

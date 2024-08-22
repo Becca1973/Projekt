@@ -31,11 +31,9 @@ router.post("/", async (req, res) => {
   const { instagramBusinessAccountID, facebookPageAccessToken } = parsedDecoded;
 
   if (!title || !text) {
-    return res
-      .status(400)
-      .json({
-        error: "Please fill out all fields and select at least one platform.",
-      });
+    return res.status(400).json({
+      error: "Please fill out all fields and select at least one platform.",
+    });
   }
 
   try {
@@ -279,16 +277,14 @@ router.post("/:id", async (req, res) => {
       parsedDecoded;
 
     if (!facebookPageAccessToken || !instagramBusinessAccountID) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Facebook Page Access Token and Instagram Business Account ID are required",
-        });
+      return res.status(400).json({
+        error:
+          "Facebook Page Access Token and Instagram Business Account ID are required",
+      });
     }
 
     const response = await axios.get(
-      `https://graph.facebook.com/v17.0/${postId}`,
+      `https://graph.facebook.com/v20.0/${postId}`,
       {
         params: {
           fields:
@@ -297,22 +293,39 @@ router.post("/:id", async (req, res) => {
         },
       }
     );
- // Add the view count to the post object
-
 
     const post = response.data;
 
-    const insightsResponse = await axios.get(
-      `https://graph.facebook.com/v17.0/${postId}/insights`,
-      {
-        params: {
-          metric: "impressions",
-          access_token: facebookPageAccessToken,
-        },
-      }
-    );
+    let mediaUrl = post.media_url;
+    let thumbnailUrl = post.thumbnail_url;
 
-    const impressions = insightsResponse.data.data[0].values[0].value;
+    if (post.media_type === "VIDEO" || post.media_type === "REELS") {
+      // Use thumbnail_url if available for videos
+      mediaUrl = thumbnailUrl || post.media_url;
+    }
+
+    let impressions = null;
+    if (post.media_type === "IMAGE") {
+      // Check media type before requesting impressions
+      try {
+        const insightsResponse = await axios.get(
+          `https://graph.facebook.com/v20.0/${postId}/insights`,
+          {
+            params: {
+              metric: "impressions",
+              access_token: facebookPageAccessToken,
+            },
+          }
+        );
+        impressions = insightsResponse.data.data[0]?.values[0]?.value || null;
+      } catch (error) {
+        console.warn(
+          `Failed to fetch impressions for post ID ${postId}:`,
+          error.message
+        );
+      }
+    }
+
     post.views = impressions;
 
     // Fetch all comments recursively
@@ -333,12 +346,12 @@ router.post("/:id", async (req, res) => {
       id: post.id,
       content: post.caption,
       timestamp: post.timestamp,
-      media_url: post.media_url || post.thumbnail_url,
+      media_url: mediaUrl, // This will be the thumbnail for videos
       media_type: post.media_type,
       like_count: post.like_count,
       comments_count: post.comments_count,
       comments: mapComments(comments),
-      views: post.views
+      views: post.views, // may be null if unsupported
     };
 
     res.status(200).json(standardizedResponse);
@@ -413,12 +426,10 @@ router.post("/delete/:id", async (req, res) => {
     const { facebookPageAccessToken } = parsedDecoded;
 
     if (!facebookPageAccessToken) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Facebook Page Access Token and Instagram Business Account ID are required",
-        });
+      return res.status(400).json({
+        error:
+          "Facebook Page Access Token and Instagram Business Account ID are required",
+      });
     }
     // Update the post to hide it from the feed
     const updateResponse = await axios.post(
@@ -476,12 +487,10 @@ router.post("/comment/:id", async (req, res) => {
   const { facebookPageAccessToken, instagramBusinessAccountID } = parsedDecoded;
 
   if (!message || !instagramBusinessAccountID || !facebookPageAccessToken) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "Comment message, Instagram Business Account ID, and Facebook Page Access Token are required",
-      });
+    return res.status(400).json({
+      error:
+        "Comment message, Instagram Business Account ID, and Facebook Page Access Token are required",
+    });
   }
 
   try {

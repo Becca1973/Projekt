@@ -228,6 +228,7 @@ function AnalyticsPage() {
                       post.caption?.match(/^[^\n]+/)[0] ||
                       "No caption"}
                   </p>
+
                   {post.facebook && post.facebook.full_picture ? (
                     <img
                       src={post.facebook.full_picture}
@@ -237,12 +238,13 @@ function AnalyticsPage() {
                   ) : post.instagram && post.instagram.media_url ? (
                     <img
                       src={post.instagram.media_url}
-                      alt={post.instagram.caption}
+                      alt={post.instagram.caption || "Instagram post image"}
                       className="post-image"
                     />
                   ) : (
                     <p className="post-no-image">No image</p>
                   )}
+
                   <p className="post-date">
                     Date:{" "}
                     {new Date(

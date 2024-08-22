@@ -177,7 +177,9 @@ const InputComponent = () => {
       setText(generatedContent.text.trim());
     }
 
-    setAiDialogVisible(false);
+    if (!generatedContent.imageUrl && !generatedContent.text) {
+      setAiDialogVisible(false);
+    }
   };
 
   return (

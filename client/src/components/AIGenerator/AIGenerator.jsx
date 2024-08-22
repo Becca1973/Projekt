@@ -3,10 +3,14 @@ import "./AIGenerator.css";
 
 const AIGenerator = ({ onContentGenerated }) => {
   const [prompt, setPrompt] = useState("");
+  const [wordCount, setWordCount] = useState(50);
   const [imageUrl, setImageUrl] = useState("");
   const [generatedText, setGeneratedText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [isImageUsed, setIsImageUsed] = useState(false);
+  const [isTextUsed, setIsTextUsed] = useState(false);
 
   const generateImage = async () => {
     setLoading(true);
@@ -42,7 +46,6 @@ const AIGenerator = ({ onContentGenerated }) => {
     setError("");
 
     try {
-      // Generiraj vsebino brez naslova
       const contentResponse = await fetch(
         "http://localhost:5001/api/ai/generate-text",
         {
@@ -70,12 +73,32 @@ const AIGenerator = ({ onContentGenerated }) => {
     }
   };
 
-  const handleUseContent = () => {
-    onContentGenerated({ imageUrl, text: generatedText });
+  const handleUseTextContent = () => {
+    setIsTextUsed(true);
+    onContentGenerated({ text: generatedText });
+
+    if (isImageUsed) {
+      onContentGenerated({});
+    }
+  };
+
+  const handleUseImageContent = () => {
+    setIsImageUsed(true);
+    onContentGenerated({ imageUrl });
+
+    if (isTextUsed) {
+      onContentGenerated({});
+    }
+  };
+
+  const closeModalIfNeeded = () => {
+    if (!isTextUsed && !isImageUsed) {
+      onContentGenerated({});
+    }
   };
 
   return (
-    <div className="modal-overlay" onClick={() => onContentGenerated({})}>
+    <div className="modal-overlay" onClick={closeModalIfNeeded}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button
           className="modal-close-btn"
@@ -88,8 +111,18 @@ const AIGenerator = ({ onContentGenerated }) => {
           type="text"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Enter prompt for image or text"
+          placeholder="I want my post to be about..."
         />
+        <div className="slider-container">
+          <label>Word Count: {wordCount}</label>
+          <input
+            type="range"
+            min="5"
+            max="50"
+            value={wordCount}
+            onChange={(e) => setWordCount(e.target.value)}
+          />
+        </div>
         <div className="button-group">
           <button onClick={generateText} disabled={loading}>
             {loading ? "Generating Content..." : "Generate Content"}
@@ -99,27 +132,31 @@ const AIGenerator = ({ onContentGenerated }) => {
           </button>
         </div>
         {error && <p className="error">{error}</p>}
-        {imageUrl && (
-          <div>
-            <img src={imageUrl} alt="Generated" />
-            <button
-              className="generated"
-              onClick={handleUseContent}
-              disabled={loading}
-            >
-              Use Generated Image
-            </button>
-          </div>
-        )}
-        {generatedText && (
-          <div>
+        {!isTextUsed && generatedText && (
+          <div className="text_container">
             <p>{generatedText}</p>
             <button
               className="generated"
-              onClick={handleUseContent}
+              onClick={handleUseTextContent}
               disabled={loading}
             >
-              Use Generated Content
+              Use This Content
+            </button>
+          </div>
+        )}
+        {!isImageUsed && imageUrl && (
+          <div className="image-container">
+            <img
+              src={imageUrl}
+              alt="Generated_image"
+              className="generated_image"
+            />
+            <button
+              className="generated"
+              onClick={handleUseImageContent}
+              disabled={loading}
+            >
+              Use This Image
             </button>
           </div>
         )}

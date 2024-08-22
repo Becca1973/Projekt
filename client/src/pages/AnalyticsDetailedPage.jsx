@@ -6,8 +6,6 @@ import AnalyticsCharts from "../components/AnalyticsCharts/AnalyticsCharts";
 
 function AnalyticsDetailedPage() {
   const [currentPost, setCurrentPost] = useState(null);
-  const [showChart, setShowChart] = useState(false); // State to manage chart visibility
-  const [loading, setLoading] = useState(false); // State to manage loading state
 
   useEffect(() => {
     const storedPost = JSON.parse(localStorage.getItem("currentPost"));
@@ -18,79 +16,92 @@ function AnalyticsDetailedPage() {
     return <p>No post selected.</p>;
   }
 
+  const hasSinglePost =
+    (currentPost.facebook || currentPost.instagram) &&
+    !(currentPost.facebook && currentPost.instagram);
+
   return (
     <div className="container post-detail">
       <h2>Post Details</h2>
 
-      {/* Facebook Post Details */}
-      {currentPost.facebook && (
-        <Link to={`/analytics/details/facebook/${currentPost.facebook.id}`}>
-          <div className="post-container">
-            <h3>Facebook Post</h3>
-            <p className="post-caption">
-              {currentPost.facebook.message?.match(/^[^\n]+/)[0] ||
-                "No caption"}
-            </p>
-            {currentPost.facebook.full_picture ? (
-              <img
-                src={currentPost.facebook.full_picture}
-                alt={currentPost.facebook.message}
-                className="post-image"
-              />
-            ) : (
-              <p className="post-no-image">No image</p>
-            )}
-            <p className="post-date">
-              Date:{" "}
-              {new Date(currentPost.facebook.created_time).toLocaleDateString()}
-            </p>
-            <div className="select-fields">
-              <p>
-                <AiFillLike />{" "}
-                {currentPost.facebook.likes.summary.total_count || 0}
+      <div className={`posts-grid ${hasSinglePost ? "single-post" : ""}`}>
+        {/* Facebook Post Details */}
+        {currentPost.facebook && (
+          <Link to={`/analytics/details/facebook/${currentPost.facebook.id}`}>
+            <div className="post-container">
+              <h3>Facebook Post</h3>
+              <p className="post-caption">
+                {currentPost.facebook.message?.match(/^[^\n]+/)[0] ||
+                  "No caption"}
               </p>
-              <p>
-                <FaComment />{" "}
-                {currentPost.facebook.comments.summary.total_count || 0}
+              {currentPost.facebook.full_picture ? (
+                <img
+                  src={currentPost.facebook.full_picture}
+                  alt={currentPost.facebook.message}
+                  className="post-image"
+                />
+              ) : (
+                <p className="post-no-image">No image</p>
+              )}
+              <p className="post-date">
+                Date:{" "}
+                {new Date(
+                  currentPost.facebook.created_time
+                ).toLocaleDateString()}
               </p>
+              <div className="select-fields">
+                <p>
+                  <AiFillLike />{" "}
+                  {currentPost.facebook.likes.summary.total_count || 0}
+                </p>
+                <p>
+                  <FaComment />{" "}
+                  {currentPost.facebook.comments.summary.total_count || 0}
+                </p>
+              </div>
             </div>
-          </div>
-        </Link>
-      )}
+          </Link>
+        )}
 
-      {/* Instagram Post Details */}
-      {currentPost.instagram && (
-        <Link to={`/analytics/details/instagram/${currentPost.instagram.id}`}>
-          <div className="post-container">
-            <h3>Instagram Post</h3>
-            <p className="post-caption">
-              {currentPost.instagram.caption?.match(/^[^\n]+/)[0] ||
-                "No caption"}
-            </p>
-            {currentPost.instagram.media_url ? (
-              <img
-                src={currentPost.instagram.media_url}
-                alt={currentPost.instagram.caption}
-                className="post-image"
-              />
-            ) : (
-              <p className="post-no-image">No image</p>
-            )}
-            <p className="post-date">
-              Date:{" "}
-              {new Date(currentPost.instagram.timestamp).toLocaleDateString()}
-            </p>
-            <div className="select-fields">
-              <p>
-                <AiFillLike /> {currentPost.instagram.like_count || 0}
+        {/* Instagram Post Details */}
+        {currentPost.instagram && (
+          <Link to={`/analytics/details/instagram/${currentPost.instagram.id}`}>
+            <div className="post-container">
+              <h3>Instagram Post</h3>
+              <p className="post-caption">
+                {currentPost.instagram.caption?.match(/^[^\n]+/)[0] ||
+                  "No caption"}
               </p>
-              <p>
-                <FaComment /> {currentPost.instagram.comments_count || 0}
+              {currentPost.instagram.thumbnail_url ||
+              currentPost.instagram.media_url ? (
+                <img
+                  src={
+                    currentPost.instagram.thumbnail_url ||
+                    currentPost.instagram.media_url
+                  }
+                  alt={currentPost.instagram.caption}
+                  className="post-image"
+                />
+              ) : (
+                <p className="post-no-image">No image</p>
+              )}
+              <p className="post-date">
+                Date:{" "}
+                {new Date(currentPost.instagram.timestamp).toLocaleDateString()}
               </p>
+              <div className="select-fields">
+                <p>
+                  <AiFillLike /> {currentPost.instagram.like_count || 0}
+                </p>
+                <p>
+                  <FaComment /> {currentPost.instagram.comments_count || 0}
+                </p>
+              </div>
             </div>
-          </div>
-        </Link>
-      )}
+          </Link>
+        )}
+      </div>
+
       <AnalyticsCharts
         facebookPost={currentPost.facebook}
         instagramPost={currentPost.instagram}

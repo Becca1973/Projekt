@@ -31,8 +31,8 @@
 
 .notifications-list li {
   display: flex;
-  align-items: center; 
-  gap: 10px; 
+  align-items: center;
+  gap: 10px;
 }
 
 .notifications-list li label {
@@ -52,7 +52,7 @@
 
 .custom-select select {
   appearance: none;
-  font-size: 1.15rem;
+  font-size: 1rem;
   padding: 16px;
   background-color: #fff;
   border: 1px solid #caced1;
@@ -390,7 +390,6 @@ button {
   flex-direction: row;
 }
 
-
 .nav-elements ul a {
   font-size: 16px;
   font-weight: 400;
@@ -592,7 +591,6 @@ h2 {
   }
 }
 
-
 .text-input {
   padding: 10px;
   margin-bottom: 10px;
@@ -788,9 +786,11 @@ h2 {
 /* AnalyticsPage.css */
 .posts {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr); /* Privzeto štiri stolpci */
   gap: 10px;
+  justify-content: center; /* Poravnaj mrežo na sredino */
   grid-auto-rows: minmax(100px, auto);
+  margin: 0 auto; /* Centeriranje mreže znotraj starševskega elementa */
 }
 
 @media screen and (max-width: 1100px) {
@@ -809,17 +809,54 @@ h2 {
     grid-auto-rows: minmax(100px, 2);
   }
 }
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Dva stolpca v vrstici */
+  gap: 20px; /* Razdalja med posameznimi objavami */
+  padding: 10px; /* Zunanji rob */
+  justify-content: center; /* Poravnaj mrežo na sredino */
+  align-items: start; /* Poravnaj vsebino v začetku mreže */
+  grid-auto-rows: minmax(100px, auto); /* Višina vrstic */
+}
+
+/* Prilagoditev za manjše zaslone */
+@media (max-width: 768px) {
+  .posts-grid {
+    grid-template-columns: 1fr; /* En stolpec na manjših zaslonih */
+  }
+}
+
+/* Če želiš še dodatne prilagoditve za zelo majhne zaslone */
+@media (max-width: 480px) {
+  .posts-grid {
+    padding: 5px; /* Manjši zunanji rob na zelo majhnih zaslonih */
+  }
+}
+
+/* Prilagoditev za srednje velike zaslone, na primer tablice */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .posts-grid {
+    grid-template-columns: repeat(
+      2,
+      1fr
+    ); /* Dva stolpca za srednje velike zaslone */
+  }
+}
+
+.posts-grid.single-post {
+  grid-template-columns: 1fr; /* En stolpec za samo eno objavo */
+}
 
 .post-container {
   border: 1px solid #ddd; /* Svetel obrobni rob */
   border-radius: 8px; /* Rahlo zaobljeni robovi */
   padding: 20px; /* Notranji robovi za vsebino */
-  /* Razdalja med posameznimi objavami */
-  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
-  width: 100%; /* Določite širino kvadratne kartice */
+  width: 100%; /* Širina kartice, da se prilagodi mreži */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
-  display: inline-block; /* Omogoči več kartic v enem vrstici */
   height: 100%;
   min-height: 250px;
 }
@@ -828,6 +865,11 @@ h2 {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Senca okoli kartice ob prehodu */
   transform: translateY(-5px); /* Rahla animacija za dvig kartice */
   cursor: pointer;
+}
+.post-details-image-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 .post-image {
@@ -844,9 +886,24 @@ h2 {
   justify-content: space-between;
 }
 .posts-container {
-  margin-left: auto;
-  margin-right: auto;
-  width: fit-content; /* or specify a fixed width */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Tri stolpci v vrstici */
+  gap: 30px; /* Razdalja med posameznimi objavami */
+  padding: 10px; /* Zunanji rob */
+}
+
+/* Ko je širina zaslona manjša od 1024px (tablete v načinu pokončnega) */
+@media (max-width: 1024px) {
+  .posts-container {
+    grid-template-columns: repeat(2, 1fr); /* Dva stolpca v vrstici */
+  }
+}
+
+/* Ko je širina zaslona manjša od 768px (mobilni telefoni) */
+@media (max-width: 768px) {
+  .posts-container {
+    grid-template-columns: 1fr; /* En stolpec v vrstici */
+  }
 }
 
 .post-caption {
@@ -999,4 +1056,8 @@ h1 {
 
 .word-limit-input {
   max-width: 100px;
+}
+
+a {
+  text-decoration: none;
 }
