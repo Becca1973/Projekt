@@ -9,7 +9,6 @@ const sorts = [
 ];
 
 function AnalyticsPage() {
-  const filter = useState("");
   const [facebookPosts, setFacebookPosts] = useState([]);
   const [instagramPosts, setInstagramPosts] = useState([]);
   const [mergedPosts, setMergedPosts] = useState([]);
@@ -19,17 +18,21 @@ function AnalyticsPage() {
       try {
         const data = JSON.parse(localStorage.getItem("encodedData"));
         if (!data) return;
+
         const formData = new FormData();
         formData.append("data", JSON.stringify(data));
 
         const response = await fetch(
           "http://localhost:5001/api/facebook/posts",
-          { method: "POST", body: formData }
+          {
+            method: "POST",
+            body: formData,
+          }
         );
-        const dataGet = await response.json();
-        setFacebookPosts(dataGet.data || []);
+        const result = await response.json();
+        setFacebookPosts(result.data || []); // Ensure it's always an array
       } catch (error) {
-        return error;
+        console.error("Error fetching Facebook posts:", error);
       }
     };
 
@@ -37,21 +40,28 @@ function AnalyticsPage() {
       try {
         const data = JSON.parse(localStorage.getItem("encodedData"));
         if (!data) return;
+
         const formData = new FormData();
         formData.append("data", JSON.stringify(data));
 
         const response = await fetch(
           "http://localhost:5001/api/instagram/posts",
-          { method: "POST", body: formData }
+          {
+            method: "POST",
+            body: formData,
+          }
         );
-        const dataGet = await response.json();
-        setInstagramPosts(dataGet || []);
+        const result = await response.json();
+        setInstagramPosts(result || []); // Ensure it's always an array
       } catch (error) {
-        return error;
+        console.error("Error fetching Instagram posts:", error);
       }
     };
 
     const mergePosts = (facebookPosts, instagramPosts) => {
+      if (!Array.isArray(facebookPosts)) facebookPosts = [];
+      if (!Array.isArray(instagramPosts)) instagramPosts = [];
+
       const combinedPosts = [...facebookPosts, ...instagramPosts];
 
       const merged = combinedPosts.reduce((acc, post) => {
@@ -83,28 +93,26 @@ function AnalyticsPage() {
     };
 
     const fetchPosts = async () => {
-      const facebook = await fetchFacebookPosts();
-      const instagram = await fetchInstagramPosts();
-      mergePosts(facebook, instagram);
+      await fetchFacebookPosts();
+      await fetchInstagramPosts();
+      mergePosts(facebookPosts, instagramPosts);
     };
 
     fetchPosts();
-  }, []);
+  }, [facebookPosts, instagramPosts]);
 
   const handleSort = (sort) => {
-    switch (sort) {
-      case "likes":
-        setMergedPosts((prevPosts) =>
-          [...prevPosts].sort(
+    setMergedPosts((prevPosts) => {
+      const sortedPosts = [...prevPosts];
+      switch (sort) {
+        case "likes":
+          return sortedPosts.sort(
             (a, b) =>
               (b.facebook?.likes?.data.length || b.instagram?.like_count || 0) -
               (a.facebook?.likes?.data.length || a.instagram?.like_count || 0)
-          )
-        );
-        break;
-      case "comments":
-        setMergedPosts((prevPosts) =>
-          [...prevPosts].sort(
+          );
+        case "comments":
+          return sortedPosts.sort(
             (a, b) =>
               (b.facebook?.comments?.data.length ||
                 b.instagram?.comments_count ||
@@ -112,47 +120,25 @@ function AnalyticsPage() {
               (a.facebook?.comments?.data.length ||
                 a.instagram?.comments_count ||
                 0)
-          )
-        );
-        break;
-      case "date":
-        setMergedPosts((prevPosts) =>
-          [...prevPosts].sort((a, b) => {
+          );
+        case "date":
+          return sortedPosts.sort((a, b) => {
             const aTimestamp =
               a.facebook?.timestamp || a.instagram?.timestamp || 0;
             const bTimestamp =
               b.facebook?.timestamp || b.instagram?.timestamp || 0;
             return new Date(bTimestamp) - new Date(aTimestamp);
-          })
-        );
-        break;
-      case "a-z":
-        setMergedPosts((prevPosts) =>
-          [...prevPosts].sort((a, b) => {
+          });
+        case "a-z":
+          return sortedPosts.sort((a, b) => {
             const aCaption = a.facebook?.caption || a.instagram?.caption || "";
             const bCaption = b.facebook?.caption || b.instagram?.caption || "";
             return aCaption.localeCompare(bCaption);
-          })
-        );
-        break;
-      default:
-        break;
-    }
-  };
-
-  const getFilteredPosts = () => {
-    switch (filter) {
-      case "instagram":
-        return instagramPosts;
-      case "facebook":
-        return facebookPosts;
-      default:
-        return mergedPosts;
-    }
-  };
-
-  const handlePostClick = (post) => {
-    localStorage.setItem("currentPost", JSON.stringify(post));
+          });
+        default:
+          return prevPosts;
+      }
+    });
   };
 
   return (
@@ -170,13 +156,15 @@ function AnalyticsPage() {
         </div>
       </div>
       <div>
-        {getFilteredPosts().length > 0 ? (
+        {mergedPosts.length > 0 ? (
           <div className="posts-container">
-            {getFilteredPosts().map((post) => (
+            {mergedPosts.map((post) => (
               <Link
                 to={`/analytics/details`}
                 key={post.facebook ? post.facebook.id : post.instagram.id}
-                onClick={() => handlePostClick(post)}
+                onClick={() =>
+                  localStorage.setItem("currentPost", JSON.stringify(post))
+                }
               >
                 <div className="post-container">
                   <p className="post-caption">

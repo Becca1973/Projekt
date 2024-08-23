@@ -5,21 +5,6 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { encode as base64Encode } from "base-64";
 import ScheduleForm from "../ScheduleForm/ScheduleForm";
 
-const options = [
-  {
-    name: "Once a week",
-  },
-  {
-    name: "Every day",
-  },
-  {
-    name: "Every 12 hours",
-  },
-  {
-    name: "Every 6 hours",
-  },
-];
-
 function MyProfile() {
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
@@ -125,7 +110,7 @@ function MyProfile() {
     if (!docSnap.exists()) return;
 
     const { frequency, email } = docSnap.data();
-    const data = { frequency, to: email};
+    const data = { frequency, to: email };
 
     try {
       const response = await fetch("http://localhost:5001/api/set-schedule", {
