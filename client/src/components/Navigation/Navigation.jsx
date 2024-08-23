@@ -12,9 +12,14 @@ function Navigation() {
     setShowNavbar(!showNavbar);
   };
 
+  const handleCloseNavbar = () => {
+    setShowNavbar(false);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("encodedData");
+    handleCloseNavbar(); // Close the navbar on logout
     navigate("/login");
   };
 
@@ -27,33 +32,33 @@ function Navigation() {
             <AiOutlineMenu />
           </div>
 
-          <div className={`nav-elements  ${showNavbar && "active"}`}>
+          <div className={`nav-elements ${showNavbar ? "active" : ""}`}>
             <ul>
-              <li>
+              <li onClick={handleCloseNavbar}>
                 <Link to="/">Home</Link>
               </li>
               {user && (
-                <li>
+                <li onClick={handleCloseNavbar}>
                   <Link to="/post-content">Post Content</Link>
                 </li>
               )}
 
               {user && (
-                <li>
+                <li onClick={handleCloseNavbar}>
                   <Link to="/analytics">Analytics</Link>
                 </li>
               )}
 
-              <li>
+              <li onClick={handleCloseNavbar}>
                 <Link to="/pricing">Pricing</Link>
               </li>
-              <li>
+              <li onClick={handleCloseNavbar}>
                 <Link to="/contact">Contact</Link>
               </li>
 
               {user ? (
                 <ul>
-                  <li>
+                  <li onClick={handleCloseNavbar}>
                     <Link to="/my-profile">My Profile</Link>
                   </li>
                   <li>
@@ -64,10 +69,10 @@ function Navigation() {
                 </ul>
               ) : (
                 <ul>
-                  <li>
+                  <li onClick={handleCloseNavbar}>
                     <Link to="/login">Login</Link>
                   </li>
-                  <li>
+                  <li onClick={handleCloseNavbar}>
                     <Link to="/register">Register</Link>
                   </li>
                 </ul>

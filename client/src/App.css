@@ -414,9 +414,6 @@ button {
 }
 
 @media (max-width: 768px) {
-  .nav-elements ul li:not(:last-child) {
-    margin-right: 30px;
-  }
   .select-fields {
     flex-direction: column;
   }
@@ -851,9 +848,7 @@ h2 {
   border: 1px solid #ddd; /* Svetel obrobni rob */
   border-radius: 8px; /* Rahlo zaobljeni robovi */
   padding: 20px; /* Notranji robovi za vsebino */
-  transition:
-    box-shadow 0.3s ease,
-    transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
+  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
   width: 100%; /* Širina kartice, da se prilagodi mreži */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
