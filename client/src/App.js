@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Footer from "./components/Footer/Footer";
@@ -35,23 +34,6 @@ import AnalyticsDetailedPage from "./pages/AnalyticsDetailedPage";
 // sendDataToServer();
 
 function App() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    setUser(storedUser);
-
-    const handleStorageChange = () => {
-      const updatedUser = JSON.parse(localStorage.getItem("user"));
-      setUser(updatedUser);
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
   return (
     <UserProvider>
       <div className="App">
@@ -102,7 +84,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-           
+
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
             </Routes>

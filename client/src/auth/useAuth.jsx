@@ -1,20 +1,26 @@
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
 
-  // call this function when you want to authenticate the user
-  const login = async (data) => {
-    navigate("/");
-  };
+  // Memoized login function
+  const login = useCallback(
+    async (data) => {
+      // You would typically handle authentication here
+      // e.g., send data to an API, handle errors, etc.
+      navigate("/");
+    },
+    [navigate]
+  );
 
-  // call this function to sign out logged in user
-  const logout = () => {
+  // Memoized logout function
+  const logout = useCallback(() => {
     navigate("/", { replace: true });
-  };
+  }, [navigate]);
 
   const value = useMemo(
     () => ({
@@ -22,8 +28,9 @@ export const AuthProvider = ({ children }) => {
       login,
       logout,
     }),
-    [user]
+    [login, logout, user]
   );
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 

@@ -2,89 +2,52 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const sorts = [
-  {
-    name: "Likes",
-    value: "likes",
-  },
-  {
-    name: "Comments",
-    value: "comments",
-  },
-  {
-    name: "Date",
-    value: "date",
-  },
-  {
-    name: "A-Z",
-    value: "a-z",
-  },
+  { name: "Likes", value: "likes" },
+  { name: "Comments", value: "comments" },
+  { name: "Date", value: "date" },
+  { name: "A-Z", value: "a-z" },
 ];
 
 function AnalyticsPage() {
-  const [filter, setFilter] = useState("");
-
+  const filter = useState("");
   const [facebookPosts, setFacebookPosts] = useState([]);
   const [instagramPosts, setInstagramPosts] = useState([]);
   const [mergedPosts, setMergedPosts] = useState([]);
-
-  const [facebookError, setFacebookError] = useState(null);
-  const [instagramError, setInstagramError] = useState(null);
-
-  const [facebookLoading, setFacebookLoading] = useState(true);
-  const [instagramLoading, setInstagramLoading] = useState(true);
 
   useEffect(() => {
     const fetchFacebookPosts = async () => {
       try {
         const data = JSON.parse(localStorage.getItem("encodedData"));
+        if (!data) return;
         const formData = new FormData();
         formData.append("data", JSON.stringify(data));
 
-        if (!data) return;
-
         const response = await fetch(
           "http://localhost:5001/api/facebook/posts",
-          {
-            method: "POST",
-            body: formData,
-          }
+          { method: "POST", body: formData }
         );
-
         const dataGet = await response.json();
         setFacebookPosts(dataGet.data || []);
-        return dataGet.data || [];
       } catch (error) {
-        setFacebookError(error);
-        return [];
-      } finally {
-        setFacebookLoading(false);
+        return error;
       }
     };
 
     const fetchInstagramPosts = async () => {
       try {
         const data = JSON.parse(localStorage.getItem("encodedData"));
+        if (!data) return;
         const formData = new FormData();
         formData.append("data", JSON.stringify(data));
 
-        if (!data) return;
-
         const response = await fetch(
           "http://localhost:5001/api/instagram/posts",
-          {
-            method: "POST",
-            body: formData,
-          }
+          { method: "POST", body: formData }
         );
-
         const dataGet = await response.json();
         setInstagramPosts(dataGet || []);
-        return dataGet || [];
       } catch (error) {
-        setInstagramError(error);
-        return [];
-      } finally {
-        setInstagramLoading(false);
+        return error;
       }
     };
 
@@ -93,7 +56,6 @@ function AnalyticsPage() {
 
       const merged = combinedPosts.reduce((acc, post) => {
         const messageOrCaption = post.message || post.caption;
-
         let existingPost = acc.find(
           (p) =>
             p.message === messageOrCaption || p.caption === messageOrCaption
@@ -156,13 +118,10 @@ function AnalyticsPage() {
       case "date":
         setMergedPosts((prevPosts) =>
           [...prevPosts].sort((a, b) => {
-            // Extract timestamps from both Facebook and Instagram, default to 0 if undefined
             const aTimestamp =
               a.facebook?.timestamp || a.instagram?.timestamp || 0;
             const bTimestamp =
               b.facebook?.timestamp || b.instagram?.timestamp || 0;
-
-            // Convert timestamps to numeric values for accurate comparison
             return new Date(bTimestamp) - new Date(aTimestamp);
           })
         );
@@ -170,11 +129,8 @@ function AnalyticsPage() {
       case "a-z":
         setMergedPosts((prevPosts) =>
           [...prevPosts].sort((a, b) => {
-            // Extract captions from both Facebook and Instagram, default to an empty string if undefined
             const aCaption = a.facebook?.caption || a.instagram?.caption || "";
             const bCaption = b.facebook?.caption || b.instagram?.caption || "";
-
-            // Compare captions alphabetically
             return aCaption.localeCompare(bCaption);
           })
         );
@@ -229,13 +185,13 @@ function AnalyticsPage() {
                       "No caption"}
                   </p>
 
-                  {post.facebook && post.facebook.full_picture ? (
+                  {post.facebook?.full_picture ? (
                     <img
                       src={post.facebook.full_picture}
                       alt={post.facebook.message}
                       className="post-image"
                     />
-                  ) : post.instagram && post.instagram.media_url ? (
+                  ) : post.instagram?.media_url ? (
                     <img
                       src={post.instagram.media_url}
                       alt={post.instagram.caption || "Instagram post image"}
@@ -248,9 +204,7 @@ function AnalyticsPage() {
                   <p className="post-date">
                     Date:{" "}
                     {new Date(
-                      post.facebook
-                        ? post.facebook.created_time
-                        : post.instagram.timestamp
+                      post.facebook?.created_time || post.instagram?.timestamp
                     ).toLocaleDateString()}
                   </p>
                 </div>
