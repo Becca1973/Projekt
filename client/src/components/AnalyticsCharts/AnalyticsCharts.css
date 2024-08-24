@@ -2,6 +2,7 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9; /* Added a subtle background color for contrast */
 }
 
 .social-metrics h2 {
@@ -18,9 +19,11 @@
 
 .section-title {
   font-size: 24px;
+  font-weight: 600;
   padding: 20px;
   margin-bottom: 20px;
   text-align: center;
+  color: #4f4f4f; /* Ensured consistent color */
 }
 
 .engagement-metrics-section,
@@ -29,6 +32,8 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   width: calc(100% - 60px); /* Adjust for margins */
   margin: 30px auto; /* Center align and adjust margin */
+  padding: 20px; /* Added padding inside sections */
+  border-radius: 8px;
   justify-content: center;
 }
 
@@ -44,10 +49,11 @@
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   min-width: 250px; /* Ensure a minimum width for smaller screens */
-  padding: 10px;
+  align-items: center;
   box-sizing: border-box; /* Include padding in width calculations */
 }
 
+/* Media queries for responsiveness */
 @media (max-width: 768px) {
   .social-metrics {
     padding: 10px;
@@ -69,5 +75,41 @@
 
   .distribution-section .chart-box:last-child {
     margin-bottom: 0;
+  }
+}
+
+/* Additional styles for better legend spacing */
+.recharts-legend-wrapper {
+  margin-top: 10px; /* Add some space above the legend */
+  text-align: center; /* Center the legend text */
+}
+
+.recharts-legend-item {
+  margin-right: 20px; /* Space between legend items */
+}
+
+.recharts-tooltip-wrapper {
+  font-size: 14px; /* Adjust tooltip font size for readability */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.9
+  ); /* Slightly opaque background for tooltips */
+  padding: 8px; /* Add padding inside tooltips */
+  border-radius: 4px; /* Rounded corners for tooltips */
+}
+
+/* Responsive adjustments for pie chart text placement */
+@media (max-width: 480px) {
+  .distribution-section .chart-box {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;
+  }
+
+  .distribution-section .chart-box > div {
+    width: 100%; /* Ensure that text occupies full width under the chart */
+    text-align: center; /* Center text under the chart */
   }
 }

@@ -37,17 +37,17 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
   const instagramData = instagramPost ? extractData(instagramPost) : null;
 
   const barData = [];
-  if (facebookData) {
-    barData.push(
-      { name: "Fb Likes", value: facebookData.likes },
-      { name: "Fb Comments", value: facebookData.comments }
-    );
-  }
-  if (instagramData) {
-    barData.push(
-      { name: "Ig Likes", value: instagramData.likes },
-      { name: "Ig Comments", value: instagramData.comments }
-    );
+  if (facebookData || instagramData) {
+    barData.push({
+      name: "Likes",
+      facebook: facebookData ? facebookData.likes : 0,
+      instagram: instagramData ? instagramData.likes : 0,
+    });
+    barData.push({
+      name: "Comments",
+      facebook: facebookData ? facebookData.comments : 0,
+      instagram: instagramData ? instagramData.comments : 0,
+    });
   }
 
   const pieLikesData = [];
@@ -65,7 +65,8 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
   // Colors
   const PIE_LIKES_COLORS = ["#FF4D4D", "#0033FF"]; // Red and Dark Blue for likes
   const PIE_COMMENTS_COLORS = ["#FF4D4D", "#0033FF"]; // Red and Dark Blue for comments
-  const BAR_COLOR = "#FF4D4D"; // Dark Blue for bar chart
+  const FB_BAR_COLOR = "#FF4D4D"; // Red for Facebook
+  const IG_BAR_COLOR = "#0033FF"; // Dark Blue for Instagram
 
   const renderCustomizedLabel = ({ name, value, percent }) => {
     return `${name}: ${value} (${(percent * 100).toFixed(0)}%)`;
@@ -84,7 +85,8 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="value" fill={BAR_COLOR} />
+                <Bar dataKey="facebook" fill={FB_BAR_COLOR} name="Facebook" />
+                <Bar dataKey="instagram" fill={IG_BAR_COLOR} name="Instagram" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -131,7 +133,7 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie
-                      data={pieCommentsData}
+                      data={pieLikesData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -139,13 +141,11 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
                       outerRadius="60%"
                       dataKey="value"
                     >
-                      {pieCommentsData.map((entry, index) => (
+                      {pieLikesData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={
-                            PIE_COMMENTS_COLORS[
-                              index % PIE_COMMENTS_COLORS.length
-                            ]
+                            PIE_LIKES_COLORS[index % PIE_LIKES_COLORS.length]
                           }
                         />
                       ))}

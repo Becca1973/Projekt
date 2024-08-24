@@ -814,6 +814,7 @@ h2 {
   justify-content: center; /* Poravnaj mrežo na sredino */
   align-items: start; /* Poravnaj vsebino v začetku mreže */
   grid-auto-rows: minmax(100px, auto); /* Višina vrstic */
+  margin-top: 60px;
 }
 
 /* Prilagoditev za manjše zaslone */
@@ -848,7 +849,9 @@ h2 {
   border: 1px solid #ddd; /* Svetel obrobni rob */
   border-radius: 8px; /* Rahlo zaobljeni robovi */
   padding: 20px; /* Notranji robovi za vsebino */
-  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
   width: 100%; /* Širina kartice, da se prilagodi mreži */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
@@ -1055,4 +1058,59 @@ h1 {
 
 a {
   text-decoration: none;
+}
+
+.total-engagement {
+  display: flex;
+  justify-content: space-between; /* Distributes space between items */
+  padding: 20px;
+  margin-top: 40px;
+}
+.total-engagement p {
+  font-weight: bolder;
+  font-size: x-large;
+}
+
+.total-engagement h3 {
+  font-size: small;
+}
+
+.total-engagement .engagement-item {
+  background: linear-gradient(to right, #66b3ff, #007bff);
+  color: white; /* White text color */
+  padding: 20px;
+  border-radius: 5px;
+  flex: 1; /* Allows items to grow equally */
+  margin: 0 130px; /* Adds some space between items */
+  text-align: center;
+}
+@media (max-width: 768px) {
+  .total-engagement {
+    flex-direction: column; /* Elementi v stolpce na manjših zaslonih */
+    align-items: center; /* Poravnaj vse elemente na sredino */
+  }
+
+  .total-engagement .engagement-item {
+    margin: 10px 0; /* Dodaj prostor samo navpično */
+    width: 100%; /* Prilagodi širino, da se prilega zaslonu */
+  }
+
+  .total-engagement p {
+    font-size: large; /* Manjša velikost pisave na manjših zaslonih */
+  }
+
+  .total-engagement h3 {
+    font-size: x-small; /* Manjša velikost pisave za naslove */
+  }
+}
+
+/* Responsive nastavitve za zelo majhne zaslone (mobilni telefoni) */
+@media (max-width: 480px) {
+  .total-engagement p {
+    font-size: large; /* Manjša velikost pisave na zelo majhnih zaslonih */
+  }
+
+  .total-engagement h3 {
+    font-size: small; /* Manjša velikost pisave za naslove */
+  }
 }
