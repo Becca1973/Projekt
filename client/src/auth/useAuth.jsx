@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
     [navigate]
   );
 
-  // Memoized logout function
   const logout = useCallback(() => {
     navigate("/", { replace: true });
   }, [navigate]);
