@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineMenu } from "react-icons/ai";
 import { useAuth } from "../../auth/useAuth";
@@ -62,9 +62,7 @@ function Navigation() {
                     <Link to="/my-profile">My Profile</Link>
                   </li>
                   <li>
-                    <a href="#" onClick={handleLogout}>
-                      Logout
-                    </a>
+                    <button onClick={handleLogout}>Logout</button>
                   </li>
                 </ul>
               ) : (

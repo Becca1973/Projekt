@@ -2,34 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const sorts = [
-  {
-    name: "Likes",
-    value: "likes",
-  },
-  {
-    name: "Comments",
-    value: "comments",
-  },
-  {
-    name: "Date",
-    value: "date",
-  },
-  {
-    name: "A-Z",
-    value: "a-z",
-  },
+  { name: "Likes", value: "likes" },
+  { name: "Comments", value: "comments" },
+  { name: "Date", value: "date" },
+  { name: "A-Z", value: "a-z" },
 ];
 
 function AnalyticsPage() {
-  const [filter, setFilter] = useState("");
-
   const [facebookPosts, setFacebookPosts] = useState([]);
   const [instagramPosts, setInstagramPosts] = useState([]);
   const [mergedPosts, setMergedPosts] = useState([]);
-
   const [facebookError, setFacebookError] = useState(null);
   const [instagramError, setInstagramError] = useState(null);
-
   const [facebookLoading, setFacebookLoading] = useState(true);
   const [instagramLoading, setInstagramLoading] = useState(true);
 
@@ -52,10 +36,8 @@ function AnalyticsPage() {
 
         const dataGet = await response.json();
         setFacebookPosts(dataGet.data || []);
-        return dataGet.data || [];
       } catch (error) {
         setFacebookError(error);
-        return [];
       } finally {
         setFacebookLoading(false);
       }
@@ -79,10 +61,8 @@ function AnalyticsPage() {
 
         const dataGet = await response.json();
         setInstagramPosts(dataGet || []);
-        return dataGet || [];
       } catch (error) {
         setInstagramError(error);
-        return [];
       } finally {
         setInstagramLoading(false);
       }
@@ -121,13 +101,13 @@ function AnalyticsPage() {
     };
 
     const fetchPosts = async () => {
-      const facebook = await fetchFacebookPosts();
-      const instagram = await fetchInstagramPosts();
-      mergePosts(facebook, instagram);
+      await fetchFacebookPosts();
+      await fetchInstagramPosts();
+      mergePosts(facebookPosts, instagramPosts);
     };
 
     fetchPosts();
-  }, []);
+  }, [facebookPosts, instagramPosts]);
 
   const handleSort = (sort) => {
     switch (sort) {
@@ -156,13 +136,11 @@ function AnalyticsPage() {
       case "date":
         setMergedPosts((prevPosts) =>
           [...prevPosts].sort((a, b) => {
-            // Extract timestamps from both Facebook and Instagram, default to 0 if undefined
             const aTimestamp =
               a.facebook?.timestamp || a.instagram?.timestamp || 0;
             const bTimestamp =
               b.facebook?.timestamp || b.instagram?.timestamp || 0;
 
-            // Convert timestamps to numeric values for accurate comparison
             return new Date(bTimestamp) - new Date(aTimestamp);
           })
         );
@@ -170,28 +148,15 @@ function AnalyticsPage() {
       case "a-z":
         setMergedPosts((prevPosts) =>
           [...prevPosts].sort((a, b) => {
-            // Extract captions from both Facebook and Instagram, default to an empty string if undefined
             const aCaption = a.facebook?.caption || a.instagram?.caption || "";
             const bCaption = b.facebook?.caption || b.instagram?.caption || "";
 
-            // Compare captions alphabetically
             return aCaption.localeCompare(bCaption);
           })
         );
         break;
       default:
         break;
-    }
-  };
-
-  const getFilteredPosts = () => {
-    switch (filter) {
-      case "instagram":
-        return instagramPosts;
-      case "facebook":
-        return facebookPosts;
-      default:
-        return mergedPosts;
     }
   };
 
@@ -214,9 +179,13 @@ function AnalyticsPage() {
         </div>
       </div>
       <div>
-        {getFilteredPosts().length > 0 ? (
+        {facebookLoading || instagramLoading ? (
+          <p>Loading...</p>
+        ) : facebookError || instagramError ? (
+          <p>Error loading posts</p>
+        ) : mergedPosts.length > 0 ? (
           <div className="posts-container">
-            {getFilteredPosts().map((post) => (
+            {mergedPosts.map((post) => (
               <Link
                 to={`/analytics/details`}
                 key={post.facebook ? post.facebook.id : post.instagram.id}
@@ -258,7 +227,7 @@ function AnalyticsPage() {
             ))}
           </div>
         ) : (
-          <p>Loading...</p>
+          <p>No posts available</p>
         )}
       </div>
     </div>

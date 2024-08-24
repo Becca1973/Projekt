@@ -1,10 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { db } from "../../../src/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import "./InputComponent.css";
 import AIGenerator from "../AIGenerator/AIGenerator";
-import { decode } from "base-64";
 
 const InputComponent = () => {
   const [title, setTitle] = useState("");
