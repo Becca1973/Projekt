@@ -14,9 +14,6 @@ function Footer() {
               <a href="/features">Features</a>
             </li>
             <li>
-              <a href="/pricing">Pricing</a>
-            </li>
-            <li>
               <a href="/blog">Blog</a>
             </li>
             <li>
@@ -47,15 +44,6 @@ function Footer() {
             </li>
             <li>
               <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <i className="fab fa-linkedin-in"></i> LinkedIn
-              </a>
-            </li>
-            <li>
-              <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -67,9 +55,9 @@ function Footer() {
         </div>
         <div className="footer-section">
           <h3>Contact Us</h3>
-          <p>Email: support@yourwebsite.com</p>
-          <p>Phone: (123) 456-7890</p>
-          <p>Address: 123 Your Street, Your City, YC 12345</p>
+          <p>Email: brand.boost@mail.com</p>
+          <p>Phone: +123 456-7890</p>
+          <p>Address: 123 Koroška cesta 46, Maribor</p>
         </div>
       </div>
       <div className="footer-bottom">

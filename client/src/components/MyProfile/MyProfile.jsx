@@ -4,6 +4,7 @@ import { db } from "../../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { encode as base64Encode } from "base-64";
 import ScheduleForm from "../ScheduleForm/ScheduleForm";
+import { Loader } from "../../components/Loader/Loader"; // Import the Loader component
 
 function MyProfile() {
   const { user } = useUser();
@@ -30,40 +31,47 @@ function MyProfile() {
   useEffect(() => {
     const fetchTokens = async () => {
       if (user) {
-        const userDoc = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userDoc);
+        setLoading(true);
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const data_ = { frequency: data.frequency, to: data.email };
+        try {
+          const userDoc = doc(db, "users", user.uid);
+          const docSnap = await getDoc(userDoc);
 
-          await fetch("http://localhost:5001/api/set-schedule", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data_),
-          });
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            const data_ = { frequency: data.frequency, to: data.email };
 
-          // Encode sensitive data
-          const encodedData = {
-            socialTokens: base64Encode(JSON.stringify(data.socialTokens || {})),
-            profileData: base64Encode(
-              JSON.stringify({
-                username: data.username || "",
-                email: data.email || "",
-              })
-            ),
-          };
-          // Set state with encoded data
-          setSocialTokens(data.socialTokens || {});
-          setProfileData({
-            username: data.username || "",
-            email: data.email || "",
-          });
+            await fetch("http://localhost:5001/api/set-schedule", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data_),
+            });
 
-          // Store encoded data in localStorage
-          localStorage.setItem("encodedData", JSON.stringify(encodedData));
+            const encodedData = {
+              socialTokens: base64Encode(
+                JSON.stringify(data.socialTokens || {})
+              ),
+              profileData: base64Encode(
+                JSON.stringify({
+                  username: data.username || "",
+                  email: data.email || "",
+                })
+              ),
+            };
+
+            setSocialTokens(data.socialTokens || {});
+            setProfileData({
+              username: data.username || "",
+              email: data.email || "",
+            });
+
+            localStorage.setItem("encodedData", JSON.stringify(encodedData));
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
           setLoading(false);
         }
       }
@@ -90,7 +98,6 @@ function MyProfile() {
     }
   };
 
-  /* FIX OVO */
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfileData((prevData) => ({
@@ -135,12 +142,11 @@ function MyProfile() {
     <div className="profile-container">
       <h2>Profile Page</h2>
       {loading ? (
-        <>Loading...</>
+        <Loader />
       ) : (
         <div>
           <div className="profile-details">
             <label>
-              {/* FIX OVO */}
               Username:
               <input
                 type="text"
@@ -151,7 +157,6 @@ function MyProfile() {
               />
             </label>
             <label>
-              {/* FIX OVO */}
               Email:
               <input
                 disabled

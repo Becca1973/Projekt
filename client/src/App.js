@@ -8,30 +8,12 @@ import ContactPage from "./pages/ContactPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
-import PricingPage from "./pages/PricingPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 import DetailsPage from "./pages/DetailsPage";
 import { AuthProvider } from "./auth/useAuth";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import AnalyticsDetailedPage from "./pages/AnalyticsDetailedPage";
-
-// MOGOCE JE TISTO BOLJSE PREBACIT V MYPROFILE PAGE AMPAK ZDAJ KO RAZVIJAMO NEK BO TUKAJ
-// const sendDataToServer = async () => {
-//   const socialTokens = JSON.parse(localStorage.getItem("socialTokens"));
-
-//   if (socialTokens) {
-//     try {
-//       await axios.post("http://localhost:5001/api/env", socialTokens);
-//       console.log("Data sent to server successfully.");
-//     } catch (error) {
-//       console.error("Error sending data to server:", error);
-//     }
-//   } else {
-//     console.error("No socialTokens found in localStorage.");
-//   }
-// };
-// sendDataToServer();
 
 function App() {
   return (
@@ -74,7 +56,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/pricing" element={<PricingPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route
                 path="/my-profile"
@@ -89,7 +70,6 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
             </Routes>
           </AuthProvider>
-
           <Footer />
         </Router>
       </div>

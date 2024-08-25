@@ -1,19 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Loader } from "../components/Loader/Loader";
 
 const sorts = [
-  { name: "Likes", value: "likes" },
-  { name: "Comments", value: "comments" },
-  { name: "Date", value: "date" },
-  { name: "A-Z", value: "a-z" },
+  {
+    name: "Date",
+    value: "date",
+  },
+  {
+    name: "Likes",
+    value: "likes",
+  },
+  {
+    name: "Comments",
+    value: "comments",
+  },
+  {
+    name: "A-Z",
+    value: "a-z",
+  },
 ];
 
 function AnalyticsPage() {
-  const [facebookPosts, setFacebookPosts] = useState([]);
-  const [instagramPosts, setInstagramPosts] = useState([]);
+  const [sortType, setSortType] = useState("date");
+
   const [mergedPosts, setMergedPosts] = useState([]);
+
   const [facebookError, setFacebookError] = useState(null);
   const [instagramError, setInstagramError] = useState(null);
+
   const [facebookLoading, setFacebookLoading] = useState(true);
   const [instagramLoading, setInstagramLoading] = useState(true);
 
@@ -35,9 +50,10 @@ function AnalyticsPage() {
         );
 
         const dataGet = await response.json();
-        setFacebookPosts(dataGet.data || []);
+        return dataGet.data || [];
       } catch (error) {
         setFacebookError(error);
+        return [];
       } finally {
         setFacebookLoading(false);
       }
@@ -60,9 +76,10 @@ function AnalyticsPage() {
         );
 
         const dataGet = await response.json();
-        setInstagramPosts(dataGet || []);
+        return dataGet || [];
       } catch (error) {
         setInstagramError(error);
+        return [];
       } finally {
         setInstagramLoading(false);
       }
@@ -101,63 +118,70 @@ function AnalyticsPage() {
     };
 
     const fetchPosts = async () => {
-      await fetchFacebookPosts();
-      await fetchInstagramPosts();
-      mergePosts(facebookPosts, instagramPosts);
+      const facebook = await fetchFacebookPosts();
+      const instagram = await fetchInstagramPosts();
+      mergePosts(facebook, instagram);
     };
 
     fetchPosts();
-  }, [facebookPosts, instagramPosts]);
+  }, []);
 
   const handleSort = (sort) => {
-    switch (sort) {
-      case "likes":
-        setMergedPosts((prevPosts) =>
-          [...prevPosts].sort(
-            (a, b) =>
-              (b.facebook?.likes?.data.length || b.instagram?.like_count || 0) -
-              (a.facebook?.likes?.data.length || a.instagram?.like_count || 0)
-          )
-        );
-        break;
-      case "comments":
-        setMergedPosts((prevPosts) =>
-          [...prevPosts].sort(
-            (a, b) =>
-              (b.facebook?.comments?.data.length ||
-                b.instagram?.comments_count ||
-                0) -
-              (a.facebook?.comments?.data.length ||
-                a.instagram?.comments_count ||
-                0)
-          )
-        );
-        break;
-      case "date":
-        setMergedPosts((prevPosts) =>
-          [...prevPosts].sort((a, b) => {
-            const aTimestamp =
-              a.facebook?.timestamp || a.instagram?.timestamp || 0;
-            const bTimestamp =
-              b.facebook?.timestamp || b.instagram?.timestamp || 0;
+    setSortType(sort);
+    setMergedPosts((prevPosts) => {
+      const sortedPosts = [...prevPosts];
 
-            return new Date(bTimestamp) - new Date(aTimestamp);
-          })
-        );
-        break;
-      case "a-z":
-        setMergedPosts((prevPosts) =>
-          [...prevPosts].sort((a, b) => {
+      switch (sort) {
+        case "likes":
+          sortedPosts.sort((a, b) => {
+            const aLikes =
+              b.facebook?.likes?.data.length || b.instagram?.like_count || 0;
+            const bLikes =
+              a.facebook?.likes?.data.length || a.instagram?.like_count || 0;
+            return aLikes - bLikes;
+          });
+          break;
+
+        case "comments":
+          sortedPosts.sort((a, b) => {
+            const aComments =
+              b.facebook?.comments?.data.length ||
+              b.instagram?.comments_count ||
+              0;
+            const bComments =
+              a.facebook?.comments?.data.length ||
+              a.instagram?.comments_count ||
+              0;
+            return aComments - bComments;
+          });
+          break;
+
+        case "date":
+          sortedPosts.sort((a, b) => {
+            const aDate = new Date(
+              a.facebook?.timestamp || a.instagram?.timestamp || 0
+            );
+            const bDate = new Date(
+              b.facebook?.timestamp || b.instagram?.timestamp || 0
+            );
+            return aDate - bDate;
+          });
+          break;
+
+        case "a-z":
+          sortedPosts.sort((a, b) => {
             const aCaption = a.facebook?.caption || a.instagram?.caption || "";
             const bCaption = b.facebook?.caption || b.instagram?.caption || "";
-
             return aCaption.localeCompare(bCaption);
-          })
-        );
-        break;
-      default:
-        break;
-    }
+          });
+          break;
+
+        default:
+          break;
+      }
+
+      return sortedPosts;
+    });
   };
 
   const handlePostClick = (post) => {
@@ -168,8 +192,8 @@ function AnalyticsPage() {
     <div className="container posts-content">
       <div className="select-fields">
         <div className="custom-select">
-          <select onChange={(e) => handleSort(e.target.value)}>
-            <option value="">Sort by</option>
+          <p>Sort By:</p>
+          <select onChange={(e) => handleSort(e.target.value)} value={sortType}>
             {sorts.map(({ value, name }, index) => (
               <option key={index} value={value}>
                 {name}
@@ -180,9 +204,15 @@ function AnalyticsPage() {
       </div>
       <div>
         {facebookLoading || instagramLoading ? (
-          <p>Loading...</p>
+          <Loader />
         ) : facebookError || instagramError ? (
-          <p>Error loading posts</p>
+          <div className="error-message">
+            <p>
+              {facebookError?.message ||
+                instagramError?.message ||
+                "An error occurred."}
+            </p>
+          </div>
         ) : mergedPosts.length > 0 ? (
           <div className="posts-container">
             {mergedPosts.map((post) => (
@@ -227,7 +257,7 @@ function AnalyticsPage() {
             ))}
           </div>
         ) : (
-          <p>No posts available</p>
+          <p>No posts available.</p>
         )}
       </div>
     </div>

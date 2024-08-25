@@ -9,7 +9,7 @@ function AnalyticsDetailedPage() {
 
   useEffect(() => {
     const storedPost = JSON.parse(localStorage.getItem("currentPost"));
-    console.log("Stored Post:", storedPost); // Preveri celoten objekt
+    console.log("Stored Post:", storedPost);
     setCurrentPost(storedPost);
   }, []);
 
@@ -43,7 +43,9 @@ function AnalyticsDetailedPage() {
 
   return (
     <div className="container poster-detail">
-      <h2>Post Details</h2>
+      <h2>
+        Details about post: {currentPost?.facebook?.message.split("\n")[0]}
+      </h2>
 
       <div className={`posts-grid ${hasSinglePost ? "single-post" : ""}`}>
         {/* Facebook Post Details */}
@@ -52,13 +54,12 @@ function AnalyticsDetailedPage() {
             <div className="post-container">
               <h3>Facebook Post</h3>
               <p className="post-caption">
-                {currentPost.facebook.message?.match(/^[^\n]+/)[0] ||
-                  "No caption"}
+                {currentPost.facebook.message?.split("\n")[0] || "No caption"}
               </p>
               {currentPost.facebook.full_picture ? (
                 <img
                   src={currentPost.facebook.full_picture}
-                  alt={currentPost.facebook.message}
+                  alt={currentPost.facebook?.message}
                   className="post-image"
                 />
               ) : (
@@ -88,8 +89,7 @@ function AnalyticsDetailedPage() {
             <div className="post-container">
               <h3>Instagram Post</h3>
               <p className="post-caption">
-                {currentPost.instagram.caption?.match(/^[^\n]+/)[0] ||
-                  "No caption"}
+                {currentPost.instagram.caption?.split("\n")[0] || "No caption"}
               </p>
               {currentPost.instagram.thumbnail_url ||
               currentPost.instagram.media_url ? (
@@ -98,7 +98,7 @@ function AnalyticsDetailedPage() {
                     currentPost.instagram.thumbnail_url ||
                     currentPost.instagram.media_url
                   }
-                  alt={currentPost.instagram.caption}
+                  alt={currentPost.instagram.caption || "Instagram post"}
                   className="post-image"
                 />
               ) : (

@@ -12,6 +12,7 @@
 }
 
 .comment-section {
+  width: 100%;
   margin: 0 auto;
   font-family: Arial, sans-serif;
 }
@@ -49,7 +50,47 @@
   flex-direction: row;
   gap: 10px;
 }
+.post-det-1 {
+  min-height: 200px;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: column;
+  align-content: center;
+}
+.post-det-1 img {
+  height: auto;
+  width: 400px !important;
+  border-radius: 10px;
+}
+.post-det {
+  display: flex;
+  flex-direction: row;
+  gap: 60px;
+  min-height: 400px;
+  margin-bottom: 80px;
+}
+.custom-select {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  padding-left: 30px;
+}
 
+.custom-select p {
+  justify-content: center;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+.poster-detail {
+  padding-top: 100px !important;
+}
+.elm {
+  margin-right: 10px;
+  height: 25px;
+}
+.post-det-before {
+  align-content: center;
+}
 .custom-select select {
   appearance: none;
   font-size: 1rem;
@@ -67,6 +108,9 @@
 
 .related-post-container {
   margin-top: 100px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .comment-section input[type="text"] {
@@ -381,8 +425,9 @@ button {
 
 .nav-elements ul {
   display: flex;
+  align-items: center;
   list-style-type: none;
-  gap: 20px;
+  gap: 40px;
 }
 
 .nav-elements ul div {
@@ -442,6 +487,23 @@ button {
     height: calc(100vh - 60px);
     transition: all 0.3s ease-in;
     overflow: hidden;
+  }
+
+  .related-post-container {
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .post-det {
+    flex-direction: column;
+    gap: 30px;
+    height: auto;
+  }
+  .post-det-1 img {
+    height: auto;
+  }
+  .post-det-1 {
+    height: auto;
   }
 
   .nav-elements.active {
@@ -603,6 +665,7 @@ h2 {
 .details-buttons {
   display: flex;
   padding: 5px;
+  justify-content: center;
   gap: 5px;
 }
 
@@ -849,9 +912,7 @@ h2 {
   border: 1px solid #ddd; /* Svetel obrobni rob */
   border-radius: 8px; /* Rahlo zaobljeni robovi */
   padding: 20px; /* Notranji robovi za vsebino */
-  transition:
-    box-shadow 0.3s ease,
-    transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
+  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
   width: 100%; /* Širina kartice, da se prilagodi mreži */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
@@ -903,7 +964,9 @@ h2 {
     grid-template-columns: 1fr; /* En stolpec v vrstici */
   }
 }
-
+.hidden {
+  display: none;
+}
 .post-caption {
   font-size: 16px;
   margin-bottom: 16px;
@@ -1030,6 +1093,12 @@ h1 {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   width: 50%;
+}
+
+.log-out {
+  background-color: #e78300;
+  padding: 5px;
+  color: whitesmoke;
 }
 
 .ai-dialog-close {

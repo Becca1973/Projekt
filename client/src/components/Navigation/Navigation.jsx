@@ -48,10 +48,6 @@ function Navigation() {
                   <Link to="/analytics">Analytics</Link>
                 </li>
               )}
-
-              <li onClick={handleCloseNavbar}>
-                <Link to="/pricing">Pricing</Link>
-              </li>
               <li onClick={handleCloseNavbar}>
                 <Link to="/contact">Contact</Link>
               </li>
@@ -62,7 +58,9 @@ function Navigation() {
                     <Link to="/my-profile">My Profile</Link>
                   </li>
                   <li>
-                    <button onClick={handleLogout}>Logout</button>
+                    <button className="log-out" onClick={handleLogout}>
+                      Logout
+                    </button>
                   </li>
                 </ul>
               ) : (

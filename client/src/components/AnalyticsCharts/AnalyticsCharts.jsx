@@ -54,17 +54,17 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
   const pieCommentsData = [];
 
   if (facebookData) {
-    pieLikesData.push({ name: "Facebook", value: facebookData.likes });
-    pieCommentsData.push({ name: "Facebook", value: facebookData.comments });
+    pieLikesData.push({ name: "FB", value: facebookData.likes });
+    pieCommentsData.push({ name: "FB", value: facebookData.comments });
   }
   if (instagramData) {
-    pieLikesData.push({ name: "Instagram", value: instagramData.likes });
-    pieCommentsData.push({ name: "Instagram", value: instagramData.comments });
+    pieLikesData.push({ name: "IG", value: instagramData.likes });
+    pieCommentsData.push({ name: "IG", value: instagramData.comments });
   }
 
   // Colors
-  const PIE_LIKES_COLORS = ["#FF4D4D", "#0033FF"]; // Red and Dark Blue for likes
-  const PIE_COMMENTS_COLORS = ["#FF4D4D", "#0033FF"]; // Red and Dark Blue for comments
+  const PIE_LIKES_COLORS = ["#0033FF", "#FF4D4D"]; // Red and Dark Blue for likes
+  const PIE_COMMENTS_COLORS = ["#0033FF", "#FF4D4D"]; // Red and Dark Blue for comments
   const FB_BAR_COLOR = "#FF4D4D"; // Red for Facebook
   const IG_BAR_COLOR = "#0033FF"; // Dark Blue for Instagram
 
@@ -133,7 +133,7 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie
-                      data={pieLikesData}
+                      data={pieCommentsData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -141,11 +141,13 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
                       outerRadius="60%"
                       dataKey="value"
                     >
-                      {pieLikesData.map((entry, index) => (
+                      {pieCommentsData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={
-                            PIE_LIKES_COLORS[index % PIE_LIKES_COLORS.length]
+                            PIE_COMMENTS_COLORS[
+                              index % PIE_COMMENTS_COLORS.length
+                            ]
                           }
                         />
                       ))}

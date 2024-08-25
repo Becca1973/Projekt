@@ -1,5 +1,5 @@
 .input-container {
-  max-width: 600px;
+  max-width: 900px;
   margin: auto;
   padding-top: 100px;
   padding-bottom: 100px;
@@ -82,7 +82,7 @@ textarea {
 
 .ai-button:hover {
   background-color: #007bff;
-  color:#ffffff /* Temnejša zelena za hover efekt */
+  color: #ffffff;
 }
 
 .media-preview {
