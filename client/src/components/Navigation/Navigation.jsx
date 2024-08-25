@@ -68,9 +68,6 @@ function Navigation() {
                   <li onClick={handleCloseNavbar}>
                     <Link to="/login">Login</Link>
                   </li>
-                  <li onClick={handleCloseNavbar}>
-                    <Link to="/register">Register</Link>
-                  </li>
                 </ul>
               )}
             </ul>

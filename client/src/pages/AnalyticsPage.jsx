@@ -23,14 +23,12 @@ const sorts = [
 
 function AnalyticsPage() {
   const [sortType, setSortType] = useState("date");
-
   const [mergedPosts, setMergedPosts] = useState([]);
-
   const [facebookError, setFacebookError] = useState(null);
   const [instagramError, setInstagramError] = useState(null);
-
   const [facebookLoading, setFacebookLoading] = useState(true);
   const [instagramLoading, setInstagramLoading] = useState(true);
+  const [tokenInvalid, setTokenInvalid] = useState(false);
 
   useEffect(() => {
     const fetchFacebookPosts = async () => {
@@ -50,6 +48,10 @@ function AnalyticsPage() {
         );
 
         const dataGet = await response.json();
+        if (dataGet.error) {
+          setTokenInvalid(true);
+          return [];
+        }
         return dataGet.data || [];
       } catch (error) {
         setFacebookError(error);
@@ -76,6 +78,10 @@ function AnalyticsPage() {
         );
 
         const dataGet = await response.json();
+        if (dataGet.error) {
+          setTokenInvalid(true);
+          return [];
+        }
         return dataGet || [];
       } catch (error) {
         setInstagramError(error);
@@ -188,6 +194,19 @@ function AnalyticsPage() {
     localStorage.setItem("currentPost", JSON.stringify(post));
   };
 
+  if (tokenInvalid) {
+    return (
+      <div className="container posts-content">
+        <div className="error-message">
+          <p>
+            It looks like there is an issue with your tokens. Please{" "}
+            <Link to="/profile">check your tokens</Link> and try again.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container posts-content">
       <div className="select-fields">
@@ -206,12 +225,13 @@ function AnalyticsPage() {
         {facebookLoading || instagramLoading ? (
           <Loader />
         ) : facebookError || instagramError ? (
-          <div className="error-message">
-            <p>
-              {facebookError?.message ||
-                instagramError?.message ||
-                "An error occurred."}
-            </p>
+          <div className="container posts-content">
+            <div className="error-message">
+              <p>
+                It looks like there is an issue with your tokens. Please{" "}
+                <Link to="/my-profile">check your tokens</Link> and try again.
+              </p>
+            </div>
           </div>
         ) : mergedPosts.length > 0 ? (
           <div className="posts-container">
