@@ -4,6 +4,7 @@ import { db } from "../../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { encode as base64Encode } from "base-64";
 import ScheduleForm from "../ScheduleForm/ScheduleForm";
+import { Loader } from "../../components/Loader/Loader"; // Import the Loader component
 
 function MyProfile() {
   const { user } = useUser();
@@ -16,9 +17,10 @@ function MyProfile() {
     instagramUsername: "",
     instagramPassword: "",
     imgurClientID: "",
-    redditClientId: "",
+    redditUsername: "",
+    redditPassword: "",
+    redditId: "",
     redditSecret: "",
-    redditRefreshToken: "",
   });
 
   const [profileData, setProfileData] = useState({
@@ -29,40 +31,47 @@ function MyProfile() {
   useEffect(() => {
     const fetchTokens = async () => {
       if (user) {
-        const userDoc = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userDoc);
+        setLoading(true);
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const data_ = { frequency: data.frequency, to: data.email };
+        try {
+          const userDoc = doc(db, "users", user.uid);
+          const docSnap = await getDoc(userDoc);
 
-          await fetch("http://localhost:5001/api/set-schedule", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data_),
-          });
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            const data_ = { frequency: data.frequency, to: data.email };
 
-          // Encode sensitive data
-          const encodedData = {
-            socialTokens: base64Encode(JSON.stringify(data.socialTokens || {})),
-            profileData: base64Encode(
-              JSON.stringify({
-                username: data.username || "",
-                email: data.email || "",
-              })
-            ),
-          };
-          // Set state with encoded data
-          setSocialTokens(data.socialTokens || {});
-          setProfileData({
-            username: data.username || "",
-            email: data.email || "",
-          });
+            await fetch("http://localhost:5001/api/set-schedule", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data_),
+            });
 
-          // Store encoded data in localStorage
-          localStorage.setItem("encodedData", JSON.stringify(encodedData));
+            const encodedData = {
+              socialTokens: base64Encode(
+                JSON.stringify(data.socialTokens || {})
+              ),
+              profileData: base64Encode(
+                JSON.stringify({
+                  username: data.username || "",
+                  email: data.email || "",
+                })
+              ),
+            };
+
+            setSocialTokens(data.socialTokens || {});
+            setProfileData({
+              username: data.username || "",
+              email: data.email || "",
+            });
+
+            localStorage.setItem("encodedData", JSON.stringify(encodedData));
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
           setLoading(false);
         }
       }
@@ -81,11 +90,20 @@ function MyProfile() {
 
   const saveTokensToFirestore = async () => {
     if (user) {
-      const userDoc = doc(db, "users", user.uid);
-      await setDoc(userDoc, { socialTokens, ...profileData }, { merge: true });
-      alert("Tokens saved successfully!");
+      try {
+        const userDoc = doc(db, "users", user.uid);
+        await setDoc(
+          userDoc,
+          { socialTokens, ...profileData },
+          { merge: true }
+        );
+
+        window.location.reload();
+      } catch (error) {
+        console.error("Error saving tokens:", error);
+      }
     } else {
-      alert("User is not logged in.");
+      console.error("User is not logged in.");
     }
   };
 
@@ -133,7 +151,7 @@ function MyProfile() {
     <div className="profile-container">
       <h2>Profile Page</h2>
       {loading ? (
-        <>Loading...</>
+        <Loader />
       ) : (
         <div>
           <div className="profile-details">
@@ -254,12 +272,32 @@ function MyProfile() {
             </div>
             <div className="social-group">
               <div className="form-group">
-                <label htmlFor="redditClientId">Reddit Client ID</label>
+                <label htmlFor="redditUsername">Reddit Username</label>
                 <input
                   type="text"
-                  id="redditClientId"
-                  name="redditClientId"
-                  value={socialTokens.redditClientId}
+                  id="redditUsername"
+                  name="redditUsername"
+                  value={socialTokens.redditUsername}
+                  onChange={handleTokenChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="redditPassword">Reddit Password</label>
+                <input
+                  type="text"
+                  id="redditPassword"
+                  name="redditPassword"
+                  value={socialTokens.redditPassword}
+                  onChange={handleTokenChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="redditId">Reddit ID</label>
+                <input
+                  type="text"
+                  id="redditId"
+                  name="redditId"
+                  value={socialTokens.redditId}
                   onChange={handleTokenChange}
                 />
               </div>
@@ -270,16 +308,6 @@ function MyProfile() {
                   id="redditSecret"
                   name="redditSecret"
                   value={socialTokens.redditSecret}
-                  onChange={handleTokenChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="redditRefreshToken">Reddit Refresh Token</label>
-                <input
-                  type="text"
-                  id="redditRefreshToken"
-                  name="redditRefreshToken"
-                  value={socialTokens.redditRefreshToken}
                   onChange={handleTokenChange}
                 />
               </div>

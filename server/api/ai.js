@@ -56,19 +56,19 @@ router.post("/generate-text", async (req, res) => {
   );
 
   try {
-    const max_tokens = Math.ceil(wordCount * 2); 
+    const max_tokens = Math.ceil(wordCount * 2); // Adjusted multiplier for tokens
 
     const response = await axios.post(
       "https://api.aimlapi.com/completions",
       {
         model: "Qwen/Qwen1.5-1.8B",
-        prompt: `Write a poem about "${prompt}", with a length of approximately ${wordCount} words.`,
+        prompt: `Write a description about "${prompt}", with a length of approximately ${wordCount} words.`,
         max_tokens: max_tokens,
-        stop: [".", "!", "?"], 
-        temperature: 0.5,
-        top_p: 0.9, 
-        top_k: 40,
-        repetition_penalty: 1.2, 
+        stop: [".", "!", "?"], // Added more stop sequences
+        temperature: 0.5, // Adjust temperature for balance
+        top_p: 0.9, // Use top-p sampling for relevance
+        top_k: 40, // Consider the top-k most probable tokens
+        repetition_penalty: 1.2, // Discourage repetitive phrases
       },
       {
         headers: {
@@ -79,7 +79,7 @@ router.post("/generate-text", async (req, res) => {
       }
     );
 
-    console.log("API response data:", response.data); 
+    console.log("API response data:", response.data); // Added logging to review API response
 
     const generatedText = response.data.choices[0]?.text?.trim();
     if (!generatedText) {

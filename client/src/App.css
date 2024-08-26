@@ -50,7 +50,47 @@
   flex-direction: row;
   gap: 10px;
 }
+.post-det-1 {
+  min-height: 200px;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: column;
+  align-content: center;
+}
+.post-det-1 img {
+  height: auto;
+  width: 400px !important;
+  border-radius: 10px;
+}
+.post-det {
+  display: flex;
+  flex-direction: row;
+  gap: 60px;
+  min-height: 400px;
+  margin-bottom: 80px;
+}
+.custom-select {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  padding-left: 30px;
+}
 
+.custom-select p {
+  justify-content: center;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+.poster-detail {
+  padding-top: 100px !important;
+}
+.elm {
+  margin-right: 10px;
+  height: 25px;
+}
+.post-det-before {
+  align-content: center;
+}
 .custom-select select {
   appearance: none;
   font-size: 1rem;
@@ -68,6 +108,9 @@
 
 .related-post-container {
   margin-top: 100px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .comment-section input[type="text"] {
@@ -446,6 +489,23 @@ button {
     overflow: hidden;
   }
 
+  .related-post-container {
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .post-det {
+    flex-direction: column;
+    gap: 30px;
+    height: auto;
+  }
+  .post-det-1 img {
+    height: auto;
+  }
+  .post-det-1 {
+    height: auto;
+  }
+
   .nav-elements.active {
     width: 100%;
   }
@@ -605,8 +665,8 @@ h2 {
 .details-buttons {
   display: flex;
   padding: 5px;
-  gap: 5px;
   justify-content: center;
+  gap: 5px;
 }
 
 .save-button {
@@ -809,56 +869,50 @@ h2 {
     grid-auto-rows: minmax(100px, 2);
   }
 }
-
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Največ trije stolpci v vrstici */
-  gap: 20px;
-  padding: 10px;
-  justify-content: center;
-  align-items: start;
-  grid-auto-rows: minmax(100px, auto);
+  grid-template-columns: repeat(2, 1fr); /* Dva stolpca v vrstici */
+  gap: 20px; /* Razdalja med posameznimi objavami */
+  padding: 10px; /* Zunanji rob */
+  justify-content: center; /* Poravnaj mrežo na sredino */
+  align-items: start; /* Poravnaj vsebino v začetku mreže */
+  grid-auto-rows: minmax(100px, auto); /* Višina vrstic */
   margin-top: 60px;
 }
 
-/* Prilagoditev za srednje velike zaslone - dva stolpca */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .posts-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-
-/* Prilagoditev za manjše zaslone - en stolpec */
+/* Prilagoditev za manjše zaslone */
 @media (max-width: 768px) {
   .posts-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr; /* En stolpec na manjših zaslonih */
   }
 }
 
-/* Prilagoditev za zelo majhne zaslone - manjši zunanji rob */
+/* Če želiš še dodatne prilagoditve za zelo majhne zaslone */
 @media (max-width: 480px) {
   .posts-grid {
-    padding: 5px;
+    padding: 5px; /* Manjši zunanji rob na zelo majhnih zaslonih */
   }
 }
 
-/* Samostojni razredi za določeno število stolpcev */
-.posts-1 {
-  grid-template-columns: 1fr;
+/* Prilagoditev za srednje velike zaslone, na primer tablice */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .posts-grid {
+    grid-template-columns: repeat(
+      2,
+      1fr
+    ); /* Dva stolpca za srednje velike zaslone */
+  }
 }
 
-.posts-2 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.posts-3 {
-  grid-template-columns: repeat(3, 1fr);
+.posts-grid.single-post {
+  grid-template-columns: 1fr; /* En stolpec za samo eno objavo */
 }
 
 .post-container {
   border: 1px solid #ddd; /* Svetel obrobni rob */
   border-radius: 8px; /* Rahlo zaobljeni robovi */
   padding: 20px; /* Notranji robovi za vsebino */
+  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
   width: 100%; /* Širina kartice, da se prilagodi mreži */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */
@@ -913,13 +967,6 @@ h2 {
 .hidden {
   display: none;
 }
-
-.log-out {
-  background-color: #e78300;
-  padding: 5px;
-  color: whitesmoke;
-}
-
 .post-caption {
   font-size: 16px;
   margin-bottom: 16px;
@@ -1046,6 +1093,12 @@ h1 {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   width: 50%;
+}
+
+.log-out {
+  background-color: #e78300;
+  padding: 5px;
+  color: whitesmoke;
 }
 
 .ai-dialog-close {

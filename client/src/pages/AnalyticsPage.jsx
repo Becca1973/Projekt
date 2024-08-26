@@ -1,22 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Loader } from "../components/Loader/Loader";
 
 const sorts = [
-  { name: "Likes", value: "likes" },
-  { name: "Comments", value: "comments" },
-  { name: "Date", value: "date" },
-  { name: "A-Z", value: "a-z" },
+  {
+    name: "Date",
+    value: "date",
+  },
+  {
+    name: "Likes",
+    value: "likes",
+  },
+  {
+    name: "Comments",
+    value: "comments",
+  },
+  {
+    name: "A-Z",
+    value: "a-z",
+  },
 ];
 
 function AnalyticsPage() {
-  const [filter, setFilter] = useState("");
+  const [sortType, setSortType] = useState("date");
   const [mergedPosts, setMergedPosts] = useState([]);
-
   const [facebookError, setFacebookError] = useState(null);
   const [instagramError, setInstagramError] = useState(null);
-  const [redditError, setRedditError] = useState(null);
-
-  const [loading, setLoading] = useState(true);
+  const [facebookLoading, setFacebookLoading] = useState(true);
+  const [instagramLoading, setInstagramLoading] = useState(true);
+  const [tokenInvalid, setTokenInvalid] = useState(false);
 
   useEffect(() => {
     const fetchFacebookPosts = async () => {
@@ -25,7 +37,7 @@ function AnalyticsPage() {
         const formData = new FormData();
         formData.append("data", JSON.stringify(data));
 
-        if (!data) return [];
+        if (!data) return;
 
         const response = await fetch(
           "http://localhost:5001/api/facebook/posts",
@@ -36,10 +48,16 @@ function AnalyticsPage() {
         );
 
         const dataGet = await response.json();
+        if (dataGet.error) {
+          setTokenInvalid(true);
+          return [];
+        }
         return dataGet.data || [];
       } catch (error) {
         setFacebookError(error);
         return [];
+      } finally {
+        setFacebookLoading(false);
       }
     };
 
@@ -49,7 +67,7 @@ function AnalyticsPage() {
         const formData = new FormData();
         formData.append("data", JSON.stringify(data));
 
-        if (!data) return [];
+        if (!data) return;
 
         const response = await fetch(
           "http://localhost:5001/api/instagram/posts",
@@ -60,87 +78,47 @@ function AnalyticsPage() {
         );
 
         const dataGet = await response.json();
+        if (dataGet.error) {
+          setTokenInvalid(true);
+          return [];
+        }
         return dataGet || [];
       } catch (error) {
         setInstagramError(error);
         return [];
+      } finally {
+        setInstagramLoading(false);
       }
     };
 
-    const fetchRedditPosts = async () => {
-      try {
-        const data = JSON.parse(localStorage.getItem("encodedData"));
-        const formData = new FormData();
-        formData.append("data", JSON.stringify(data));
-
-        if (!data) return [];
-
-        const response = await fetch("http://localhost:5001/api/reddit/posts", {
-          method: "POST",
-          body: formData,
-        });
-        const dataGet = await response.json();
-        return dataGet || [];
-      } catch (error) {
-        setRedditError(error);
-        return [];
-      }
-    };
-
-    const mergePosts = (facebookPosts, instagramPosts, redditPosts) => {
-      const combinedPosts = [
-        ...facebookPosts,
-        ...instagramPosts,
-        ...redditPosts,
-      ];
+    const mergePosts = (facebookPosts, instagramPosts) => {
+      const combinedPosts = [...facebookPosts, ...instagramPosts];
 
       const merged = combinedPosts.reduce((acc, post) => {
-        const contentIdentifier =
-          post.message?.match(/^[^\n.?!]+[.!?]*/)?.[0]?.trim() ||
-          post.caption?.match(/^[^\n.?!]+[.!?]*/)?.[0]?.trim() ||
-          post.title;
+        const messageOrCaption = post.message || post.caption;
 
         let existingPost = acc.find(
           (p) =>
-            p.message?.match(/^[^\n.?!]+[.!?]*/)?.[0]?.trim() ===
-              contentIdentifier ||
-            p.caption?.match(/^[^\n.?!]+[.!?]*/)?.[0]?.trim() ===
-              contentIdentifier ||
-            p.title === contentIdentifier
+            p.message === messageOrCaption || p.caption === messageOrCaption
         );
 
         if (existingPost) {
-          if (post.message && !existingPost.facebook) {
+          if (post.message) {
             existingPost.facebook = { ...post };
-          } else if (post.caption && !existingPost.instagram) {
+          } else if (post.caption) {
             existingPost.instagram = { ...post };
-          } else if (post.title && !existingPost.reddit) {
-            existingPost.reddit = { ...post };
           }
         } else {
-          const newPost = {};
-
-          if (post.message) {
-            newPost.facebook = { ...post };
-            newPost.message = post.message
-              .match(/^[^\n.?!]+[.!?]*/)?.[0]
-              ?.trim();
-          } else if (post.caption) {
-            newPost.instagram = { ...post };
-            newPost.caption = post.caption
-              .match(/^[^\n.?!]+[.!?]*/)?.[0]
-              ?.trim();
-          } else if (post.title) {
-            newPost.reddit = { ...post };
-            newPost.title = post.title;
-          }
-
+          const newPost = post.message
+            ? { facebook: { ...post }, message: post.message }
+            : { instagram: { ...post }, caption: post.caption };
           acc.push(newPost);
         }
 
         return acc;
       }, []);
 
+      localStorage.setItem("combinedPosts", JSON.stringify(combinedPosts));
       localStorage.setItem("mergedPosts", JSON.stringify(merged));
       setMergedPosts(merged);
     };
@@ -148,73 +126,93 @@ function AnalyticsPage() {
     const fetchPosts = async () => {
       const facebook = await fetchFacebookPosts();
       const instagram = await fetchInstagramPosts();
-      const reddit = await fetchRedditPosts();
-      mergePosts(facebook, instagram, reddit);
-      setLoading(false);
+      mergePosts(facebook, instagram);
     };
 
     fetchPosts();
   }, []);
 
   const handleSort = (sort) => {
-    const sortedPosts = [...mergedPosts].sort((a, b) => {
+    setSortType(sort);
+    setMergedPosts((prevPosts) => {
+      const sortedPosts = [...prevPosts];
+
       switch (sort) {
         case "likes":
-          return (
-            (b.facebook?.likes?.data.length || b.instagram?.like_count || 0) -
-            (a.facebook?.likes?.data.length || a.instagram?.like_count || 0)
-          );
-        case "comments":
-          return (
-            (b.facebook?.comments?.data.length ||
-              b.instagram?.comments_count ||
-              b.reddit?.comments_count ||
-              0) -
-            (a.facebook?.comments?.data.length ||
-              a.instagram?.comments_count ||
-              a.reddit?.comments_count ||
-              0)
-          );
-        case "date":
-          return (
-            new Date(
-              b.facebook?.created_time ||
-                b.instagram?.timestamp ||
-                b.reddit?.timestamp
-            ) -
-            new Date(
-              a.facebook?.created_time ||
-                a.instagram?.timestamp ||
-                a.reddit?.timestamp
-            )
-          );
-        case "a-z":
-          return (
-            a.facebook?.message ||
-            a.instagram?.caption ||
-            a.reddit?.title ||
-            ""
-          ).localeCompare(
-            b.facebook?.message || b.instagram?.caption || b.reddit?.title || ""
-          );
-        default:
-          return 0;
-      }
-    });
+          sortedPosts.sort((a, b) => {
+            const aLikes =
+              b.facebook?.likes?.data.length || b.instagram?.like_count || 0;
+            const bLikes =
+              a.facebook?.likes?.data.length || a.instagram?.like_count || 0;
+            return aLikes - bLikes;
+          });
+          break;
 
-    setMergedPosts(sortedPosts);
+        case "comments":
+          sortedPosts.sort((a, b) => {
+            const aComments =
+              b.facebook?.comments?.data.length ||
+              b.instagram?.comments_count ||
+              0;
+            const bComments =
+              a.facebook?.comments?.data.length ||
+              a.instagram?.comments_count ||
+              0;
+            return aComments - bComments;
+          });
+          break;
+
+        case "date":
+          sortedPosts.sort((a, b) => {
+            const aDate = new Date(
+              a.facebook?.timestamp || a.instagram?.timestamp || 0
+            );
+            const bDate = new Date(
+              b.facebook?.timestamp || b.instagram?.timestamp || 0
+            );
+            return aDate - bDate;
+          });
+          break;
+
+        case "a-z":
+          sortedPosts.sort((a, b) => {
+            const aCaption = a.facebook?.caption || a.instagram?.caption || "";
+            const bCaption = b.facebook?.caption || b.instagram?.caption || "";
+            return aCaption.localeCompare(bCaption);
+          });
+          break;
+
+        default:
+          break;
+      }
+
+      return sortedPosts;
+    });
   };
 
   const handlePostClick = (post) => {
     localStorage.setItem("currentPost", JSON.stringify(post));
   };
 
+  if (tokenInvalid) {
+    return (
+      <div className="container posts-content">
+        <div className="error-message">
+          <p>
+            It looks like there is an issue with your tokens. Please{" "}
+            <Link to="/profile">check your tokens</Link> and try again.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container posts-content">
       <div className="select-fields">
         <div className="custom-select">
-          <select onChange={(e) => handleSort(e.target.value)}>
-            <option value="">Sort by</option>
+          <p>Sort By:</p>
+          <select onChange={(e) => handleSort(e.target.value)} value={sortType}>
             {sorts.map(({ value, name }, index) => (
               <option key={index} value={value}>
                 {name}
@@ -224,61 +222,54 @@ function AnalyticsPage() {
         </div>
       </div>
       <div>
-        {loading ? (
-          <p>Loading...</p>
+        {facebookLoading || instagramLoading ? (
+          <Loader />
+        ) : facebookError || instagramError ? (
+          <div className="container posts-content">
+            <div className="error-message">
+              <p>
+                It looks like there is an issue with your tokens. Please{" "}
+                <Link to="/my-profile">check your tokens</Link> and try again.
+              </p>
+            </div>
+          </div>
         ) : mergedPosts.length > 0 ? (
           <div className="posts-container">
             {mergedPosts.map((post) => (
               <Link
                 to={`/analytics/details`}
-                key={post.facebook?.id || post.instagram?.id || post.reddit?.id}
+                key={post.facebook ? post.facebook.id : post.instagram.id}
                 onClick={() => handlePostClick(post)}
               >
                 <div className="post-container">
                   <p className="post-caption">
-                    {post.facebook?.message
-                      ?.match(/^[^\n.?!]+[.!?]*/)?.[0]
-                      ?.trim() ||
-                      post.instagram?.caption
-                        ?.match(/^[^\n.?!]+[.!?]*/)?.[0]
-                        ?.trim() ||
-                      post.reddit?.title ||
+                    {post.message?.match(/^[^\n]+/)[0] ||
+                      post.caption?.match(/^[^\n]+/)[0] ||
                       "No caption"}
                   </p>
+
                   {post.facebook && post.facebook.full_picture ? (
                     <img
                       src={post.facebook.full_picture}
                       alt={post.facebook.message}
                       className="post-image"
                     />
-                  ) : post.instagram &&
-                    post.instagram.media_type === "VIDEO" ? (
-                    <img
-                      src={post.instagram.thumbnail_url}
-                      alt={post.instagram.caption}
-                      className="post-image"
-                    />
                   ) : post.instagram && post.instagram.media_url ? (
                     <img
                       src={post.instagram.media_url}
-                      alt={post.instagram.caption}
-                      className="post-image"
-                    />
-                  ) : post.reddit && post.reddit.media_url ? (
-                    <img
-                      src={post.reddit.media_url}
-                      alt={post.reddit.title}
+                      alt={post.instagram.caption || "Instagram post image"}
                       className="post-image"
                     />
                   ) : (
-                    <p className="post-no-image">No image available</p>
+                    <p className="post-no-image">No image</p>
                   )}
+
                   <p className="post-date">
                     Date:{" "}
                     {new Date(
-                      post.facebook?.created_time ||
-                        post.instagram?.timestamp ||
-                        post.reddit?.timestamp
+                      post.facebook
+                        ? post.facebook.created_time
+                        : post.instagram.timestamp
                     ).toLocaleDateString()}
                   </p>
                 </div>
@@ -286,7 +277,7 @@ function AnalyticsPage() {
             ))}
           </div>
         ) : (
-          <p>No posts found.</p>
+          <p>No posts available.</p>
         )}
       </div>
     </div>

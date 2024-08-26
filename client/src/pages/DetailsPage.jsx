@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import CommentSection from "../components/Comments/CommentsSection";
 import { AiFillLike } from "react-icons/ai";
-import { FaComment } from "react-icons/fa";
+import { FaComment, FaFacebook, FaInstagram } from "react-icons/fa";
+import { Loader } from "../components/Loader/Loader"; // Import the Loader component
 
 function DetailsPage() {
   const { platform, id } = useParams();
@@ -77,12 +78,12 @@ function DetailsPage() {
         const result = await response.json();
 
         setData({
-          content: result.content || result.title, // Use title for Reddit
-          media_url: result.media_url || result.thumbnail_url,
-          timestamp: result.timestamp || result.created_time,
-          comments: result.comments || result.num_comments,
-          like_count: result.like_count || result.ups,
-          share_count: result.share_count || result.num_crossposts || 0,
+          content: result.content,
+          media_url: result.media_url,
+          timestamp: result.timestamp,
+          comments: result.comments,
+          like_count: result.like_count,
+          share_count: result.share_count || 0,
           views: result.views || 0,
         });
 
@@ -94,8 +95,6 @@ function DetailsPage() {
             return post.facebook && post.facebook.id === id;
           } else if (platform === "instagram") {
             return post.instagram && post.instagram.id === id;
-          } else if (platform === "reddit") {
-            return post.reddit && post.reddit.id === id;
           }
           return false;
         });
@@ -112,13 +111,6 @@ function DetailsPage() {
                 post.facebook &&
                 post.facebook.message === currentPost.instagram.caption
               );
-            } else if (platform === "reddit") {
-              return (
-                (post.facebook &&
-                  post.facebook.message === currentPost.reddit.title) ||
-                (post.instagram &&
-                  post.instagram.caption === currentPost.reddit.title)
-              );
             }
             return false;
           });
@@ -127,9 +119,7 @@ function DetailsPage() {
             related
               ? platform === "facebook"
                 ? related.instagram
-                : platform === "instagram"
-                  ? related.facebook
-                  : related.reddit
+                : related.facebook
               : null
           );
         }
@@ -144,15 +134,10 @@ function DetailsPage() {
     fetchData();
   }, [platform, id]);
 
-  // Function to get the URL for the related post
   const getRelatedPostUrl = () => {
     if (relatedPost) {
       const relatedPlatform =
-        platform === "facebook"
-          ? "instagram"
-          : platform === "instagram"
-            ? "facebook"
-            : "reddit";
+        platform === "facebook" ? "instagram" : "facebook";
       const relatedId = relatedPost.id;
       return `/analytics/details/${relatedPlatform}/${relatedId}`;
     }
@@ -161,108 +146,111 @@ function DetailsPage() {
 
   return (
     <div className="input-container container">
-      {platform === "facebook" ? (
-        <h2>Facebook Detailed Post</h2>
-      ) : platform === "instagram" ? (
-        <h2>Instagram Detailed Post</h2>
-      ) : (
-        <h2>Reddit Detailed Post</h2>
-      )}
       {loading ? (
-        <>Loading...</>
+        <Loader />
       ) : (
         <>
+          {platform === "facebook" ? (
+            <h2>
+              <FaFacebook className="elm" />
+              Facebook Detailed Post
+            </h2>
+          ) : (
+            <h2>
+              <FaInstagram className="elm" />
+              Instagram Detailed Post
+            </h2>
+          )}
+
           <div className="post-details-image-container">
-            <div className="form-group">
-              <label htmlFor="content">Title</label>
-              <p>{data.content.match(/^[^\n]+/)[0] || "No content"}</p>
-            </div>
-            <div className="form-group">
-              <label htmlFor="content">Description</label>
-              <p>
-                {data.content.split("\n").slice(1).join("\n") ||
-                  data.content ||
-                  "No content"}
-              </p>
-            </div>
-            <div className="form-group">
-              <label htmlFor="likes">Likes</label>
-              <p>{data.like_count}</p>
-            </div>
-            <div className="form-group">
-              <label htmlFor="shares">Shares</label>
-              {platform === "instagram" ? (
-                <p>Instagram API does not support share count.</p>
-              ) : platform === "reddit" ? (
-                <p>{data.share_count}</p>
-              ) : (
-                <p>{data.share_count}</p>
-              )}
-            </div>
-            <div className="form-group">
-              <label htmlFor="views">Views</label>
-              <p>{data.views}</p>
+            <div className="post-det">
+              <div className="post-det-before">
+                <div className="post-det-1">
+                  {data.media_url && (
+                    <img
+                      style={{ width: "100%" }}
+                      src={data.media_url}
+                      alt="Post media"
+                    />
+                  )}
+                </div>
+                <p className="hidden">{error}</p>
+                <div className="details-buttons">
+                  {platform !== "instagram" ? (
+                    <button
+                      className="delete-button"
+                      onClick={handleDelete}
+                      disabled={loading}
+                    >
+                      {loading ? "Deleting..." : "Delete"}
+                    </button>
+                  ) : (
+                    <p>Instagram does not support deleting posts with API.</p>
+                  )}
+                </div>
+              </div>
+              <div className="post-det-1">
+                <div className="form-group">
+                  <label htmlFor="content">Title</label>
+                  <p>{data.content.match(/^[^\n]+/)[0] || "No content"}</p>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="content">Description</label>
+                  <p>
+                    {data.content.split("\n").slice(1).join("\n") ||
+                      "No content"}
+                  </p>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="likes">Likes</label>
+                  <p>{data.like_count}</p>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="shares">Shares</label>
+                  {platform === "instagram" ? (
+                    <p>Instagram API does not support share count.</p>
+                  ) : (
+                    <p>{data.share_count}</p>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label htmlFor="views">Views</label>
+                  <p>{data.views}</p>
+                </div>
+              </div>
             </div>
             <div className="form-group">
               <label htmlFor="comments">Comments</label>
-              {data.comments && (
-                <CommentSection
-                  comments={data.comments}
-                  postId={id}
-                  platform={platform}
-                />
-              )}
             </div>
-            <div className="form-group">
-              {data.media_url && (
-                <img
-                  style={{ width: "100%" }}
-                  src={data.media_url}
-                  alt="Post media"
-                />
-              )}
-            </div>
-
-            {error && <p className="error">{error}</p>}
-            <div className="details-buttons">
-              {platform !== "instagram" && platform !== "reddit" ? (
-                <button
-                  className="delete-button"
-                  onClick={handleDelete}
-                  disabled={loading}
-                >
-                  {loading ? "Deleting..." : "Delete"}
-                </button>
-              ) : (
-                <p>
-                  {platform === "instagram"
-                    ? "Instagram does not support deleting posts with API."
-                    : "Reddit does not support deleting posts with API."}
-                </p>
-              )}
-            </div>
+            {data.comments && (
+              <CommentSection
+                comments={data.comments}
+                postId={id}
+                platform={platform}
+              />
+            )}
           </div>
 
           {relatedPost && (
             <Link to={getRelatedPostUrl()}>
               <div className="related-post-container">
                 <h2>
+                  {platform === "facebook" ? (
+                    <FaInstagram className="elm" />
+                  ) : (
+                    <FaFacebook className="elm" />
+                  )}
                   Related Post on{" "}
-                  {platform === "facebook"
-                    ? "Instagram"
-                    : platform === "instagram"
-                      ? "Facebook"
-                      : "Reddit"}
+                  {platform === "facebook" ? "Instagram" : "Facebook"}
                 </h2>
                 <div className="post-container">
                   <p className="post-caption">
                     {relatedPost.message?.match(/^[^\n]+/)[0] ||
                       relatedPost.caption?.match(/^[^\n]+/)[0] ||
-                      relatedPost.title?.match(/^[^\n]+/)[0] ||
                       "No caption"}
                   </p>
                   {/* Conditionally render the image based on the platform */}
-                  {platform === "instagram" || platform === "reddit"
+                  {platform === "instagram"
                     ? (data.media_url || data.thumbnail_url) && (
                         <img
                           style={{ width: "100%" }}
@@ -290,7 +278,6 @@ function DetailsPage() {
                       {relatedPost.likes?.summary?.total_count ||
                         relatedPost.likes?.data?.length ||
                         relatedPost.like_count ||
-                        relatedPost.ups ||
                         0}
                     </p>
                     <p>
@@ -298,7 +285,6 @@ function DetailsPage() {
                       {relatedPost.comments?.summary?.total_count ||
                         relatedPost.comments?.data?.length ||
                         relatedPost.comments_count ||
-                        relatedPost.num_comments ||
                         0}
                     </p>
                   </div>

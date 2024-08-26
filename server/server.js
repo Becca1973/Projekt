@@ -6,7 +6,6 @@ const cron = require("node-cron");
 
 const facebook = require("./api/facebook");
 const instagram = require("./api/instagram");
-const reddit = require("./api/reddit");
 const sendMail = require("./helpers/mailer");
 const ai = require("./api/ai");
 
@@ -24,44 +23,32 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 let dynamicConfig = {};
 
-// Endpoint for updating dynamic configuration
 app.post("/api/env", (req, res) => {
-  const {
-    facebookPageID,
-    facebookPageAccessToken,
-    redditClientId,
-    redditSecret,
-    redditRefreshToken,
-    ...rest
-  } = req.body;
+  console.log("Received POST request to /api/env");
+  console.log("Request body:", req.body);
+
+  const { facebookPageID, facebookPageAccessToken, ...rest } = req.body;
 
   dynamicConfig = {
     facebookPageID,
     facebookPageAccessToken,
-    redditClientId,
-    redditSecret,
-    redditRefreshToken,
     ...rest,
   };
 
   res.status(200).send("Configuration updated");
 });
 
-// Middleware to attach dynamic configuration to requests
 app.use((req, res, next) => {
   req.dynamicConfig = dynamicConfig;
   next();
 });
 
-// API routes with media handling
 app.use("/api/facebook", upload.single("media"), facebook);
 app.use("/api/instagram", upload.single("media"), instagram);
-app.use("/api/reddit", upload.single("media"), reddit);
 app.use("/api/ai", ai);
 
 let currentCronJob = null;
 
-// Endpoint for setting up email reminders
 app.post("/api/set-schedule", (req, res) => {
   const { frequency, to } = req.body;
 
@@ -105,6 +92,7 @@ app.post("/api/set-schedule", (req, res) => {
       timezone: "Europe/Ljubljana", // Adjust timezone if necessary
     }
   );
+
   res.json({
     message: `Email scheduled successfully with ${frequency} frequency.`,
   });

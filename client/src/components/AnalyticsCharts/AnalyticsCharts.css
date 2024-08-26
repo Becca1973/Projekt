@@ -1,10 +1,8 @@
 .social-metrics {
-  padding: 5px;
-  border-radius: 3px;
+  padding: 20px;
+  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #fffefe;
-  margin-top: 20px;
-  margin-bottom: 40px;
+  background-color: #f9f9f9; /* Added a subtle background color for contrast */
 }
 
 .social-metrics h2 {
@@ -22,16 +20,10 @@
 .section-title {
   font-size: 24px;
   font-weight: 600;
-  padding: 15px;
+  padding: 20px;
   margin-bottom: 20px;
   text-align: center;
   color: #4f4f4f; /* Ensured consistent color */
-}
-
-.engagement-metrics-section:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Senca okoli kartice ob prehodu */
-  transform: translateY(-5px); /* Rahla animacija za dvig kartice */
-  cursor: pointer;
 }
 
 .engagement-metrics-section,
@@ -61,12 +53,6 @@
   box-sizing: border-box; /* Include padding in width calculations */
 }
 
-.chart-box:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Senca okoli kartice ob prehodu */
-  transform: translateY(-5px); /* Rahla animacija za dvig kartice */
-  cursor: pointer;
-}
-
 /* Media queries for responsiveness */
 @media (max-width: 768px) {
   .social-metrics {
@@ -75,8 +61,8 @@
 
   .engagement-metrics-section,
   .distribution-section {
-    margin: 15px auto;
-    width: calc(100% - 30px);
+    margin: 15px auto; /* Reduced margin for smaller screens */
+    width: calc(100% - 30px); /* Adjust width for smaller screens */
   }
 
   .distribution-section {
@@ -92,6 +78,7 @@
   }
 }
 
+/* Additional styles for better legend spacing */
 .recharts-legend-wrapper {
   margin-top: 10px; /* Add some space above the legend */
   text-align: center; /* Center the legend text */
@@ -109,6 +96,7 @@
     255,
     0.9
   ); /* Slightly opaque background for tooltips */
+  padding: 8px; /* Add padding inside tooltips */
   border-radius: 4px; /* Rounded corners for tooltips */
 }
 

@@ -1,10 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { db } from "../../../src/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import "./InputComponent.css";
 import AIGenerator from "../AIGenerator/AIGenerator";
-import { decode } from "base-64";
 
 const InputComponent = () => {
   const [title, setTitle] = useState("");
@@ -17,7 +13,7 @@ const InputComponent = () => {
   const [success, setSuccess] = useState(false);
   const [aiDialogVisible, setAiDialogVisible] = useState(false);
 
-  const platforms = ["Facebook", "Instagram", "Reddit"];
+  const platforms = ["Facebook", "Instagram"];
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleTextChange = (e) => setText(e.target.value);
@@ -51,17 +47,19 @@ const InputComponent = () => {
       setError("Please fill out all fields and select at least one platform.");
       return;
     }
+
     const createFormData = () => {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("text", text);
-      formData.append("data", JSON.stringify(data)); // Poskrbi, da "data" vključuje vse potrebne social tokens podatke
+      formData.append("data", JSON.stringify(data));
 
       if (media && media instanceof File) {
-        formData.append("media", media);
+        formData.append("media", media); // Dodaj datoteko, če je pravilno nastavljena
       }
       return formData;
     };
+
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -117,29 +115,29 @@ const InputComponent = () => {
           setError(error.message || "Network error occurred");
         }
       }
-      if (selectedPlatforms.includes("Reddit")) {
-        const redditFormData = createFormData();
-        try {
-          const response = await fetch("http://localhost:5001/api/reddit", {
-            method: "POST",
-            body: redditFormData,
-          });
+      // if (selectedPlatforms.includes("Reddit")) {
+      //   const twitterFormData = createFormData();
+      //   try {
+      //     const response = await fetch("http://localhost:5001/api/reddit", {
+      //       method: "POST",
+      //       body: twitterFormData,
+      //     });
 
-          const data = await response.json();
+      //     const data = await response.json();
 
-          if (!response.ok) {
-            setError(data.error);
-            setSuccess(false);
-            return;
-          }
+      //     if (!response.ok) {
+      //       setError(data.error);
+      //       setSuccess(false);
+      //       return;
+      //     }
 
-          setError(null);
-          setSuccess(true);
-          setLoading(false);
-        } catch (error) {
-          setError(error.message || "Network error occurred");
-        }
-      }
+      //     setError(null);
+      //     setSuccess(true);
+      //     setLoading(false);
+      //   } catch (error) {
+      //     setError(error.message || "Network error occurred");
+      //   }
+      // }
 
       await Promise.all(promises);
     } catch (error) {
