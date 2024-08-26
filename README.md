@@ -66,6 +66,11 @@ To install and run the Ordering Service on your local environment, follow the st
 8. Access the project in your web browser at http://localhost:3000.
 <!-- CONTACT -->
 
+## Testing
+
+Admin mail for testing: admin@mail.com
+Admin password for testing: 123123
+
 ## Contact
 
 Emails: erik.kolaric@student.um.si olga.jokic@student.um.si rebeka.cep@student.um.si
