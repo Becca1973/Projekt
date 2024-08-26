@@ -32,7 +32,7 @@ To install and run the Ordering Service on your local environment, follow the st
 2. Navigate to the project directory:
 
 ```sh
-   cd project
+   cd Projekt
 ```
 
 3. Install dependencies
@@ -41,17 +41,29 @@ To install and run the Ordering Service on your local environment, follow the st
    npm install
 ```
 
-4. Set up the required configuration files, including database connection and email settings.
-
-5. Start the application:
+4. Install client dependencies:
 
 ```sh
-    npm start
+   cd client
+   npm install
 ```
 
-6. Access the Project in your web browser at http://localhost:3000.
+5. Install server dependencies:
 
+```sh
+   cd ../server
+   npm install
+```
 
+6. Set up the required configuration files, including database connection and email settings.
+
+7. Start the application from the root directory:
+   
+```sh
+   cd ..
+   npm start
+```
+8. Access the project in your web browser at http://localhost:3000.
 <!-- CONTACT -->
 
 ## Contact
