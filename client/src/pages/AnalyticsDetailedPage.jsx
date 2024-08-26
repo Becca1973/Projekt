@@ -9,7 +9,7 @@ function AnalyticsDetailedPage() {
 
   useEffect(() => {
     const storedPost = JSON.parse(localStorage.getItem("currentPost"));
-    console.log("Stored Post:", storedPost);
+    console.log("Stored Post:", storedPost); // Check the whole object
     setCurrentPost(storedPost);
   }, []);
 
@@ -20,46 +20,65 @@ function AnalyticsDetailedPage() {
   const facebookLikes = currentPost.facebook
     ? currentPost.facebook.likes?.summary?.total_count || 0
     : 0;
+
   const facebookComments = currentPost.facebook
     ? currentPost.facebook.comments?.summary?.total_count || 0
     : 0;
+
   const instagramLikes = currentPost.instagram
     ? currentPost.instagram.like_count || 0
     : 0;
+
   const instagramComments = currentPost.instagram
     ? currentPost.instagram.comments_count || 0
     : 0;
 
+  const redditLikes = currentPost.reddit
+    ? currentPost.reddit.like_count || 0
+    : 0;
+
+  const redditComments = currentPost.reddit
+    ? currentPost.reddit.comments_count || 0
+    : 0;
+
   const totalEngagement =
-    facebookLikes + facebookComments + instagramLikes + instagramComments;
+    facebookLikes +
+    facebookComments +
+    instagramLikes +
+    instagramComments +
+    redditLikes +
+    redditComments;
 
-  const hasSinglePost =
-    (currentPost.facebook || currentPost.instagram) &&
-    !(currentPost.facebook && currentPost.instagram);
+  const postsArray = [
+    currentPost.facebook ? "facebook" : null,
+    currentPost.instagram ? "instagram" : null,
+    currentPost.reddit ? "reddit" : null,
+  ].filter(Boolean);
 
-  const totalPosts =
-    (currentPost.facebook ? 1 : 0) + (currentPost.instagram ? 1 : 0);
-  const averageEngagement = totalPosts > 0 ? totalEngagement / totalPosts : 0;
+  const numberOfPosts = postsArray.length;
+
+  // Ensure this calculation is done before using averageEngagement in JSX
+  const averageEngagement =
+    numberOfPosts > 0 ? totalEngagement / numberOfPosts : 0;
 
   return (
     <div className="container poster-detail">
-      <h2>
-        Details about post: {currentPost?.facebook?.message.split("\n")[0]}
-      </h2>
+      <h2>Post Details</h2>
 
-      <div className={`posts-grid ${hasSinglePost ? "single-post" : ""}`}>
+      <div className={`posts-grid posts-${numberOfPosts}`}>
         {/* Facebook Post Details */}
         {currentPost.facebook && (
           <Link to={`/analytics/details/facebook/${currentPost.facebook.id}`}>
             <div className="post-container">
               <h3>Facebook Post</h3>
               <p className="post-caption">
-                {currentPost.facebook.message?.split("\n")[0] || "No caption"}
+                {currentPost.facebook.message?.match(/^[^\n]+/)[0] ||
+                  "No caption"}
               </p>
               {currentPost.facebook.full_picture ? (
                 <img
                   src={currentPost.facebook.full_picture}
-                  alt={currentPost.facebook?.message}
+                  alt={currentPost.facebook.message}
                   className="post-image"
                 />
               ) : (
@@ -89,7 +108,8 @@ function AnalyticsDetailedPage() {
             <div className="post-container">
               <h3>Instagram Post</h3>
               <p className="post-caption">
-                {currentPost.instagram.caption?.split("\n")[0] || "No caption"}
+                {currentPost.instagram.caption?.match(/^[^\n]+/)[0] ||
+                  "No caption"}
               </p>
               {currentPost.instagram.thumbnail_url ||
               currentPost.instagram.media_url ? (
@@ -98,7 +118,7 @@ function AnalyticsDetailedPage() {
                     currentPost.instagram.thumbnail_url ||
                     currentPost.instagram.media_url
                   }
-                  alt={currentPost.instagram.caption || "Instagram post"}
+                  alt={currentPost.instagram.caption}
                   className="post-image"
                 />
               ) : (
@@ -114,6 +134,39 @@ function AnalyticsDetailedPage() {
                 </p>
                 <p>
                   <FaComment /> {instagramComments}
+                </p>
+              </div>
+            </div>
+          </Link>
+        )}
+
+        {/* Reddit Post Details */}
+        {currentPost.reddit && (
+          <Link to={`/analytics/details/reddit/${currentPost.reddit.id}`}>
+            <div className="post-container">
+              <h3>Reddit Post</h3>
+              <p className="post-caption">
+                {currentPost.reddit.title || "No title"}
+              </p>
+              {currentPost.reddit.media_url ? (
+                <img
+                  src={currentPost.reddit.media_url}
+                  alt={currentPost.reddit.title}
+                  className="post-image"
+                />
+              ) : (
+                <p className="post-no-image">No image</p>
+              )}
+              <p className="post-date">
+                Date:{" "}
+                {new Date(currentPost.reddit.timestamp).toLocaleDateString()}
+              </p>
+              <div className="select-fields">
+                <p>
+                  <AiFillLike /> {redditLikes}
+                </p>
+                <p>
+                  <FaComment /> {redditComments}
                 </p>
               </div>
             </div>
@@ -136,6 +189,7 @@ function AnalyticsDetailedPage() {
       <AnalyticsCharts
         facebookPost={currentPost.facebook}
         instagramPost={currentPost.instagram}
+        redditPost={currentPost.reddit}
       />
     </div>
   );

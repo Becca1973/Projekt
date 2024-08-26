@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import "./AnalyticsCharts.css";
 
-const RechartsChart = ({ facebookPost, instagramPost }) => {
+const RechartsChart = ({ facebookPost, instagramPost, redditPost }) => {
   const extractData = (post) => {
     if (!post) {
       return { likes: 0, comments: 0 };
@@ -30,23 +30,30 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
         comments: post.comments_count || 0,
       };
     }
-    return { likes: 0, comments: 0 };
+    // For Reddit
+    return {
+      likes: post.like_count || 0,
+      comments: post.comments_count || 0,
+    };
   };
 
   const facebookData = facebookPost ? extractData(facebookPost) : null;
   const instagramData = instagramPost ? extractData(instagramPost) : null;
+  const redditData = redditPost ? extractData(redditPost) : null;
 
   const barData = [];
-  if (facebookData || instagramData) {
+  if (facebookData || instagramData || redditData) {
     barData.push({
       name: "Likes",
       facebook: facebookData ? facebookData.likes : 0,
       instagram: instagramData ? instagramData.likes : 0,
+      reddit: redditData ? redditData.likes : 0,
     });
     barData.push({
       name: "Comments",
       facebook: facebookData ? facebookData.comments : 0,
       instagram: instagramData ? instagramData.comments : 0,
+      reddit: redditData ? redditData.comments : 0,
     });
   }
 
@@ -54,19 +61,24 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
   const pieCommentsData = [];
 
   if (facebookData) {
-    pieLikesData.push({ name: "FB", value: facebookData.likes });
-    pieCommentsData.push({ name: "FB", value: facebookData.comments });
+    pieLikesData.push({ name: "Facebook", value: facebookData.likes });
+    pieCommentsData.push({ name: "Facebook", value: facebookData.comments });
   }
   if (instagramData) {
-    pieLikesData.push({ name: "IG", value: instagramData.likes });
-    pieCommentsData.push({ name: "IG", value: instagramData.comments });
+    pieLikesData.push({ name: "Instagram", value: instagramData.likes });
+    pieCommentsData.push({ name: "Instagram", value: instagramData.comments });
+  }
+  if (redditData) {
+    pieLikesData.push({ name: "Reddit", value: redditData.likes });
+    pieCommentsData.push({ name: "Reddit", value: redditData.comments });
   }
 
   // Colors
-  const PIE_LIKES_COLORS = ["#0033FF", "#FF4D4D"]; // Red and Dark Blue for likes
-  const PIE_COMMENTS_COLORS = ["#0033FF", "#FF4D4D"]; // Red and Dark Blue for comments
+  const PIE_LIKES_COLORS = ["#FF4D4D", "#0033FF", "#FFCC00"]; // Red, Dark Blue, Yellow for likes
+  const PIE_COMMENTS_COLORS = ["#FF4D4D", "#0033FF", "#FFCC00"]; // Red, Dark Blue, Yellow for comments
   const FB_BAR_COLOR = "#FF4D4D"; // Red for Facebook
   const IG_BAR_COLOR = "#0033FF"; // Dark Blue for Instagram
+  const RD_BAR_COLOR = "#FFCC00"; // Yellow for Reddit
 
   const renderCustomizedLabel = ({ name, value, percent }) => {
     return `${name}: ${value} (${(percent * 100).toFixed(0)}%)`;
@@ -87,6 +99,7 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
                 <Legend />
                 <Bar dataKey="facebook" fill={FB_BAR_COLOR} name="Facebook" />
                 <Bar dataKey="instagram" fill={IG_BAR_COLOR} name="Instagram" />
+                <Bar dataKey="reddit" fill={RD_BAR_COLOR} name="Reddit" />
               </BarChart>
             </ResponsiveContainer>
           </div>
