@@ -26,8 +26,10 @@ function AnalyticsPage() {
   const [mergedPosts, setMergedPosts] = useState([]);
   const [facebookError, setFacebookError] = useState(null);
   const [instagramError, setInstagramError] = useState(null);
+  const [redditError, setRedditError] = useState(null);
   const [facebookLoading, setFacebookLoading] = useState(true);
   const [instagramLoading, setInstagramLoading] = useState(true);
+  const [redditLoading, setRedditLoading] = useState(true);
   const [tokenInvalid, setTokenInvalid] = useState(false);
 
   useEffect(() => {
@@ -90,35 +92,86 @@ function AnalyticsPage() {
         setInstagramLoading(false);
       }
     };
+    const fetchRedditPosts = async () => {
+      try {
+        const data = JSON.parse(localStorage.getItem("encodedData"));
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(data));
 
-    const mergePosts = (facebookPosts, instagramPosts) => {
-      const combinedPosts = [...facebookPosts, ...instagramPosts];
+        if (!data) return [];
+
+        const response = await fetch("http://localhost:5001/api/reddit/posts", {
+          method: "POST",
+          body: formData,
+        });
+        const dataGet = await response.json();
+        if (dataGet.error) {
+          setTokenInvalid(true);
+          return [];
+        }
+        return dataGet || [];
+      } catch (error) {
+        setRedditError(error);
+        return [];
+      } finally {
+        setRedditLoading(false);
+      }
+    };
+
+    const mergePosts = (facebookPosts, instagramPosts, redditPosts) => {
+      const combinedPosts = [
+        ...facebookPosts,
+        ...instagramPosts,
+        ...redditPosts,
+      ];
 
       const merged = combinedPosts.reduce((acc, post) => {
-        const messageOrCaption = post.message || post.caption;
+        const contentIdentifier =
+          post.message?.match(/^[^\n.?!]+[.!?]*/)?.[0]?.trim() ||
+          post.caption?.match(/^[^\n.?!]+[.!?]*/)?.[0]?.trim() ||
+          post.title;
 
         let existingPost = acc.find(
           (p) =>
-            p.message === messageOrCaption || p.caption === messageOrCaption
+            p.message?.match(/^[^\n.?!]+[.!?]*/)?.[0]?.trim() ===
+              contentIdentifier ||
+            p.caption?.match(/^[^\n.?!]+[.!?]*/)?.[0]?.trim() ===
+              contentIdentifier ||
+            p.title === contentIdentifier
         );
 
         if (existingPost) {
-          if (post.message) {
+          if (post.message && !existingPost.facebook) {
             existingPost.facebook = { ...post };
-          } else if (post.caption) {
+          } else if (post.caption && !existingPost.instagram) {
             existingPost.instagram = { ...post };
+          } else if (post.title && !existingPost.reddit) {
+            existingPost.reddit = { ...post };
           }
         } else {
-          const newPost = post.message
-            ? { facebook: { ...post }, message: post.message }
-            : { instagram: { ...post }, caption: post.caption };
+          const newPost = {};
+
+          if (post.message) {
+            newPost.facebook = { ...post };
+            newPost.message = post.message
+              .match(/^[^\n.?!]+[.!?]*/)?.[0]
+              ?.trim();
+          } else if (post.caption) {
+            newPost.instagram = { ...post };
+            newPost.caption = post.caption
+              .match(/^[^\n.?!]+[.!?]*/)?.[0]
+              ?.trim();
+          } else if (post.title) {
+            newPost.reddit = { ...post };
+            newPost.title = post.title;
+          }
+
           acc.push(newPost);
         }
 
         return acc;
       }, []);
 
-      localStorage.setItem("combinedPosts", JSON.stringify(combinedPosts));
       localStorage.setItem("mergedPosts", JSON.stringify(merged));
       setMergedPosts(merged);
     };
@@ -126,68 +179,63 @@ function AnalyticsPage() {
     const fetchPosts = async () => {
       const facebook = await fetchFacebookPosts();
       const instagram = await fetchInstagramPosts();
-      mergePosts(facebook, instagram);
+      const reddit = await fetchRedditPosts();
+      mergePosts(facebook, instagram, reddit);
+      //setLoading(false);
     };
 
     fetchPosts();
   }, []);
 
   const handleSort = (sort) => {
-    setSortType(sort);
-    setMergedPosts((prevPosts) => {
-      const sortedPosts = [...prevPosts];
+    const sortedPosts = [...mergedPosts].sort((a, b) => {
+      const getLikes = (post) =>
+        post.facebook?.likes?.data.length ||
+        post.instagram?.like_count ||
+        post.reddit?.like_count ||
+        0;
+
+      const getComments = (post) =>
+        post.facebook?.comments?.data.length ||
+        post.instagram?.comments_count ||
+        post.reddit?.comments_count ||
+        0;
+
+      const getDate = (post) => {
+        const dateStr =
+          post.facebook?.timestamp ||
+          post.instagram?.timestamp ||
+          post.reddit?.timestamp;
+
+        // If dateStr exists, return a Date object, otherwise return a fallback date (e.g., 0)
+        return dateStr ? new Date(dateStr) : new Date(0);
+      };
+
+      const getTitle = (post) =>
+        post.facebook?.message ||
+        post.instagram?.caption ||
+        post.reddit?.title ||
+        "";
 
       switch (sort) {
         case "likes":
-          sortedPosts.sort((a, b) => {
-            const aLikes =
-              b.facebook?.likes?.data.length || b.instagram?.like_count || 0;
-            const bLikes =
-              a.facebook?.likes?.data.length || a.instagram?.like_count || 0;
-            return aLikes - bLikes;
-          });
-          break;
+          return getLikes(b) - getLikes(a);
 
         case "comments":
-          sortedPosts.sort((a, b) => {
-            const aComments =
-              b.facebook?.comments?.data.length ||
-              b.instagram?.comments_count ||
-              0;
-            const bComments =
-              a.facebook?.comments?.data.length ||
-              a.instagram?.comments_count ||
-              0;
-            return aComments - bComments;
-          });
-          break;
+          return getComments(b) - getComments(a);
 
         case "date":
-          sortedPosts.sort((a, b) => {
-            const aDate = new Date(
-              a.facebook?.timestamp || a.instagram?.timestamp || 0
-            );
-            const bDate = new Date(
-              b.facebook?.timestamp || b.instagram?.timestamp || 0
-            );
-            return aDate - bDate;
-          });
-          break;
+          return getDate(b) - getDate(a);
 
         case "a-z":
-          sortedPosts.sort((a, b) => {
-            const aCaption = a.facebook?.caption || a.instagram?.caption || "";
-            const bCaption = b.facebook?.caption || b.instagram?.caption || "";
-            return aCaption.localeCompare(bCaption);
-          });
-          break;
+          return getTitle(a).localeCompare(getTitle(b));
 
         default:
-          break;
+          return 0;
       }
-
-      return sortedPosts;
     });
+
+    setMergedPosts(sortedPosts);
   };
 
   const handlePostClick = (post) => {
@@ -222,9 +270,9 @@ function AnalyticsPage() {
         </div>
       </div>
       <div>
-        {facebookLoading || instagramLoading ? (
+        {facebookLoading || instagramLoading || redditLoading ? (
           <Loader />
-        ) : facebookError || instagramError ? (
+        ) : facebookError || instagramError || redditError ? (
           <div className="container posts-content">
             <div className="error-message">
               <p>
@@ -238,38 +286,54 @@ function AnalyticsPage() {
             {mergedPosts.map((post) => (
               <Link
                 to={`/analytics/details`}
-                key={post.facebook ? post.facebook.id : post.instagram.id}
+                key={post.facebook?.id || post.instagram?.id || post.reddit?.id}
                 onClick={() => handlePostClick(post)}
               >
                 <div className="post-container">
                   <p className="post-caption">
-                    {post.message?.match(/^[^\n]+/)[0] ||
-                      post.caption?.match(/^[^\n]+/)[0] ||
+                    {post.facebook?.message
+                      ?.match(/^[^\n.?!]+[.!?]*/)?.[0]
+                      ?.trim() ||
+                      post.instagram?.caption
+                        ?.match(/^[^\n.?!]+[.!?]*/)?.[0]
+                        ?.trim() ||
+                      post.reddit?.title ||
                       "No caption"}
                   </p>
-
                   {post.facebook && post.facebook.full_picture ? (
                     <img
                       src={post.facebook.full_picture}
                       alt={post.facebook.message}
                       className="post-image"
                     />
+                  ) : post.instagram &&
+                    post.instagram.media_type === "VIDEO" ? (
+                    <img
+                      src={post.instagram.thumbnail_url}
+                      alt={post.instagram.caption}
+                      className="post-image"
+                    />
                   ) : post.instagram && post.instagram.media_url ? (
                     <img
                       src={post.instagram.media_url}
-                      alt={post.instagram.caption || "Instagram post image"}
+                      alt={post.instagram.caption}
+                      className="post-image"
+                    />
+                  ) : post.reddit && post.reddit.media_url ? (
+                    <img
+                      src={post.reddit.media_url}
+                      alt={post.reddit.title}
                       className="post-image"
                     />
                   ) : (
-                    <p className="post-no-image">No image</p>
+                    <p className="post-no-image">No image available</p>
                   )}
-
                   <p className="post-date">
                     Date:{" "}
                     {new Date(
-                      post.facebook
-                        ? post.facebook.created_time
-                        : post.instagram.timestamp
+                      post.facebook?.created_time ||
+                        post.instagram?.timestamp ||
+                        post.reddit?.timestamp
                     ).toLocaleDateString()}
                   </p>
                 </div>
@@ -277,7 +341,7 @@ function AnalyticsPage() {
             ))}
           </div>
         ) : (
-          <p>No posts available.</p>
+          <p>No posts found.</p>
         )}
       </div>
     </div>

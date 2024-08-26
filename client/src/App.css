@@ -871,48 +871,55 @@ h2 {
 }
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Dva stolpca v vrstici */
-  gap: 20px; /* Razdalja med posameznimi objavami */
-  padding: 10px; /* Zunanji rob */
-  justify-content: center; /* Poravnaj mrežo na sredino */
-  align-items: start; /* Poravnaj vsebino v začetku mreže */
-  grid-auto-rows: minmax(100px, auto); /* Višina vrstic */
+  grid-template-columns: repeat(3, 1fr); /* Največ trije stolpci v vrstici */
+  gap: 20px;
+  padding: 10px;
+  justify-content: center;
+  align-items: start;
+  grid-auto-rows: minmax(100px, auto);
   margin-top: 60px;
 }
 
-/* Prilagoditev za manjše zaslone */
-@media (max-width: 768px) {
-  .posts-grid {
-    grid-template-columns: 1fr; /* En stolpec na manjših zaslonih */
-  }
-}
-
-/* Če želiš še dodatne prilagoditve za zelo majhne zaslone */
-@media (max-width: 480px) {
-  .posts-grid {
-    padding: 5px; /* Manjši zunanji rob na zelo majhnih zaslonih */
-  }
-}
-
-/* Prilagoditev za srednje velike zaslone, na primer tablice */
+/* Prilagoditev za srednje velike zaslone - dva stolpca */
 @media (min-width: 769px) and (max-width: 1024px) {
   .posts-grid {
-    grid-template-columns: repeat(
-      2,
-      1fr
-    ); /* Dva stolpca za srednje velike zaslone */
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
-.posts-grid.single-post {
-  grid-template-columns: 1fr; /* En stolpec za samo eno objavo */
+/* Prilagoditev za manjše zaslone - en stolpec */
+@media (max-width: 768px) {
+  .posts-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Prilagoditev za zelo majhne zaslone - manjši zunanji rob */
+@media (max-width: 480px) {
+  .posts-grid {
+    padding: 5px;
+  }
+}
+
+.posts-1 {
+  grid-template-columns: 1fr;
+}
+
+.posts-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.posts-3 {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .post-container {
   border: 1px solid #ddd; /* Svetel obrobni rob */
   border-radius: 8px; /* Rahlo zaobljeni robovi */
   padding: 20px; /* Notranji robovi za vsebino */
-  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease; /* Prehodne animacije za senco in transformacijo */
   background-color: #fff; /* Bele ozadje kartice */
   width: 100%; /* Širina kartice, da se prilagodi mreži */
   box-sizing: border-box; /* Upoštevajte robove in notranje robove pri določanju širine */

@@ -272,32 +272,12 @@ function MyProfile() {
             </div>
             <div className="social-group">
               <div className="form-group">
-                <label htmlFor="redditUsername">Reddit Username</label>
+                <label htmlFor="redditClientId">Reddit Client ID</label>
                 <input
                   type="text"
-                  id="redditUsername"
-                  name="redditUsername"
-                  value={socialTokens.redditUsername}
-                  onChange={handleTokenChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="redditPassword">Reddit Password</label>
-                <input
-                  type="text"
-                  id="redditPassword"
-                  name="redditPassword"
-                  value={socialTokens.redditPassword}
-                  onChange={handleTokenChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="redditId">Reddit ID</label>
-                <input
-                  type="text"
-                  id="redditId"
-                  name="redditId"
-                  value={socialTokens.redditId}
+                  id="redditClientId"
+                  name="redditClientId"
+                  value={socialTokens.redditClientId}
                   onChange={handleTokenChange}
                 />
               </div>
@@ -308,6 +288,16 @@ function MyProfile() {
                   id="redditSecret"
                   name="redditSecret"
                   value={socialTokens.redditSecret}
+                  onChange={handleTokenChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="redditRefreshToken">Reddit Refresh Token</label>
+                <input
+                  type="text"
+                  id="redditRefreshToken"
+                  name="redditRefreshToken"
+                  value={socialTokens.redditRefreshToken}
                   onChange={handleTokenChange}
                 />
               </div>

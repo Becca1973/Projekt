@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import "./AnalyticsCharts.css";
 
-const RechartsChart = ({ facebookPost, instagramPost }) => {
+const RechartsChart = ({ facebookPost, instagramPost, redditPost }) => {
   const extractData = (post) => {
     if (!post) {
       return { likes: 0, comments: 0 };
@@ -30,23 +30,29 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
         comments: post.comments_count || 0,
       };
     }
-    return { likes: 0, comments: 0 };
+    return {
+      likes: post.like_count || 0,
+      comments: post.comments_count || 0,
+    };
   };
 
   const facebookData = facebookPost ? extractData(facebookPost) : null;
   const instagramData = instagramPost ? extractData(instagramPost) : null;
+  const redditData = redditPost ? extractData(redditPost) : null;
 
   const barData = [];
-  if (facebookData || instagramData) {
+  if (facebookData || instagramData || redditData) {
     barData.push({
       name: "Likes",
       facebook: facebookData ? facebookData.likes : 0,
       instagram: instagramData ? instagramData.likes : 0,
+      reddit: redditData ? redditData.likes : 0,
     });
     barData.push({
       name: "Comments",
       facebook: facebookData ? facebookData.comments : 0,
       instagram: instagramData ? instagramData.comments : 0,
+      reddit: redditData ? redditData.comments : 0,
     });
   }
 
@@ -61,12 +67,17 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
     pieLikesData.push({ name: "IG", value: instagramData.likes });
     pieCommentsData.push({ name: "IG", value: instagramData.comments });
   }
+  if (redditData) {
+    pieLikesData.push({ name: "RDT", value: redditData.likes });
+    pieCommentsData.push({ name: "RDT", value: redditData.comments });
+  }
 
   // Colors
-  const PIE_LIKES_COLORS = ["#0033FF", "#FF4D4D"]; // Red and Dark Blue for likes
-  const PIE_COMMENTS_COLORS = ["#0033FF", "#FF4D4D"]; // Red and Dark Blue for comments
+  const PIE_LIKES_COLORS = ["#0033FF", "#FF4D4D", "#FFCC00"]; // Red and Dark Blue for likes
+  const PIE_COMMENTS_COLORS = ["#0033FF", "#FF4D4D", "#FFCC00"]; // Red and Dark Blue for comments
   const FB_BAR_COLOR = "#FF4D4D"; // Red for Facebook
   const IG_BAR_COLOR = "#0033FF"; // Dark Blue for Instagram
+  const RDT_BAR_COLOR = "#FFCC00";
 
   const renderCustomizedLabel = ({ name, value, percent }) => {
     return `${name}: ${value} (${(percent * 100).toFixed(0)}%)`;
@@ -87,6 +98,7 @@ const RechartsChart = ({ facebookPost, instagramPost }) => {
                 <Legend />
                 <Bar dataKey="facebook" fill={FB_BAR_COLOR} name="Facebook" />
                 <Bar dataKey="instagram" fill={IG_BAR_COLOR} name="Instagram" />
+                <Bar dataKey="reddit" fill={RDT_BAR_COLOR} name="Reddit" />
               </BarChart>
             </ResponsiveContainer>
           </div>
