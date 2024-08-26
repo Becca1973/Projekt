@@ -39,15 +39,15 @@ function MyProfile() {
 
           if (docSnap.exists()) {
             const data = docSnap.data();
-            const data_ = { frequency: data.frequency, to: data.email };
+            // const data_ = { frequency: data.frequency, to: data.email };
 
-            await fetch("http://localhost:5001/api/set-schedule", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data_),
-            });
+            // await fetch("http://localhost:5001/api/set-schedule", {
+            //   method: "POST",
+            //   headers: {
+            //     "Content-Type": "application/json",
+            //   },
+            //   body: JSON.stringify(data_),
+            // });
 
             const encodedData = {
               socialTokens: base64Encode(
