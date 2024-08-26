@@ -32,7 +32,6 @@ function AnalyticsPage() {
   const [redditLoading, setRedditLoading] = useState(true);
   const [tokenInvalid, setTokenInvalid] = useState(false);
 
-  console.log(setSortType("date"));
   useEffect(() => {
     const fetchFacebookPosts = async () => {
       try {
