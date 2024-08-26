@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CommentSection from "../components/Comments/CommentsSection";
-import { AiFillLike } from "react-icons/ai";
-import { FaComment, FaFacebook, FaInstagram, FaReddit } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaReddit } from "react-icons/fa";
 import { Loader } from "../components/Loader/Loader";
 
 function DetailsPage() {
